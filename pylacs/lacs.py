@@ -52,10 +52,30 @@ def lacs(str_file,rc_model = None):
             if residue[-1] in THREE_TO_ONE:
                 try:
                     delta_ca = cs_data[cs_list][residue]['CA']-rc_shifts.get_value(residue[-1],'CA',rc_name=rc_model)
+                except KeyError:
+                    print (f'Atom CA not found in {residue}')
+                    delta_ca = np.nan
+                try:
                     delta_cb = cs_data[cs_list][residue]['CB']-rc_shifts.get_value(residue[-1],'CB',rc_name=rc_model)
+                except KeyError:
+                    print(f'Atom CB not found in {residue}')
+                    delta_cb = np.nan
+                try:
                     delta_c = cs_data[cs_list][residue]['C']-rc_shifts.get_value(residue[-1],'C')
+                except KeyError:
+                    print(f'Atom C not found in {residue}')
+                    delta_c = np.nan
+                try:
                     delta_n = cs_data[cs_list][residue]['N']-rc_shifts.get_value(residue[-1],'N')
+                except KeyError:
+                    print(f'Atom N not found in {residue}')
+                    delta_n = np.nan
+                try:
                     delta_h = cs_data[cs_list][residue]['H']-rc_shifts.get_value(residue[-1],'H')
+                except KeyError:
+                    print(f'Atom H not found in {residue}')
+                    delta_h = np.nan
+                if delta_ca is not None and delta_cb is not None:
                     delta_ca_cb = delta_ca-delta_cb
                     lacs_data[cs_list]['d_ca'].append(delta_ca)
                     lacs_data[cs_list]['d_cb'].append(delta_cb)
@@ -64,10 +84,6 @@ def lacs(str_file,rc_model = None):
                     lacs_data[cs_list]['d_n'].append(delta_n)
                     lacs_data[cs_list]['d_h'].append(delta_h)
                     lacs_data[cs_list]['tag'].append(residue)
-                except KeyError:
-                    pass
-                except ValueError:
-                    print (residue)
     fit_data ={}
     for cs_list in lacs_data:
         if cs_list not in fit_data:
@@ -168,4 +184,4 @@ def lacs(str_file,rc_model = None):
         fig_h.show()
 
 if __name__ == "__main__":
-    lacs('../scratch/bmr4998_3.str')
+    lacs('../scratch/bmr30196_3.str')
