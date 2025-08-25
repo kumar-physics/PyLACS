@@ -64,7 +64,7 @@ class RandomCoil:
             raise ValueError('Unknown value for short_or_long')
 
     def atoms(self):
-        return ['N','CO','CA','CB','H','HA']
+        return ['N','C','CA','CB','H','HA']
 
     def get_average(self,name_list = None):
         if name_list is None:
@@ -209,5 +209,5 @@ class RandomCoil:
 
 if __name__ == "__main__":
     c = RandomCoil()
-    print (c.get_value('G','H',['wis','wan']))
+    print (c.get_value('HIS','C',['wis','wan']))
 
