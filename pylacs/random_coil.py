@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+"""
+This script contains the class RandomCoil which contains the random coil shifts for different models.
+"""
 import numpy as np
 
 
