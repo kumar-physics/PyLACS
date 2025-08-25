@@ -40,7 +40,7 @@ def read_str_file(file_name):
 
     return cs_data
 
-def lacs(str_file):
+def lacs(str_file,rc_model = None):
     cs_data = read_str_file(str_file)
     rc_shifts = RandomCoil()
     atom_list = rc_shifts.atoms()
@@ -51,8 +51,8 @@ def lacs(str_file):
         for residue in cs_data[cs_list]:
             if residue[-1] in THREE_TO_ONE:
                 try:
-                    delta_ca = cs_data[cs_list][residue]['CA']-rc_shifts.get_value(residue[-1],'CA')#,rc_name='wis')
-                    delta_cb = cs_data[cs_list][residue]['CB']-rc_shifts.get_value(residue[-1],'CB')#,rc_name='wis')
+                    delta_ca = cs_data[cs_list][residue]['CA']-rc_shifts.get_value(residue[-1],'CA',rc_name=rc_model)
+                    delta_cb = cs_data[cs_list][residue]['CB']-rc_shifts.get_value(residue[-1],'CB',rc_name=rc_model)
                     # delta_c = cs_data[cs_list][residue]['C']-rc_shifts.get_value(residue[-1],'C')
                     # delta_n = cs_data[cs_list][residue]['N']-rc_shifts.get_value(residue[-1],'N')
                     # delta_h = cs_data[cs_list][residue]['H']-rc_shifts.get_value(residue[-1],'H')
@@ -76,7 +76,6 @@ def lacs(str_file):
                lacs_data[cs_list]['d_ca_cb'][i] < 0.0]
         slop_p,offset_p = np.polyfit(x_p,y_p,1)
         slop_n,offset_n = np.polyfit(x_n,y_n,1)
-        print(offset_p)
         fit_data[cs_list] = {'slope_p':round(slop_p,2),'offset_p':round(offset_p,2),'slope_n':round(slop_n,2),'offset_n':round(offset_n,2),'p_max':max(x_p),'n_min':min(x_n)}
 
 
@@ -95,7 +94,9 @@ def lacs(str_file):
         fig = px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_ca'],hover_name=lacs_data[cs_list]['tag'])
         fig.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp'],mode='lines',name=f'Slope:{fit_data[cs_list]['slope_p']},Offset:{fit_data[cs_list]['offset_p']}',line=dict(color='red', dash='solid')))
         fig.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn'],mode='lines',name=f'Slope:{fit_data[cs_list]['slope_n']},Offset:{fit_data[cs_list]['offset_n']}',line=dict(color='red', dash='dash')))
+        fig.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$')
+        fig.update_layout(yaxis_title=r'$\Delta\delta C^{\alpha}$')
         fig.show()
 
 if __name__ == "__main__":
-    lacs('../scratch/bmr4998_3.str')
+    lacs('../scratch/bmr52864_3.str')
