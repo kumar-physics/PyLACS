@@ -7,6 +7,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from random_coil import RandomCoil
 import numpy as np
+import statsmodels.api as sm
 
 ONE_TO_THREE = {'I': 'ILE', 'Q': 'GLN', 'G': 'GLY', 'E': 'GLU', 'C': 'CYS',
                                'D': 'ASP', 'S': 'SER', 'K': 'LYS', 'P': 'PRO', 'N': 'ASN',
@@ -16,6 +17,11 @@ THREE_TO_ONE = dict([(value, key) for key, value in ONE_TO_THREE.items()])
 
 
 def read_str_file(file_name):
+    """
+    Reads a str file and returns a dictionary of chemical shifts
+    :param file_name: NMR-STAR file name with path
+    :return: Chemical shift dictionary
+    """
     ent = pynmrstar.Entry.from_file(file_name)
     chemical_shift_loops = ent.get_loops_by_category('Atom_chem_shift')
     column_names = chemical_shift_loops[0].get_tag_names()
@@ -41,6 +47,13 @@ def read_str_file(file_name):
     return cs_data
 
 def lacs(str_file,rc_model = None):
+    """
+    Calculate chemical shift offsets for a given NMR-STAR model with default random coil model
+    :param str_file: NMR-STAR file
+    :param rc_model: random coil chemical shift models
+    :param rc_model: random coil chemical shift models
+    :return: chemical shift offsets as dictionary
+    """
     cs_data = read_str_file(str_file)
     rc_shifts = RandomCoil()
     atom_list = rc_shifts.atoms()
@@ -90,6 +103,8 @@ def lacs(str_file,rc_model = None):
             fit_data = {}
         x_p_ca_cb=[lacs_data[cs_list]['d_ca_cb'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
                    lacs_data[cs_list]['d_ca_cb'][i] >= 0.0 ]
+        tag_p = [f'{lacs_data[cs_list]['tag'][i][-2]}{THREE_TO_ONE[lacs_data[cs_list]['tag'][i][-1]]}' for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
+                   lacs_data[cs_list]['d_ca_cb'][i] >= 0.0 ]
         y_p_ca = [lacs_data[cs_list]['d_ca'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
                lacs_data[cs_list]['d_ca_cb'][i] >= 0.0]
         y_p_cb = [lacs_data[cs_list]['d_cb'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
@@ -102,6 +117,9 @@ def lacs(str_file,rc_model = None):
                lacs_data[cs_list]['d_ca_cb'][i] >= 0.0]
         x_n_ca_cb = [lacs_data[cs_list]['d_ca_cb'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
                lacs_data[cs_list]['d_ca_cb'][i] < 0.0]
+        tag_n = [
+            f'{lacs_data[cs_list]['tag'][i][-2]}{THREE_TO_ONE[lacs_data[cs_list]['tag'][i][-1]]}' for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
+            lacs_data[cs_list]['d_ca_cb'][i] < 0.0]
         y_n_ca = [lacs_data[cs_list]['d_ca'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
                lacs_data[cs_list]['d_ca_cb'][i] < 0.0]
         y_n_cb = [lacs_data[cs_list]['d_cb'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
@@ -113,7 +131,11 @@ def lacs(str_file,rc_model = None):
         y_n_h = [lacs_data[cs_list]['d_h'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
                lacs_data[cs_list]['d_ca_cb'][i] < 0.0]
         slop_p_ca,offset_p_ca = np.polyfit(x_p_ca_cb,y_p_ca,1)
+
+        a, b, c, d = robust_linear_fit(x_p_ca_cb, y_p_ca)
         slop_n_ca,offset_n_ca = np.polyfit(x_n_ca_cb,y_n_ca,1)
+        a1,b1,c1,d1 = robust_linear_fit(x_n_ca_cb, y_n_ca)
+        C=c1+c
         slop_p_cb, offset_p_cb = np.polyfit(x_p_ca_cb, y_p_cb, 1)
         slop_n_cb, offset_n_cb = np.polyfit(x_n_ca_cb, y_n_cb, 1)
         slop_p_c, offset_p_c = np.polyfit(x_p_ca_cb, y_p_c, 1)
@@ -152,36 +174,70 @@ def lacs(str_file,rc_model = None):
                              'yp_c':yp_c,'yn_c':yn_c,
                              'yp_n':yp_n,'yn_n':yn_n,
                              'yp_h':yp_h,'yn_h':yn_h}
+    color_map = {
+        'Good': 'green',
+        'Outlier': 'red'
+    }
 
+    # for cs_list in lacs_data:
+    #     fig_ca = px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_ca'],hover_name=lacs_data[cs_list]['tag'])
+    #     fig_ca.add_trace(go.Scatter(x=x_p_ca_cb,y=y_p_ca,mode='markers+text',text=tag_p, textposition='top center',marker=dict(color=c,size=10),showlegend=False))
+    #     fig_ca.add_trace(go.Scatter(x=x_p_ca_cb, y=d, mode='lines',
+    #                                 name=f'Slope:{a},Offset:{b} Robust fit',
+    #                                 line=dict(color='green', dash='solid')))
+    #     fig_ca.add_trace(go.Scatter(x=x_n_ca_cb, y=y_n_ca, mode='markers+text', text=tag_n, textposition='top center',
+    #                                 marker=dict(color=c, size=10), showlegend=False))
+    #     fig_ca.add_trace(go.Scatter(x=x_n_ca_cb, y=d1, mode='lines',
+    #                                 name=f'Slope:{a1},Offset:{b1} Robust fit',
+    #                                 line=dict(color='green', dash='dash')))
+    #     fig_ca.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_ca'],mode='lines',name=f'Slope:{fit_data[cs_list]['slope_p_ca']},Offset:{fit_data[cs_list]['offset_p_ca']} Linear fit',line=dict(color='red', dash='solid')))
+    #     fig_ca.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_ca'],mode='lines',name=f'Slope:{fit_data[cs_list]['slope_n_ca']},Offset:{fit_data[cs_list]['offset_n_ca']} Linear fit',line=dict(color='red', dash='dash')))
+    #     fig_ca.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$')
+    #     fig_ca.update_layout(yaxis_title=r'$\Delta\delta C^{\alpha}$')
+    #     fig_ca.show()
+    #     fig_cb = px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_cb'],hover_name=lacs_data[cs_list]['tag'])
+    #
+    #     fig_cb.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_cb'],mode='lines',name=f'Slope:{fit_data[cs_list]['slope_p_cb']},Offset:{fit_data[cs_list]['offset_p_cb']}',line=dict(color='red', dash='solid')))
+    #     fig_cb.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_cb'],mode='lines',name=f'Slope:{fit_data[cs_list]['slope_n_cb']},Offset:{fit_data[cs_list]['offset_n_cb']}',line=dict(color='red', dash='dash')))
+    #     fig_cb.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$')
+    #     fig_cb.update_layout(yaxis_title=r'$\Delta\delta C^{\beta}$')
+    #     fig_cb.show()
+    #     fig_c=px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_c'],hover_name=lacs_data[cs_list]['tag'])
+    #     fig_c.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_c'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_p_c']}, <b>Offset:</b> {fit_data[cs_list]['offset_p_c']}',line=dict(color='red', dash='solid')))
+    #     fig_c.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_c'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_n_c']}, <b>Offset:</b> {fit_data[cs_list]['offset_n_c']}',line=dict(color='red', dash='dash')))
+    #     fig_c.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$',yaxis_title=r'$\Delta\delta C$')
+    #     fig_c.show()
+    #     fig_n=px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_n'],hover_name=lacs_data[cs_list]['tag'])
+    #     fig_n.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_n'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_p_n']}, <b>Offset:</b> {fit_data[cs_list]['offset_p_n']}',line=dict(color='red', dash='solid')))
+    #     fig_n.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_n'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_n_n']}, <b>Offset:</b> {fit_data[cs_list]['offset_n_n']}',line=dict(color='red', dash='dash')))
+    #     fig_n.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$',yaxis_title=r'$\Delta\delta N$')
+    #     fig_n.show()
+    #     fig_h=px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_h'],hover_name=lacs_data[cs_list]['tag'])
+    #     fig_h.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_h'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_p_h']}, <b>Offset:</b> {fit_data[cs_list]['offset_p_h']}',line=dict(color='red', dash='solid')))
+    #     fig_h.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_h'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_n_h']}, <b>Offset:</b> {fit_data[cs_list]['offset_n_h']}',line=dict(color='red', dash='dash')))
+    #     fig_h.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$',yaxis_title=r'$\Delta\delta H$')
+    #     fig_h.show()
+    print (f'Positive offset {b}, Negative offset {b1}')
+    return b,b1
 
-    for cs_list in lacs_data:
-        fig_ca = px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_ca'],hover_name=lacs_data[cs_list]['tag'])
-        fig_ca.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_ca'],mode='lines',name=f'Slope:{fit_data[cs_list]['slope_p_ca']},Offset:{fit_data[cs_list]['offset_p_ca']}',line=dict(color='red', dash='solid')))
-        fig_ca.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_ca'],mode='lines',name=f'Slope:{fit_data[cs_list]['slope_n_ca']},Offset:{fit_data[cs_list]['offset_n_ca']}',line=dict(color='red', dash='dash')))
-        fig_ca.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$')
-        fig_ca.update_layout(yaxis_title=r'$\Delta\delta C^{\alpha}$')
-        fig_ca.show()
-        fig_cb = px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_cb'],hover_name=lacs_data[cs_list]['tag'])
-        fig_cb.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_cb'],mode='lines',name=f'Slope:{fit_data[cs_list]['slope_p_cb']},Offset:{fit_data[cs_list]['offset_p_cb']}',line=dict(color='red', dash='solid')))
-        fig_cb.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_cb'],mode='lines',name=f'Slope:{fit_data[cs_list]['slope_n_cb']},Offset:{fit_data[cs_list]['offset_n_cb']}',line=dict(color='red', dash='dash')))
-        fig_cb.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$')
-        fig_cb.update_layout(yaxis_title=r'$\Delta\delta C^{\beta}$')
-        fig_cb.show()
-        fig_c=px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_c'],hover_name=lacs_data[cs_list]['tag'])
-        fig_c.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_c'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_p_c']}, <b>Offset:</b> {fit_data[cs_list]['offset_p_c']}',line=dict(color='red', dash='solid')))
-        fig_c.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_c'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_n_c']}, <b>Offset:</b> {fit_data[cs_list]['offset_n_c']}',line=dict(color='red', dash='dash')))
-        fig_c.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$',yaxis_title=r'$\Delta\delta C$')
-        fig_c.show()
-        fig_n=px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_n'],hover_name=lacs_data[cs_list]['tag'])
-        fig_n.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_n'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_p_n']}, <b>Offset:</b> {fit_data[cs_list]['offset_p_n']}',line=dict(color='red', dash='solid')))
-        fig_n.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_n'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_n_n']}, <b>Offset:</b> {fit_data[cs_list]['offset_n_n']}',line=dict(color='red', dash='dash')))
-        fig_n.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$',yaxis_title=r'$\Delta\delta N$')
-        fig_n.show()
-        fig_h=px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_h'],hover_name=lacs_data[cs_list]['tag'])
-        fig_h.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_h'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_p_h']}, <b>Offset:</b> {fit_data[cs_list]['offset_p_h']}',line=dict(color='red', dash='solid')))
-        fig_h.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_h'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_n_h']}, <b>Offset:</b> {fit_data[cs_list]['offset_n_h']}',line=dict(color='red', dash='dash')))
-        fig_h.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$',yaxis_title=r'$\Delta\delta H$')
-        fig_h.show()
+def robust_linear_fit(x, y):
+    """
+    robust linear fit algorithm with outlier detection
+    :param x: numpy array
+    :param u: numpy array
+    :return: slope, offset, outlier indices
+    """
+    X = sm.add_constant(x)
+    rlm_model = sm.RLM(y, X, M=sm.robust.norms.TukeyBiweight())
+    rlm_results = rlm_model.fit()
+    offset = rlm_results.params[0]
+    slope = rlm_results.params[1]
+    weights = rlm_results.weights.tolist()
+    outlier_info = ['green' if i>0.15 else 'red' for i in weights]
+
+    fittedvalues = rlm_results.fittedvalues.tolist()
+    return round(slope,2), round(offset,2), outlier_info, fittedvalues
+
 
 if __name__ == "__main__":
-    lacs('../scratch/bmr30196_3.str')
+    lacs('../scratch/bmr4998_3.str')
