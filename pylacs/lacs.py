@@ -347,6 +347,7 @@ def plot_data(csv_file):
     })
     df2 = pd.DataFrame({
         'BMRB_ID': bmrb_id,
+        'RefDB':refdb_ca,
         'PyLACS': [refdb_ca[i]-pylacs_ca[i] if pylacs_ca[i] is not None else None for i in range(len(refdb_ca))],
         'LACS': [refdb_ca[i]-lacs_ca[i] if lacs_ca[i] is not None else None for i in range(len(refdb_ca))]
     })
@@ -357,6 +358,8 @@ def plot_data(csv_file):
     fig.write_html('RefDB_vs_LACS_diff_bar.html')
     fig = px.scatter(df2,x='PyLACS',y='LACS',hover_name='BMRB_ID')
     fig.write_html('RefDB_vs_LACS_correlation.html')
+    fig = px.scatter(df2,x='RefDB',y=['PyLACS','LACS'],hover_name='BMRB_ID')
+    fig.write_html('RefDB_vs_LACS_correlation2.html')
 
 
 
