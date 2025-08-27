@@ -9,6 +9,8 @@ from random_coil import RandomCoil
 import numpy as np
 import statsmodels.api as sm
 import csv
+import pandas as pd
+
 ONE_TO_THREE = {'I': 'ILE', 'Q': 'GLN', 'G': 'GLY', 'E': 'GLU', 'C': 'CYS',
                                'D': 'ASP', 'S': 'SER', 'K': 'LYS', 'P': 'PRO', 'N': 'ASN',
                                'V': 'VAL', 'T': 'THR', 'H': 'HIS', 'W': 'TRP', 'F': 'PHE',
@@ -334,12 +336,27 @@ def plot_data(csv_file):
         csvFile = csv.reader(csvfile)
         data = [list(row) for row in zip(*list(csvFile))]
         bmrb_id = data[0]
-        pylacs_ca =[float(i) for i in data[4]]
-        lacs_ca = [float(i) for i data[5]]
-        refdb_ca = [float(i) for i data[6]]
-    fig = px.bar(x=bmrb_id,y=lacs_ca)
-    fig.show()
+        pylacs_ca =[-float(i) if i !='' else None for i in data[4]]
+        lacs_ca = [float(i) if i !='' else None for i in  data[5]]
+        refdb_ca = [float(i) if i !='' else None for i in data[6]]
+    df = pd.DataFrame({
+        'BMRB_ID':bmrb_id,
+        'PyLACS':pylacs_ca,
+        'LACS':lacs_ca,
+        'RefDB':refdb_ca
+    })
+    df2 = pd.DataFrame({
+        'BMRB_ID': bmrb_id,
+        'PyLACS': [refdb_ca[i]-pylacs_ca[i] if pylacs_ca[i] is not None else None for i in range(len(refdb_ca))],
+        'LACS': [refdb_ca[i]-lacs_ca[i] if lacs_ca[i] is not None else None for i in range(len(refdb_ca))]
+    })
 
+    fig = px.scatter(df,x='RefDB',y=['LACS','PyLACS'],hover_name='BMRB_ID')
+    fig.write_html('RefDB_vs_LACS.html')
+    fig=px.bar(df2,x='BMRB_ID',y=['PyLACS','LACS'],barmode='group')
+    fig.write_html('RefDB_vs_LACS_diff_bar.html')
+    fig = px.scatter(df2,x='PyLACS',y='LACS',hover_name='BMRB_ID')
+    fig.write_html('RefDB_vs_LACS_correlation.html')
 
 
 
