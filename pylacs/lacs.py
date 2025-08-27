@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 from random_coil import RandomCoil
 import numpy as np
 import statsmodels.api as sm
-
+import csv
 ONE_TO_THREE = {'I': 'ILE', 'Q': 'GLN', 'G': 'GLY', 'E': 'GLU', 'C': 'CYS',
                                'D': 'ASP', 'S': 'SER', 'K': 'LYS', 'P': 'PRO', 'N': 'ASN',
                                'V': 'VAL', 'T': 'THR', 'H': 'HIS', 'W': 'TRP', 'F': 'PHE',
@@ -60,8 +60,8 @@ def lacs(str_file,data_id = 'LACS_analysis',rc_model = None):
     lacs_data = {}
     for cs_list in cs_data:
         if cs_list not in lacs_data:
-            lacs_data[cs_list] = {'d_ca':[],'d_cb':[],'d_ca_cb':[],'tag':[],'d_c':[],'d_n':[],'d_h':[],
-                                  'd_c_x':[],'d_n_x':[],'d_h_x':[],'tag_c':[],'tag_n':[],'tag_h':[]}
+            lacs_data[cs_list] = {'d_ca':[],'d_cb':[],'d_ca_cb':[],'d_c':[],'d_n':[],'d_h':[],
+                                  'd_c_x':[],'d_n_x':[],'d_h_x':[],'tag_c':[],'tag_n':[],'tag_h':[],'tag_ca':[],'tag_cb':[]}
         for residue in cs_data[cs_list]:
             if residue[-1] in THREE_TO_ONE:
                 try:
@@ -94,33 +94,36 @@ def lacs(str_file,data_id = 'LACS_analysis',rc_model = None):
                     lacs_data[cs_list]['d_ca'].append(delta_ca)
                     lacs_data[cs_list]['d_cb'].append(delta_cb)
                     lacs_data[cs_list]['d_ca_cb'].append(delta_ca_cb)
-                    lacs_data[cs_list]['tag'].append(residue)
-                    # if delta_c is not None:
-                    #     lacs_data[cs_list]['d_c'].append(delta_c)
-                    #     lacs_data[cs_list]['d_c_x'].append(delta_ca_cb)
-                    #     lacs_data[cs_list]['tag_c'].append(residue)
-                    # if delta_n is not None:
-                    #     lacs_data[cs_list]['d_n'].append(delta_n)
-                    #     lacs_data[cs_list]['d_n_x'].append(delta_ca_cb)
-                    #     lacs_data[cs_list]['tag_n'].append(residue)
-                    # if delta_h is not None:
-                    #     lacs_data[cs_list]['d_h'].append(delta_h)
-                    #     lacs_data[cs_list]['d_h_x'].append(delta_ca_cb)
-                    #     lacs_data[cs_list]['tag_h'].append(residue)
+                    lacs_data[cs_list]['tag_ca'].append(residue)
+                    lacs_data[cs_list]['tag_cb'].append(residue)
+                    if delta_c is not None:
+                        lacs_data[cs_list]['d_c'].append(delta_c)
+                        lacs_data[cs_list]['d_c_x'].append(delta_ca_cb)
+                        lacs_data[cs_list]['tag_c'].append(residue)
+                    if delta_n is not None:
+                        lacs_data[cs_list]['d_n'].append(delta_n)
+                        lacs_data[cs_list]['d_n_x'].append(delta_ca_cb)
+                        lacs_data[cs_list]['tag_n'].append(residue)
+                    if delta_h is not None:
+                        lacs_data[cs_list]['d_h'].append(delta_h)
+                        lacs_data[cs_list]['d_h_x'].append(delta_ca_cb)
+                        lacs_data[cs_list]['tag_h'].append(residue)
+    atoms = ['ca','cb']
     fit_data ={}
     for cs_list in lacs_data:
+        if len(lacs_data[cs_list]['d_c']):atoms.append('c')
+        if len(lacs_data[cs_list]['d_n']): atoms.append('n')
+        if len(lacs_data[cs_list]['d_h']): atoms.append('h')
         if cs_list not in fit_data:
             fit_data[cs_list] = {}
-        fit_data[cs_list]['ca'] = fit_data_rlm(lacs_data[cs_list]['d_ca_cb'], lacs_data[cs_list]['d_ca'],
-                                           lacs_data[cs_list]['tag'])
-        fit_data[cs_list]['cb'] = fit_data_rlm(lacs_data[cs_list]['d_ca_cb'], lacs_data[cs_list]['d_cb'],
-                                           lacs_data[cs_list]['tag'])
-        # fit_data[cs_list]['c'] = fit_data_rlm(lacs_data[cs_list]['d_c_x'], lacs_data[cs_list]['d_c'],
-        #                                    lacs_data[cs_list]['tag_c'])
-        # fit_data[cs_list]['n'] = fit_data_rlm(lacs_data[cs_list]['d_n_x'], lacs_data[cs_list]['d_n'],
-        #                                    lacs_data[cs_list]['tag_n'])
-        # fit_data[cs_list]['h'] = fit_data_rlm(lacs_data[cs_list]['d_h_x'], lacs_data[cs_list]['d_h'],
-        #                                    lacs_data[cs_list]['tag_h'])
+        for atom in atoms:
+            if atom not in ['ca','cb']:
+                fit_data[cs_list][atom] = fit_data_rlm(lacs_data[cs_list][f'd_{atom}_x'], lacs_data[cs_list][f'd_{atom}'],
+                                                       lacs_data[cs_list][f'tag_{atom}'])
+            else:
+                fit_data[cs_list][atom] = fit_data_rlm(lacs_data[cs_list]['d_ca_cb'], lacs_data[cs_list][f'd_{atom}'],
+                                           lacs_data[cs_list][f'tag_{atom}'])
+
 
     # for cs_list in fit_data:
     #     for atom in fit_data[cs_list]:
@@ -173,9 +176,10 @@ def lacs(str_file,data_id = 'LACS_analysis',rc_model = None):
     #         fig.write_html(f'../scratch/{data_id}_{atom}_prob.html')
     offset={}
     for cs_list in fit_data:
-        offset_ca = (fit_data[cs_list]['ca']['offset_p']+fit_data[cs_list]['ca']['offset_n'])/2.0
-        offset_cb = (fit_data[cs_list]['cb']['offset_p'] + fit_data[cs_list]['cb']['offset_n']) / 2.0
-        offset[cs_list]=(offset_ca,offset_cb)
+        if cs_list not in offset:
+            offset[cs_list]={}
+        for atom in fit_data[cs_list]:
+            offset[cs_list][atom]=round((fit_data[cs_list][atom]['offset_p']+fit_data[cs_list][atom]['offset_n'])/2.0,2)
     return offset
 
 
@@ -227,7 +231,30 @@ def fit_data_rlm(x,y,tag,outlier_cutoff = 0.9):
                 'prob':prob}
     return fit_data
 
+def read_csv(csv_file):
+    with open (csv_file,'r') as csvfile:
+        csvFile = csv.reader(csvfile)
+        for row in csvFile:
+            bmrb_id = row[0]
+            bmrb_file = f'/reboxitory/2025/06/BMRB/macromolecules/bmr{bmrb_id}/bmr{bmrb_id}_3.str'
+            offset = lacs(bmrb_file,bmrb_id)
+            try:
+                ca = offset['1']['ca']
+            except KeyError:
+                ca = ''
+            try:
+                c = offset['1']['c']
+            except KeyError:
+                c=''
+            try:
+                h = offset['1']['h']
+            except KeyError:
+                h=''
+            print (f'{row[0]},{row[1]},{row[2]},{row[3]},{ca},{row[4]},{row[5]},{c},{row[6]},{row[7]},{h},{row[8]},{row[9]}')
+
 if __name__ == "__main__":
-    bmrb_id = 1642
-    file_name = f'/reboxitory/2025/06/BMRB/macromolecules/bmr{bmrb_id}/bmr{bmrb_id}_3.str'
-    print(lacs(str_file=file_name,data_id=bmrb_id))
+    #print (lacs('../scratch/bmr4998_3.str',data_id=4998))
+    read_csv('Table_S1_clean.csv')
+    # bmrb_id = 1642
+    # file_name = f'/reboxitory/2025/06/BMRB/macromolecules/bmr{bmrb_id}/bmr{bmrb_id}_3.str'
+    # print(lacs(str_file=file_name,data_id=bmrb_id))
