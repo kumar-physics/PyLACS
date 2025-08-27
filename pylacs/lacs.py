@@ -171,6 +171,12 @@ def lacs(str_file,data_id = 'LACS_analysis',rc_model = None):
             fig.update_layout(yaxis_range=[0, 1])
             fig.write_image(f'../scratch/{data_id}_{atom}_prob.pdf')
             fig.write_html(f'../scratch/{data_id}_{atom}_prob.html')
+    offset={}
+    for cs_list in fit_data:
+        offset_ca = (fit_data[cs_list]['ca']['offset_p']+fit_data[cs_list]['ca']['offset_n'])/2.0
+        offset_cb = (fit_data[cs_list]['cb']['offset_p'] + fit_data[cs_list]['cb']['offset_n']) / 2.0
+        offset[cs_list]=(offset_ca,offset_cb)
+    return offset
 
 
 
@@ -222,4 +228,4 @@ def fit_data_rlm(x,y,tag,outlier_cutoff = 0.9):
     return fit_data
 
 if __name__ == "__main__":
-    lacs('../scratch/bmr4998_3.str')
+    print (lacs('../scratch/bmr25421_3.str',data_id='25421'))
