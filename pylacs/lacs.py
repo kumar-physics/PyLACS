@@ -46,7 +46,7 @@ def read_str_file(file_name):
 
     return cs_data
 
-def lacs(str_file,rc_model = None):
+def lacs(str_file,data_id = 'LACS_analysis',rc_model = None):
     """
     Calculate chemical shift offsets for a given NMR-STAR model with default random coil model
     :param str_file: NMR-STAR file
@@ -60,184 +60,166 @@ def lacs(str_file,rc_model = None):
     lacs_data = {}
     for cs_list in cs_data:
         if cs_list not in lacs_data:
-            lacs_data[cs_list] = {'d_ca':[],'d_cb':[],'d_ca_cb':[],'tag':[],'d_c':[],'d_n':[],'d_h':[]}
+            lacs_data[cs_list] = {'d_ca':[],'d_cb':[],'d_ca_cb':[],'tag':[],'d_c':[],'d_n':[],'d_h':[],
+                                  'd_c_x':[],'d_n_x':[],'d_h_x':[],'tag_c':[],'tag_n':[],'tag_h':[]}
         for residue in cs_data[cs_list]:
             if residue[-1] in THREE_TO_ONE:
                 try:
                     delta_ca = cs_data[cs_list][residue]['CA']-rc_shifts.get_value(residue[-1],'CA',rc_name=rc_model)
                 except KeyError:
                     print (f'Atom CA not found in {residue}')
-                    delta_ca = np.nan
+                    delta_ca = None
                 try:
                     delta_cb = cs_data[cs_list][residue]['CB']-rc_shifts.get_value(residue[-1],'CB',rc_name=rc_model)
                 except KeyError:
                     print(f'Atom CB not found in {residue}')
-                    delta_cb = np.nan
+                    delta_cb = None
                 try:
                     delta_c = cs_data[cs_list][residue]['C']-rc_shifts.get_value(residue[-1],'C')
                 except KeyError:
                     print(f'Atom C not found in {residue}')
-                    delta_c = np.nan
+                    delta_c = None
                 try:
                     delta_n = cs_data[cs_list][residue]['N']-rc_shifts.get_value(residue[-1],'N')
                 except KeyError:
                     print(f'Atom N not found in {residue}')
-                    delta_n = np.nan
+                    delta_n = None
                 try:
                     delta_h = cs_data[cs_list][residue]['H']-rc_shifts.get_value(residue[-1],'H')
                 except KeyError:
                     print(f'Atom H not found in {residue}')
-                    delta_h = np.nan
+                    delta_h = None
                 if delta_ca is not None and delta_cb is not None:
                     delta_ca_cb = delta_ca-delta_cb
                     lacs_data[cs_list]['d_ca'].append(delta_ca)
                     lacs_data[cs_list]['d_cb'].append(delta_cb)
                     lacs_data[cs_list]['d_ca_cb'].append(delta_ca_cb)
-                    lacs_data[cs_list]['d_c'].append(delta_c)
-                    lacs_data[cs_list]['d_n'].append(delta_n)
-                    lacs_data[cs_list]['d_h'].append(delta_h)
                     lacs_data[cs_list]['tag'].append(residue)
+                    if delta_c is not None:
+                        lacs_data[cs_list]['d_c'].append(delta_c)
+                        lacs_data[cs_list]['d_c_x'].append(delta_ca_cb)
+                        lacs_data[cs_list]['tag_c'].append(residue)
+                    if delta_n is not None:
+                        lacs_data[cs_list]['d_n'].append(delta_n)
+                        lacs_data[cs_list]['d_n_x'].append(delta_ca_cb)
+                        lacs_data[cs_list]['tag_n'].append(residue)
+                    if delta_h is not None:
+                        lacs_data[cs_list]['d_h'].append(delta_h)
+                        lacs_data[cs_list]['d_h_x'].append(delta_ca_cb)
+                        lacs_data[cs_list]['tag_h'].append(residue)
     fit_data ={}
     for cs_list in lacs_data:
         if cs_list not in fit_data:
-            fit_data = {}
-        x_p_ca_cb=[lacs_data[cs_list]['d_ca_cb'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
-                   lacs_data[cs_list]['d_ca_cb'][i] >= 0.0 ]
-        tag_p = [f'{lacs_data[cs_list]['tag'][i][-2]}{THREE_TO_ONE[lacs_data[cs_list]['tag'][i][-1]]}' for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
-                   lacs_data[cs_list]['d_ca_cb'][i] >= 0.0 ]
-        y_p_ca = [lacs_data[cs_list]['d_ca'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
-               lacs_data[cs_list]['d_ca_cb'][i] >= 0.0]
-        y_p_cb = [lacs_data[cs_list]['d_cb'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
-               lacs_data[cs_list]['d_ca_cb'][i] >= 0.0]
-        y_p_c = [lacs_data[cs_list]['d_c'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
-               lacs_data[cs_list]['d_ca_cb'][i] >= 0.0]
-        y_p_n = [lacs_data[cs_list]['d_n'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
-               lacs_data[cs_list]['d_ca_cb'][i] >= 0.0]
-        y_p_h = [lacs_data[cs_list]['d_h'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
-               lacs_data[cs_list]['d_ca_cb'][i] >= 0.0]
-        x_n_ca_cb = [lacs_data[cs_list]['d_ca_cb'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
-               lacs_data[cs_list]['d_ca_cb'][i] < 0.0]
-        tag_n = [
-            f'{lacs_data[cs_list]['tag'][i][-2]}{THREE_TO_ONE[lacs_data[cs_list]['tag'][i][-1]]}' for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
-            lacs_data[cs_list]['d_ca_cb'][i] < 0.0]
-        y_n_ca = [lacs_data[cs_list]['d_ca'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
-               lacs_data[cs_list]['d_ca_cb'][i] < 0.0]
-        y_n_cb = [lacs_data[cs_list]['d_cb'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
-               lacs_data[cs_list]['d_ca_cb'][i] < 0.0]
-        y_n_c = [lacs_data[cs_list]['d_c'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
-               lacs_data[cs_list]['d_ca_cb'][i] < 0.0]
-        y_n_n = [lacs_data[cs_list]['d_n'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
-               lacs_data[cs_list]['d_ca_cb'][i] < 0.0]
-        y_n_h = [lacs_data[cs_list]['d_h'][i] for i in range(len(lacs_data[cs_list]['d_ca_cb'])) if
-               lacs_data[cs_list]['d_ca_cb'][i] < 0.0]
-        slop_p_ca,offset_p_ca = np.polyfit(x_p_ca_cb,y_p_ca,1)
+            fit_data[cs_list] = {}
+        fit_data[cs_list]['ca'] = fit_data_rlm(lacs_data[cs_list]['d_ca_cb'], lacs_data[cs_list]['d_ca'],
+                                           lacs_data[cs_list]['tag'])
+        fit_data[cs_list]['cb'] = fit_data_rlm(lacs_data[cs_list]['d_ca_cb'], lacs_data[cs_list]['d_cb'],
+                                           lacs_data[cs_list]['tag'])
+        fit_data[cs_list]['c'] = fit_data_rlm(lacs_data[cs_list]['d_c_x'], lacs_data[cs_list]['d_c'],
+                                           lacs_data[cs_list]['tag_c'])
+        fit_data[cs_list]['n'] = fit_data_rlm(lacs_data[cs_list]['d_n_x'], lacs_data[cs_list]['d_n'],
+                                           lacs_data[cs_list]['tag_n'])
+        fit_data[cs_list]['h'] = fit_data_rlm(lacs_data[cs_list]['d_h_x'], lacs_data[cs_list]['d_h'],
+                                           lacs_data[cs_list]['tag_h'])
 
-        a, b, c, d = robust_linear_fit(x_p_ca_cb, y_p_ca)
-        slop_n_ca,offset_n_ca = np.polyfit(x_n_ca_cb,y_n_ca,1)
-        a1,b1,c1,d1 = robust_linear_fit(x_n_ca_cb, y_n_ca)
-        C=c1+c
-        slop_p_cb, offset_p_cb = np.polyfit(x_p_ca_cb, y_p_cb, 1)
-        slop_n_cb, offset_n_cb = np.polyfit(x_n_ca_cb, y_n_cb, 1)
-        slop_p_c, offset_p_c = np.polyfit(x_p_ca_cb, y_p_c, 1)
-        slop_n_c, offset_n_c = np.polyfit(x_n_ca_cb, y_n_c, 1)
-        slop_p_n, offset_p_n = np.polyfit(x_p_ca_cb, y_p_n, 1)
-        slop_n_n, offset_n_n = np.polyfit(x_n_ca_cb, y_n_n, 1)
-        slop_p_h, offset_p_h = np.polyfit(x_p_ca_cb, y_p_h, 1)
-        slop_n_h, offset_n_h = np.polyfit(x_n_ca_cb, y_n_h, 1)
-        fit_data[cs_list] = {'slope_p_ca':round(slop_p_ca,2),'offset_p_ca':round(offset_p_ca,2),'slope_n_ca':round(slop_n_ca,2),'offset_n_ca':round(offset_n_ca,2),
-                             'slope_p_cb':round(slop_p_cb,2),'offset_p_cb':round(offset_p_cb,2),'slope_n_cb':round(slop_n_cb,2),'offset_n_cb':round(offset_n_cb,2),
-                             'slope_p_c':round(slop_p_c,2),'offset_p_c':round(offset_p_c,2),'slope_n_c':round(slop_n_c,2),'offset_n_c':round(offset_n_c,2),
-                             'slope_p_n':round(slop_p_n,2),'offset_p_n':round(offset_p_n,2),'slope_n_n':round(slop_n_n,2),'offset_n_n':round(offset_n_n,2),
-                             'slope_p_h':round(slop_p_h,2),'offset_p_h':round(offset_p_h,2),'slope_n_h':round(slop_n_h,2),'offset_n_h':round(offset_n_h,2),
-                             'p_max':max(x_p_ca_cb),'n_min':min(x_n_ca_cb)}
-
-
-    fit_line={}
     for cs_list in fit_data:
-        if cs_list not in fit_line:
-            fit_line[cs_list]={}
-        xp = np.linspace(0,fit_data[cs_list]['p_max'],100)
-        xn = np.linspace(fit_data[cs_list]['n_min'],0,100)
-        yp_ca = fit_data[cs_list]['slope_p_ca']*xp+fit_data[cs_list]['offset_p_ca']
-        yn_ca = fit_data[cs_list]['slope_n_ca']*xn+fit_data[cs_list]['offset_n_ca']
-        yp_cb = fit_data[cs_list]['slope_p_cb']*xp+fit_data[cs_list]['offset_p_cb']
-        yn_cb = fit_data[cs_list]['slope_n_cb']*xn+fit_data[cs_list]['offset_n_cb']
-        yp_c = fit_data[cs_list]['slope_p_c']*xp+fit_data[cs_list]['offset_p_c']
-        yn_c = fit_data[cs_list]['slope_n_c']*xn+fit_data[cs_list]['offset_n_c']
-        yp_n = fit_data[cs_list]['slope_p_n']*xp+fit_data[cs_list]['offset_p_n']
-        yn_n = fit_data[cs_list]['slope_n_n']*xn+fit_data[cs_list]['offset_n_n']
-        yp_h = fit_data[cs_list]['slope_p_h']*xp+fit_data[cs_list]['offset_p_h']
-        yn_h = fit_data[cs_list]['slope_n_h']*xn+fit_data[cs_list]['offset_n_h']
-        fit_line[cs_list] = {'xp':xp,'xn':xn,
-                             'yp_ca':yp_ca,'yn_ca':yn_ca,
-                             'yp_cb':yp_cb,'yn_cb':yn_cb,
-                             'yp_c':yp_c,'yn_c':yn_c,
-                             'yp_n':yp_n,'yn_n':yn_n,
-                             'yp_h':yp_h,'yn_h':yn_h}
-    color_map = {
-        'Good': 'green',
-        'Outlier': 'red'
-    }
+        for atom in fit_data[cs_list]:
+            fig = px.scatter(x=fit_data[cs_list][atom]['x_n']+fit_data[cs_list][atom]['x_p'],
+                             y = fit_data[cs_list][atom]['y_n']+fit_data[cs_list][atom]['y_p'],
+                             hover_name=fit_data[cs_list][atom]['tag_n']+fit_data[cs_list][atom]['tag_p'])
+            fig.add_trace(go.Scatter(x=fit_data[cs_list][atom]['x_p'],
+                                     y=fit_data[cs_list][atom]['y_p'],
+                                     mode='markers+text',
+                                     text=fit_data[cs_list][atom]['tag_p'],
+                                     textposition='top center',
+                                     marker=dict(color=fit_data[cs_list][atom]['outliers_p'],size=10),showlegend=False))
+            fig.add_trace(go.Scatter(x=fit_data[cs_list][atom]['x_n'],
+                                     y=fit_data[cs_list][atom]['y_n'],
+                                     mode='markers+text',
+                                     text=fit_data[cs_list][atom]['tag_n'],
+                                     textposition='top center',
+                                     marker=dict(color=fit_data[cs_list][atom]['outliers_n'], size=10),
+                                     showlegend=False))
+            fig.add_trace(go.Scatter(x=fit_data[cs_list][atom]['x_p'],
+                                        y=fit_data[cs_list][atom]['fittedvalues_p'],
+                                        mode='lines',
+                                        name=f'Slope:{fit_data[cs_list][atom]['slope_p']},Offset:{fit_data[cs_list][atom]['offset_p']} ',
+                                        line=dict(color='green', dash='solid')))
+            fig.add_trace(go.Scatter(x=fit_data[cs_list][atom]['x_n'],
+                                     y=fit_data[cs_list][atom]['fittedvalues_n'],
+                                     mode='lines',
+                                     name=f'Slope:{fit_data[cs_list][atom]['slope_n']},Offset:{fit_data[cs_list][atom]['offset_n']} ',
+                                     line=dict(color='green', dash='dash')))
+            fig.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$')
+            if atom == 'ca':
+                fig.update_layout(yaxis_title=r'$\Delta\delta C^{\alpha}$')
+            elif atom == 'cb':
+                fig.update_layout(yaxis_title=r'$\Delta\delta C^{\beta}$')
+            elif atom == 'c':
+                fig.update_layout(yaxis_title=r'$\Delta\delta C$')
+            elif atom == 'n':
+                fig.update_layout(yaxis_title=r'$\Delta\delta N$')
+            elif atom == 'h':
+                fig.update_layout(yaxis_title=r'$\Delta\delta H $')
+            else:
+                raise ValueError(f'Atom {atom} not supported')
+            fig.write_html(f'../scratch/{data_id}_{atom}.html',include_mathjax='cdn')
+            fig.write_image(f'../scratch/{data_id}_{atom}.pdf')
 
-    # for cs_list in lacs_data:
-    #     fig_ca = px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_ca'],hover_name=lacs_data[cs_list]['tag'])
-    #     fig_ca.add_trace(go.Scatter(x=x_p_ca_cb,y=y_p_ca,mode='markers+text',text=tag_p, textposition='top center',marker=dict(color=c,size=10),showlegend=False))
-    #     fig_ca.add_trace(go.Scatter(x=x_p_ca_cb, y=d, mode='lines',
-    #                                 name=f'Slope:{a},Offset:{b} Robust fit',
-    #                                 line=dict(color='green', dash='solid')))
-    #     fig_ca.add_trace(go.Scatter(x=x_n_ca_cb, y=y_n_ca, mode='markers+text', text=tag_n, textposition='top center',
-    #                                 marker=dict(color=c, size=10), showlegend=False))
-    #     fig_ca.add_trace(go.Scatter(x=x_n_ca_cb, y=d1, mode='lines',
-    #                                 name=f'Slope:{a1},Offset:{b1} Robust fit',
-    #                                 line=dict(color='green', dash='dash')))
-    #     fig_ca.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_ca'],mode='lines',name=f'Slope:{fit_data[cs_list]['slope_p_ca']},Offset:{fit_data[cs_list]['offset_p_ca']} Linear fit',line=dict(color='red', dash='solid')))
-    #     fig_ca.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_ca'],mode='lines',name=f'Slope:{fit_data[cs_list]['slope_n_ca']},Offset:{fit_data[cs_list]['offset_n_ca']} Linear fit',line=dict(color='red', dash='dash')))
-    #     fig_ca.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$')
-    #     fig_ca.update_layout(yaxis_title=r'$\Delta\delta C^{\alpha}$')
-    #     fig_ca.show()
-    #     fig_cb = px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_cb'],hover_name=lacs_data[cs_list]['tag'])
-    #
-    #     fig_cb.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_cb'],mode='lines',name=f'Slope:{fit_data[cs_list]['slope_p_cb']},Offset:{fit_data[cs_list]['offset_p_cb']}',line=dict(color='red', dash='solid')))
-    #     fig_cb.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_cb'],mode='lines',name=f'Slope:{fit_data[cs_list]['slope_n_cb']},Offset:{fit_data[cs_list]['offset_n_cb']}',line=dict(color='red', dash='dash')))
-    #     fig_cb.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$')
-    #     fig_cb.update_layout(yaxis_title=r'$\Delta\delta C^{\beta}$')
-    #     fig_cb.show()
-    #     fig_c=px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_c'],hover_name=lacs_data[cs_list]['tag'])
-    #     fig_c.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_c'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_p_c']}, <b>Offset:</b> {fit_data[cs_list]['offset_p_c']}',line=dict(color='red', dash='solid')))
-    #     fig_c.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_c'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_n_c']}, <b>Offset:</b> {fit_data[cs_list]['offset_n_c']}',line=dict(color='red', dash='dash')))
-    #     fig_c.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$',yaxis_title=r'$\Delta\delta C$')
-    #     fig_c.show()
-    #     fig_n=px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_n'],hover_name=lacs_data[cs_list]['tag'])
-    #     fig_n.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_n'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_p_n']}, <b>Offset:</b> {fit_data[cs_list]['offset_p_n']}',line=dict(color='red', dash='solid')))
-    #     fig_n.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_n'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_n_n']}, <b>Offset:</b> {fit_data[cs_list]['offset_n_n']}',line=dict(color='red', dash='dash')))
-    #     fig_n.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$',yaxis_title=r'$\Delta\delta N$')
-    #     fig_n.show()
-    #     fig_h=px.scatter(x=lacs_data[cs_list]['d_ca_cb'], y=lacs_data[cs_list]['d_h'],hover_name=lacs_data[cs_list]['tag'])
-    #     fig_h.add_trace(go.Scatter(x=fit_line[cs_list]['xp'],y=fit_line[cs_list]['yp_h'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_p_h']}, <b>Offset:</b> {fit_data[cs_list]['offset_p_h']}',line=dict(color='red', dash='solid')))
-    #     fig_h.add_trace(go.Scatter(x=fit_line[cs_list]['xn'],y=fit_line[cs_list]['yn_h'],mode='lines',name=f'<b>Slope:</b> {fit_data[cs_list]['slope_n_h']}, <b>Offset:</b> {fit_data[cs_list]['offset_n_h']}',line=dict(color='red', dash='dash')))
-    #     fig_h.update_layout(xaxis_title=r'$\Delta\delta C^{\alpha}-\Delta\delta C^{\beta}$',yaxis_title=r'$\Delta\delta H$')
-    #     fig_h.show()
-    print (f'Positive offset {b}, Negative offset {b1}')
-    return b,b1
+            fig = px.bar(x=fit_data[cs_list][atom]['res_no'],
+                         y=fit_data[cs_list][atom]['prob'],labels={'x':'Residue Number','y':'Probability of being outlier'})
+            fig.update_layout(yaxis_range=[0, 1])
+            fig.write_image(f'../scratch/{data_id}_{atom}_prob.pdf')
+            fig.write_html(f'../scratch/{data_id}_{atom}_prob.html')
 
-def robust_linear_fit(x, y):
-    """
-    robust linear fit algorithm with outlier detection
-    :param x: numpy array
-    :param u: numpy array
-    :return: slope, offset, outlier indices
-    """
-    X = sm.add_constant(x)
-    rlm_model = sm.RLM(y, X, M=sm.robust.norms.TukeyBiweight())
-    rlm_results = rlm_model.fit()
-    offset = rlm_results.params[0]
-    slope = rlm_results.params[1]
-    weights = rlm_results.weights.tolist()
-    outlier_info = ['green' if i>0.15 else 'red' for i in weights]
 
-    fittedvalues = rlm_results.fittedvalues.tolist()
-    return round(slope,2), round(offset,2), outlier_info, fittedvalues
 
+def fit_data_rlm(x,y,tag,outlier_cutoff = 0.9):
+    x_p = [x[i] for i in range(len(x)) if x[i]>=0]
+    y_p = [y[i] for i in range(len(x)) if x[i]>=0]
+    x_n = [x[i] for i in range(len(x)) if x[i] < 0]
+    y_n = [y[i] for i in range(len(x)) if x[i] < 0]
+    tag_p = [f'{tag[i][-2]}{THREE_TO_ONE[tag[i][-1]]}' for i in range(len(x)) if x[i] >= 0.0]
+    tag_n = [f'{tag[i][-2]}{THREE_TO_ONE[tag[i][-1]]}' for i in range(len(x)) if x[i] < 0.0]
+    X_p = sm.add_constant(x_p)
+    X_n = sm.add_constant(x_n)
+    rlm_p = sm.RLM(y_p, X_p, M=sm.robust.norms.TukeyBiweight())
+    rlm_n = sm.RLM(y_n, X_n, M=sm.robust.norms.TukeyBiweight())
+    rlm_p_result = rlm_p.fit()
+    rlm_n_result = rlm_n.fit()
+    offset_p,slope_p = round(rlm_p_result.params[0],2),round(rlm_p_result.params[1],2)
+    offset_n, slope_n = round(rlm_n_result.params[0],2), round(rlm_n_result.params[1],2)
+    prob_p = [1.0-i for i in rlm_p_result.weights.tolist()]
+    prob_n = [1.0-i for i in rlm_n_result.weights.tolist()]
+    outliers_p = ['green' if i > outlier_cutoff else 'red' for i in prob_p]
+    outliers_n = ['green' if i > outlier_cutoff else 'red' for i in prob_n]
+    fittedvalues_p = rlm_p_result.fittedvalues.tolist()
+    fittedvalues_n = rlm_n_result.fittedvalues.tolist()
+    res_no=[]
+    prob=[]
+    for i in range(len(tag_p)):
+        res_no.append(int(tag_p[i][:-1]))
+        prob.append(prob_p[i])
+    for i in range(len(tag_n)):
+        res_no.append(int(tag_n[i][:-1]))
+        prob.append(prob_n[i])
+    fit_data = {'x_p':x_p,
+                'x_n':x_n,
+                'y_p':y_p,
+                'y_n':y_n,
+                'tag_p':tag_p,
+                'tag_n':tag_n,
+                'slope_p':slope_p,
+                'slope_n':slope_n,
+                'offset_p':offset_p,
+                'offset_n':offset_n,
+                'outliers_p':outliers_p,
+                'outliers_n':outliers_n,
+                'fittedvalues_p':fittedvalues_p,
+                'fittedvalues_n':fittedvalues_n,
+                'res_no':res_no,
+                'prob':prob}
+    return fit_data
 
 if __name__ == "__main__":
     lacs('../scratch/bmr4998_3.str')
