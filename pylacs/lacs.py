@@ -22,7 +22,10 @@ def read_str_file(file_name):
     :param file_name: NMR-STAR file name with path
     :return: Chemical shift dictionary
     """
-    ent = pynmrstar.Entry.from_file(file_name)
+    try:
+        ent = pynmrstar.Entry.from_file(file_name)
+    except FileNotFoundError:
+        return {}
     chemical_shift_loops = ent.get_loops_by_category('Atom_chem_shift')
     column_names = chemical_shift_loops[0].get_tag_names()
     cs_data ={}
@@ -55,6 +58,8 @@ def lacs(str_file,data_id = 'LACS_analysis',rc_model = None):
     :return: chemical shift offsets as dictionary
     """
     cs_data = read_str_file(str_file)
+    if len(cs_data) == 0:
+       return {}
     rc_shifts = RandomCoil()
     atom_list = rc_shifts.atoms()
     lacs_data = {}
@@ -67,27 +72,27 @@ def lacs(str_file,data_id = 'LACS_analysis',rc_model = None):
                 try:
                     delta_ca = cs_data[cs_list][residue]['CA']-rc_shifts.get_value(residue[-1],'CA',rc_name=rc_model)
                 except KeyError:
-                    print (f'Atom CA not found in {residue}')
+                    # print (f'Atom CA not found in {residue}')
                     delta_ca = None
                 try:
                     delta_cb = cs_data[cs_list][residue]['CB']-rc_shifts.get_value(residue[-1],'CB',rc_name=rc_model)
                 except KeyError:
-                    print(f'Atom CB not found in {residue}')
+                    # print(f'Atom CB not found in {residue}')
                     delta_cb = None
                 try:
-                    delta_c = cs_data[cs_list][residue]['C']-rc_shifts.get_value(residue[-1],'C')
+                    delta_c = cs_data[cs_list][residue]['C']-rc_shifts.get_value(residue[-1],'C',rc_name=rc_model)
                 except KeyError:
-                    print(f'Atom C not found in {residue}')
+                    # print(f'Atom C not found in {residue}')
                     delta_c = None
                 try:
-                    delta_n = cs_data[cs_list][residue]['N']-rc_shifts.get_value(residue[-1],'N')
+                    delta_n = cs_data[cs_list][residue]['N']-rc_shifts.get_value(residue[-1],'N',rc_name=rc_model)
                 except KeyError:
-                    print(f'Atom N not found in {residue}')
+                    # print(f'Atom N not found in {residue}')
                     delta_n = None
                 try:
-                    delta_h = cs_data[cs_list][residue]['H']-rc_shifts.get_value(residue[-1],'H')
+                    delta_h = cs_data[cs_list][residue]['H']-rc_shifts.get_value(residue[-1],'H',rc_name=rc_model)
                 except KeyError:
-                    print(f'Atom H not found in {residue}')
+                    # print(f'Atom H not found in {residue}')
                     delta_h = None
                 if delta_ca is not None and delta_cb is not None:
                     delta_ca_cb = delta_ca-delta_cb
@@ -232,29 +237,117 @@ def fit_data_rlm(x,y,tag,outlier_cutoff = 0.9):
     return fit_data
 
 def read_csv(csv_file):
+    flg=False
+    bid_ca=[]
+    bid_c=[]
+    bid_h=[]
+    tag_ca=[]
+    tag_c=[]
+    tag_h=[]
+    CA=[]
+    C=[]
+    H=[]
+    f=open('Pylacs_results.csv','w')
     with open (csv_file,'r') as csvfile:
         csvFile = csv.reader(csvfile)
         for row in csvFile:
             bmrb_id = row[0]
-            bmrb_file = f'/reboxitory/2025/06/BMRB/macromolecules/bmr{bmrb_id}/bmr{bmrb_id}_3.str'
-            offset = lacs(bmrb_file,bmrb_id)
-            try:
-                ca = offset['1']['ca']
-            except KeyError:
-                ca = ''
-            try:
-                c = offset['1']['c']
-            except KeyError:
-                c=''
-            try:
-                h = offset['1']['h']
-            except KeyError:
-                h=''
-            print (f'{row[0]},{row[1]},{row[2]},{row[3]},{ca},{row[4]},{row[5]},{c},{row[6]},{row[7]},{h},{row[8]},{row[9]}')
+            if bmrb_id not in ['4094','4109','4141','4146','4165','4402','4813','4898',
+                                       '4955','4994','5009','5226','5349','5361','5566','5571',
+                                       '5623','5753']:
+                bmrb_file = f'/reboxitory/2025/06/BMRB/macromolecules/bmr{bmrb_id}/bmr{bmrb_id}_3.str'
+                offset = lacs(bmrb_file,bmrb_id)
+                if len(offset)==9:
+                    ca=''
+                    c=''
+                    h=''
+                else:
+                    try:
+                        ca = offset['1']['ca']
+                    except KeyError:
+                        ca = ''
+                    try:
+                        c = offset['1']['c']
+                    except KeyError:
+                        c=''
+                    try:
+                        h = offset['1']['h']
+                    except KeyError:
+                        h=''
+
+
+                    if ca!='':
+                        bid_ca.append(bmrb_id)
+                        CA.append(ca)
+                        tag_ca.append('PyLACS')
+                        bid_ca.append(bmrb_id)
+                        if row[4]=='':
+                            CA.append(None)
+                        else:
+                            CA.append(float(row[4]))
+                        tag_ca.append('LACS')
+                        bid_ca.append(bmrb_id)
+                        if row[4] == '':
+                            CA.append(None)
+                        else:
+                            CA.append(float(row[5]))
+                        tag_ca.append('RefBD')
+                    if c!='':
+                        bid_c.append(bmrb_id)
+                        C.append(ca)
+                        tag_c.append('PyLACS')
+                        bid_c.append(bmrb_id)
+                        if row[6]=='':
+                            C.append(None)
+                        else:
+                            C.append(float(row[6]))
+                        tag_c.append('LACS')
+                        bid_c.append(bmrb_id)
+                        if row[7] == '':
+                            C.append(None)
+                        else:
+                            C.append(float(row[7]))
+                        tag_c.append('RefBD')
+                    if h!='':
+                        bid_h.append(bmrb_id)
+                        H.append(ca)
+                        tag_h.append('PyLACS')
+                        bid_h.append(bmrb_id)
+                        if row[8]=='':
+                            H.append(None)
+                        else:
+                            H.append(float(row[8]))
+                        tag_h.append('LACS')
+                        bid_h.append(bmrb_id)
+                        if row[9] == '':
+                            H.append(None)
+                        else:
+                            H.append(float(row[9]))
+                        tag_h.append('RefBD')
+                    f.write(f'{row[0]},{row[1]},{row[2]},{row[3]},{ca},{row[4]},{row[5]},{c},{row[6]},{row[7]},{h},{row[8]},{row[9]}\n')
+
+        fig.show()
+
+def plot_data(csv_file):
+    data=[]
+    with open (csv_file,'r') as csvfile:
+        csvFile = csv.reader(csvfile)
+        data = [list(row) for row in zip(*list(csvFile))]
+        bmrb_id = data[0]
+        pylacs_ca =[float(i) for i in data[4]]
+        lacs_ca = [float(i) for i data[5]]
+        refdb_ca = [float(i) for i data[6]]
+    fig = px.bar(x=bmrb_id,y=lacs_ca)
+    fig.show()
+
+
+
+
 
 if __name__ == "__main__":
+    plot_data('Pylacs_results.csv')
     #print (lacs('../scratch/bmr4998_3.str',data_id=4998))
-    read_csv('Table_S1_clean.csv')
-    # bmrb_id = 1642
+    #read_csv('Table_S1_clean.csv')
+    # bmrb_id = 4109
     # file_name = f'/reboxitory/2025/06/BMRB/macromolecules/bmr{bmrb_id}/bmr{bmrb_id}_3.str'
     # print(lacs(str_file=file_name,data_id=bmrb_id))
