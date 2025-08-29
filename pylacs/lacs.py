@@ -74,9 +74,12 @@ except Exception as e:
     raise SystemExit("This script requires 'pynmrstar' (pip install pynmrstar).") from e
 
 try:
-    from random_coil import RandomCoil
+    from .random_coil import RandomCoil
 except Exception as e:
-    raise SystemExit("Couldn't import random_coil.py. Ensure it is on PYTHONPATH or in the same folder.") from e
+    try:
+        from random_coil import RandomCoil
+    except Exception as e:
+        raise SystemExit("Couldn't import random_coil.py. Ensure it is on PYTHONPATH or in the same folder.") from e
 
 ResidueKey = Tuple[str, str, str, str]  # (Entity_ID, Entity_assembly_ID, Comp_index_ID, Comp_ID)
 
