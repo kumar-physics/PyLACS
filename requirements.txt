@@ -2,3 +2,6 @@ numpy>=2.3.0
 pynmrstar>=3.0.4
 plotly>=4.5.4
 pandas
+statsmodels
+scikit-learn
+pymc
