@@ -23,7 +23,7 @@ def read_csv_file(csvfile):
                         except KeyError:
                             c=''
                         try:
-                            h= -of['h']
+                            h= -of['ha']
                         except KeyError:
                             h=''
                         l = f'{l},{ca},{c},{h}'
