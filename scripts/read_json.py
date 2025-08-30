@@ -9,7 +9,7 @@ def read_csv_file(csvfile):
             bmrb_id = row[0]
             print (bmrb_id)
             l=f'{bmrb_id},{row[4]},{row[6]},{row[8]},{row[5]},{row[7]},{row[9]}'
-            if bmrb_id not in  ['4077','4675','5168']:
+            if bmrb_id not in  ['4077','5168']:
                 for method in ["tukey", "theilsen", "ransac", "quantile", "bayes"]:
                     with open(f'../scratch/{bmrb_id}/{bmrb_id}_{method}.json','r') as f:
                         data = json.load(f)

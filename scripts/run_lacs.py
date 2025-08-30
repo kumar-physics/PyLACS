@@ -12,7 +12,7 @@ def read_csv_file(csvfile):
         for row in csvF:
             bmrb_id = row[0]
             print (bmrb_id)
-            if bmrb_id == '5168':
+            if bmrb_id == '1061':
                 flg = True
             if flg and bmrb_id not in ['4077','24152','5168']:
                 str_file = f'/reboxitory/2025/08/BMRB/macromolecules/bmr{bmrb_id}/bmr{bmrb_id}_3.str'
