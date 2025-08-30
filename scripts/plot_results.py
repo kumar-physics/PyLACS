@@ -60,8 +60,8 @@ def plot_csv(csvfile):
         type="line",
         x0=-0.5,  # Starting x-coordinate of the line
         y0=-0.5,  # Starting y-coordinate of the line
-        x1=1.0,  # Ending x-coordinate of the line
-        y1=1.0,  # Ending y-coordinate of the line
+        x1=0.4,  # Ending x-coordinate of the line
+        y1=0.4,  # Ending y-coordinate of the line
         line=dict(
             color="red",
             width=2,
@@ -84,6 +84,8 @@ def plot_csv(csvfile):
             dash="dash"  # Optional: 'solid', 'dot', 'dash', 'longdash', 'dashdot', 'longdashdot'
         )
     )
+    fig.show()
+    fig = px.histogram(df,x=[df['RefDB(C)']-df['LACS(C)'],df['RefDB(C)']-df['Bayes(C)']],barmode='overlay')
     fig.show()
 if __name__ == "__main__":
     plot_csv('results.csv')

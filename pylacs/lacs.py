@@ -323,7 +323,7 @@ def logistic_prob(z: np.ndarray, slope: float = 6.0, hinge: float = 1.0) -> np.n
     return 1.0 / (1.0 + np.exp(-slope * (z - hinge)))
 
 
-def outlier_stats(residuals: np.ndarray, scale: Optional[float] = None, cutoff_k: float = 2.5) -> Tuple[List[int], List[float]]:
+def outlier_stats(residuals: np.ndarray, scale: Optional[float] = None, cutoff_k: float = 4.0) -> Tuple[List[int], List[float]]:
     """Compute 0/1 outlier flags and smooth probabilities from residuals.
 
     Parameters
@@ -577,8 +577,8 @@ def _plot_atom(atom: str, fr: FitResult, outdir: Path, data_id: str, method: str
     fig2.write_html(outdir / f"{data_id}_{atom}_{method}_prob.html")
 
     try:  # optional PDF
-        fig.write_image(outdir / f"{data_id}_{atom}.pdf")
-        fig2.write_image(outdir / f"{data_id}_{atom}_prob.pdf")
+        fig.write_image(outdir / f"{data_id}_{atom}_{method}.pdf")
+        fig2.write_image(outdir / f"{data_id}_{atom}_{method}prob.pdf")
     except Exception:
         pass
 
