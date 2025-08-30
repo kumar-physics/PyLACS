@@ -27,7 +27,7 @@ def read_csv_file(csvfile):
                         except KeyError:
                             h=''
                         l = f'{l},{ca},{c},{h}'
-            fo.write(f'{l}\n')
+                fo.write(f'{l}\n')
 
 
 

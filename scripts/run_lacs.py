@@ -14,7 +14,7 @@ def read_csv_file(csvfile):
             print (bmrb_id)
             if bmrb_id == '1061':
                 flg = True
-            if flg and bmrb_id not in ['4077','24152','5168']:
+            if flg and bmrb_id not in ['4077','5168']:
                 str_file = f'/reboxitory/2025/08/BMRB/macromolecules/bmr{bmrb_id}/bmr{bmrb_id}_3.str'
                 data_id = bmrb_id
                 for method in ["tukey","theilsen","ransac","quantile","bayes"]:
