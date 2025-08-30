@@ -92,6 +92,10 @@ AA3_TO_1 = {
     'HID':'H','HIE':'H','HIP':'H','HSD':'H','HSE':'H','HSP':'H',
     'CYX':'C','CSE':'C','CSO':'C','MSE':'M','SEC':'U','PYL':'O'
 }
+CA_SCALE = {'ILE': 4.8, 'GLN': 4.5, 'GLY': 1.7, 'GLU': 4.5, 'CYS': 6.6, 'ASP': 4.2, 'SER': 4.1, 'LYS': 4.6, 'PRO': 3.1, 'ASN': 3.6, 'VAL': 5.8, 'THR': 4.9, 'HIS': 4.0, 'TRP': 4.0, 'PHE': 5.3, 'ALA': 5.1, 'MET': 4.2, 'LEU': 4.3, 'ARG': 4.6, 'TYR': 4.7}
+CB_SCALE = {'ILE': 2.4, 'GLN': 3.5, 'GLY': 1.0, 'GLU': 3.4, 'CYS': 3.6, 'ASP': 1.9, 'SER': 2.55, 'LYS': 2.4, 'PRO': 1.0, 'ASN': 1.7, 'VAL': 2.7, 'THR': 1.5, 'HIS': 3.4, 'TRP': 1.9, 'PHE': 2.5, 'ALA': 4.2, 'MET': 2.8, 'LEU': 2.65, 'ARG': 2.7, 'TYR': 3.1}
+POS_SCALE = {'ILE': 4.83, 'GLN': 3.82, 'GLY': 1.0, 'GLU': 3.24, 'CYS': 4.35, 'ASP': 3.42, 'SER': 3.98, 'LYS': 3.42, 'PRO': 3.12, 'ASN': 2.94, 'VAL': 5.19, 'THR': 5.56, 'HIS': 4.26, 'TRP': 3.09, 'PHE': 4.04, 'ALA': 4.01, 'MET': 3.44, 'LEU': 3.47, 'ARG': 3.65, 'TYR': 3.84}
+NEG_SCALE = {'ILE': 2.37, 'GLN': 4.18, 'GLY': 1.0, 'GLU': 4.66, 'CYS': 5.85, 'ASP': 2.68, 'SER': 2.67, 'LYS': 3.58, 'PRO': 0.98, 'ASN': 2.36, 'VAL': 3.31, 'THR': 0.84, 'HIS': 3.14, 'TRP': 2.81, 'PHE': 3.76, 'ALA': 5.29, 'MET': 3.56, 'LEU': 3.48, 'ARG': 3.65, 'TYR': 3.96}
 
 def tag_to_label(tag: tuple) -> str:
     """Convert a ResidueKey to a short label like ``56H`` (index+one-letter).
@@ -219,7 +223,7 @@ def compute_deltas(resmap: Dict[ResidueKey, Dict[str, float]], rc_model: Optiona
     -------
     (dict, dict)
         The first dict holds numeric arrays:
-        ``{'ca','cb','c','n','h','x_for_c','x_for_n','x_for_h'}``.
+        ``{'ca','cb','c','n','ha','x_for_c','x_for_n','x_for_h'}``.
         The second dict holds residue tags per nucleus.
 
     Notes
@@ -230,13 +234,21 @@ def compute_deltas(resmap: Dict[ResidueKey, Dict[str, float]], rc_model: Optiona
     """
     rc = RandomCoil()
     d: Dict[str, List[float]] = {
-        'ca': [], 'cb': [], 'c': [], 'n': [], 'h': [],
-        'x_for_c': [], 'x_for_n': [], 'x_for_h': [],
+        'ca': [], 'cb': [], 'c': [], 'n': [], 'ha': [],
+        'x_for_c': [], 'x_for_n': [], 'x_for_ha': [],
     }
-    tags: Dict[str, List[ResidueKey]] = {k: [] for k in ['ca','cb','c','n','h']}
+    tags: Dict[str, List[ResidueKey]] = {k: [] for k in ['ca','cb','c','n','ha']}
 
     for residue, atom_map in resmap.items():
         comp_id = residue[-1]
+        try:
+            wca = CA_SCALE[comp_id]
+        except KeyError:
+            wca = 1.0
+        try:
+            wcb = CB_SCALE[comp_id]
+        except KeyError:
+            wcb = 1.0
         if comp_id is None or not isinstance(comp_id, str):
             continue
         try:
@@ -244,24 +256,30 @@ def compute_deltas(resmap: Dict[ResidueKey, Dict[str, float]], rc_model: Optiona
             cb = atom_map.get('CB')
             c  = atom_map.get('C')
             n  = atom_map.get('N')
-            h  = atom_map.get('H')
+            ha  = atom_map.get('HA')
 
             if ca is not None: ca = float(ca) - rc.get_value(comp_id, 'CA', rc_model)
             if cb is not None: cb = float(cb) - rc.get_value(comp_id, 'CB', rc_model)
             if c  is not None: c  = float(c)  - rc.get_value(comp_id, 'C',  rc_model)
             if n  is not None: n  = float(n)  - rc.get_value(comp_id, 'N',  rc_model)
-            if h  is not None: h  = float(h)  - rc.get_value(comp_id, 'H',  rc_model)
+            if ha  is not None: ha  = float(ha)  - rc.get_value(comp_id, 'HA',  rc_model)
 
             if ca is not None and cb is not None:
                 x = ca - cb
+                # if x1 >=0 :
+                #     x=x1/POS_SCALE[comp_id]
+                # else:
+                #     x=x1/NEG_SCALE[comp_id]
+
+
                 d['ca'].append(ca); tags['ca'].append(residue)
                 d['cb'].append(cb); tags['cb'].append(residue)
                 if c is not None:
                     d['c'].append(c); d['x_for_c'].append(x); tags['c'].append(residue)
                 if n is not None:
                     d['n'].append(n); d['x_for_n'].append(x); tags['n'].append(residue)
-                if h is not None:
-                    d['h'].append(h); d['x_for_h'].append(x); tags['h'].append(residue)
+                if ha is not None:
+                    d['ha'].append(ha); d['x_for_ha'].append(x); tags['ha'].append(residue)
         except Exception:
             continue
     return d, tags
@@ -450,7 +468,7 @@ def _plot_atom(atom: str, fr: FitResult, outdir: Path, data_id: str, method: str
     Parameters
     ----------
     atom : str
-        Nucleus key (``'ca','cb','c','n','h'``).
+        Nucleus key (``'ca','cb','c','n','ha'``).
     fr : FitResult
         Fit results for the nucleus.
     outdir : Path
@@ -533,7 +551,7 @@ def _plot_atom(atom: str, fr: FitResult, outdir: Path, data_id: str, method: str
     add_side(x_pos, y_pos, labels_pos, fr.tags_pos, flags_pos, probs_pos, "x ≥ 0 inliers", "x ≥ 0 outliers", xlp, ylp, dashed=False)
     add_side(x_neg, y_neg, labels_neg, fr.tags_neg, flags_neg, probs_neg, "x < 0 inliers", "x < 0 outliers", xln, yln, dashed=True)
 
-    ytitle = {'ca':'ΔδCA','cb':'ΔδCB','c':'ΔδC','n':'ΔδN','h':'ΔδH'}.get(atom, 'Δδ')
+    ytitle = {'ca':'ΔδCA','cb':'ΔδCB','c':'ΔδC','n':'ΔδN','ha':'ΔδHA'}.get(atom, 'Δδ')
     fig.update_layout(
         title=f"{data_id}: {atom.upper()} vs ΔδCA−ΔδCB",
         xaxis_title="ΔδCA − ΔδCB",
@@ -924,7 +942,7 @@ def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequen
         fits: Dict[str, FitResult] = {}
         alpha_samples: Dict[str, Dict[str, np.ndarray]] = {}
 
-        for atom, xkey in [('ca','ca'), ('cb','ca'), ('c','x_for_c'), ('n','x_for_n'), ('h','x_for_h')]:
+        for atom, xkey in [('ca','ca'), ('cb','ca'), ('c','x_for_c'), ('n','x_for_n'), ('ha','x_for_ha')]:
             yvals = d[atom]
             if atom in {'ca','cb'}:
                 xvals = [a - b for a, b in zip(d['ca'], d['cb'])]
