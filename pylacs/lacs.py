@@ -323,7 +323,7 @@ def logistic_prob(z: np.ndarray, slope: float = 6.0, hinge: float = 1.0) -> np.n
     return 1.0 / (1.0 + np.exp(-slope * (z - hinge)))
 
 
-def outlier_stats(residuals: np.ndarray, scale: Optional[float] = None, cutoff_k: float = 4.0) -> Tuple[List[int], List[float]]:
+def outlier_stats(residuals: np.ndarray, scale: Optional[float] = None, cutoff_k: float = 5.0) -> Tuple[List[int], List[float]]:
     """Compute 0/1 outlier flags and smooth probabilities from residuals.
 
     Parameters
@@ -333,7 +333,7 @@ def outlier_stats(residuals: np.ndarray, scale: Optional[float] = None, cutoff_k
     scale : float, optional
         Robust scale (MAD) to use. If ``None``, MAD is computed from data.
     cutoff_k : float, optional
-        Scale multiplier for the cutoff (default 2.5). Points with
+        Scale multiplier for the cutoff (default 5.0). Points with
         ``|r|/(k·MAD) > 1`` are flagged as outliers.
 
     Returns
@@ -374,7 +374,7 @@ def _ci_and_sd(samples: np.ndarray, level: float = 0.95) -> Tuple[float, float, 
     return float(lo), float(hi), sd
 
 
-def collect_and_report(fits: Dict[str, FitResult], cutoff_k: float = 2.5) -> Dict[str, Dict]:
+def collect_and_report(fits: Dict[str, FitResult], cutoff_k: float = 5.0) -> Dict[str, Dict]:
     """Assemble offsets and outlier lists into a serializable report.
 
     Parameters
@@ -462,7 +462,7 @@ def collect_and_report_bayes(fits: Dict[str, FitResult],
 # =============================================================================
 
 
-def _plot_atom(atom: str, fr: FitResult, outdir: Path, data_id: str, method: str, cutoff_k: float = 2.5) -> None:
+def _plot_atom(atom: str, fr: FitResult, outdir: Path, data_id: str, method: str, cutoff_k: float = 5.0) -> None:
     """Render interactive plots for a single nucleus with residue labels.
 
     Parameters
@@ -583,7 +583,7 @@ def _plot_atom(atom: str, fr: FitResult, outdir: Path, data_id: str, method: str
         pass
 
 
-def maybe_plot_all(fits: Dict[str, FitResult], outdir: Optional[Path], data_id: str, method: str, enable_plots: bool, cutoff_k: float = 2.5) -> None:
+def maybe_plot_all(fits: Dict[str, FitResult], outdir: Optional[Path], data_id: str, method: str, enable_plots: bool, cutoff_k: float = 5.0) -> None:
     """Render all per-nucleus plots if plotting is enabled and supported.
 
     Parameters
@@ -1022,7 +1022,7 @@ def main(argv=None) -> None:
                    help="Random-coil model alias(es), e.g. wis wan; omit for average of all")
     p.add_argument("--out", type=Path, default=None, help="Output directory for plots")
     p.add_argument("--no-plots", action="store_true", help="Disable plotting entirely")
-    p.add_argument("--cutoff-k", type=float, default=2.5, help="Outlier cutoff multiplier (default 2.5)")
+    p.add_argument("--cutoff-k", type=float, default=5.0, help="Outlier cutoff multiplier (default 5.0)")
     p.add_argument("--json-out", type=Path, default=None, help="Where to write JSON (defaults to <data_id>_<method>.json)")
 
     args = p.parse_args(argv)
