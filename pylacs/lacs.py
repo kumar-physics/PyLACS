@@ -409,7 +409,7 @@ def collect_and_report(fits: Dict[str, FitResult], cutoff_k: float = 5.0) -> Dic
 
 def collect_and_report_bayes(fits: Dict[str, FitResult],
                              alpha_samples: Dict[str, Dict[str, np.ndarray]],
-                             cutoff_k: float = 2.5) -> Dict[str, Dict]:
+                             cutoff_k: float = 5.0) -> Dict[str, Dict]:
     """Assemble report including Bayesian **offset uncertainties**.
 
     Parameters
@@ -910,7 +910,7 @@ def _fit_atom_bayes(xvals: List[float], yvals: List[float], tags: List[ResidueKe
 
 
 def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequence[str] | str] = None,
-             outdir: Optional[Path] = None, plots: bool = True, cutoff_k: float = 2.5) -> Dict[str, Dict]:
+             outdir: Optional[Path] = None, plots: bool = True, cutoff_k: float = 5.0) -> Dict[str, Dict]:
     """Run the selected robust method over an NMR-STAR file.
 
     Parameters
