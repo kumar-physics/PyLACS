@@ -1,0 +1,12 @@
+universe = vanilla
+executable = pylacs.sh
+should_transfer_files = YES
+arguments = /reboxitory/2025/08/BMRB/macromolecules/bmr4998/bmr4998_3.str 4998
+transfer_input_files = my_venv.tar.gz,lacs.py,random_coil.py
+requirements = (UidDomain == "nmrbox.org")
+output = 4998_$(Process).out
+error = 4998_$(Process).err
+log = 4998_$(Process).log
+queue
+
+
