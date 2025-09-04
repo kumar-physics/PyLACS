@@ -2,7 +2,7 @@ import csv
 import json
 
 def read_csv_file(csvfile):
-    fo=open('results2.csv','w')
+    fo=open('results3.csv','w')
     with open(csvfile,'r') as csvFile:
         csvF = csv.reader(csvFile)
         for row in csvF:
