@@ -390,7 +390,8 @@ def collect_and_report(fits: Dict[str, FitResult], cutoff_k: float = 5.0) -> Dic
         Report with keys ``offsets`` and ``outliers``.
     """
     offsets = {atom: round((fr.intercept_pos + fr.intercept_neg) / 2.0, 3) for atom, fr in fits.items()}
-    report: Dict[str, Dict] = {"offsets": offsets, "outliers": {}, "meta": {"cutoff_k": cutoff_k}}
+    offsets_split = {atom: {'pos':round(fr.intercept_pos,3),'neg':round(fr.intercept_neg,3)} for atom, fr in fits.items()}
+    report: Dict[str, Dict] = {"offsets": offsets, "offsets_split": offsets_split, "outliers": {}, "meta": {"cutoff_k": cutoff_k}}
     for atom, fr in fits.items():
         resid_all = np.array(fr.resid_pos + fr.resid_neg, dtype=float)
         tags_all  = fr.tags_pos + fr.tags_neg
