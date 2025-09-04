@@ -462,7 +462,7 @@ def collect_and_report_bayes(fits: Dict[str, FitResult],
 # =============================================================================
 
 
-def _plot_atom(atom: str, fr: FitResult, outdir: Path, data_id: str, method: str, cutoff_k: float = 5.0) -> None:
+def _plot_atom(atom: str, fr: FitResult, outdir: Path, data_id: str, list_id, method: str, cutoff_k: float = 5.0) -> None:
     """Render interactive plots for a single nucleus with residue labels.
 
     Parameters
@@ -560,7 +560,7 @@ def _plot_atom(atom: str, fr: FitResult, outdir: Path, data_id: str, method: str
         template="plotly_white"
     )
     outdir.mkdir(parents=True, exist_ok=True)
-    html_path = outdir / f"{data_id}_{atom}_{method}.html"
+    html_path = outdir / f"{data_id}_{atom}_{list_id}_{method}.html"
     fig.write_html(html_path, include_mathjax="cdn")
 
     # Probability bar
@@ -574,16 +574,16 @@ def _plot_atom(atom: str, fr: FitResult, outdir: Path, data_id: str, method: str
     xvals = [ri if ri is not None else i+1 for i, ri in enumerate(res_indices)]
     fig2 = px.bar(x=xvals, y=probs, labels={"x": "Residue Index", "y": "Outlier probability"})
     fig2.update_layout(title=f"{data_id}: {atom.upper()} outlier probability", yaxis_range=[0,1], template="plotly_white")
-    fig2.write_html(outdir / f"{data_id}_{atom}_{method}_prob.html")
+    fig2.write_html(outdir / f"{data_id}_{atom}_{list_id}_{method}_prob.html")
 
     try:  # optional PDF
-        fig.write_image(outdir / f"{data_id}_{atom}_{method}.pdf")
-        fig2.write_image(outdir / f"{data_id}_{atom}_{method}prob.pdf")
+        fig.write_image(outdir / f"{data_id}_{atom}_{list_id}_{method}.pdf")
+        fig2.write_image(outdir / f"{data_id}_{atom}_{list_id}_{method}prob.pdf")
     except Exception:
         pass
 
 
-def maybe_plot_all(fits: Dict[str, FitResult], outdir: Optional[Path], data_id: str, method: str, enable_plots: bool, cutoff_k: float = 5.0) -> None:
+def maybe_plot_all(fits: Dict[str, FitResult], outdir: Optional[Path], data_id: str, method: str, enable_plots: bool, list_id,cutoff_k: float = 5.0) -> None:
     """Render all per-nucleus plots if plotting is enabled and supported.
 
     Parameters
@@ -607,7 +607,7 @@ def maybe_plot_all(fits: Dict[str, FitResult], outdir: Optional[Path], data_id: 
     out = Path(outdir or (Path.cwd() / "lacs_output"))
     out.mkdir(parents=True, exist_ok=True)
     for atom, fr in fits.items():
-        _plot_atom(atom, fr, out, data_id, method=method, cutoff_k=cutoff_k)
+        _plot_atom(atom, fr, out, data_id, list_id,method=method, cutoff_k=cutoff_k)
 
 
 # =============================================================================
@@ -958,7 +958,7 @@ def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequen
                 fits[atom] = fr
 
         if fits:
-            maybe_plot_all(fits, outdir, data_id, method, plots, cutoff_k=cutoff_k)
+            maybe_plot_all(fits, outdir, data_id, method, plots, list_id,cutoff_k=cutoff_k)
             if method == "bayes":
                 results[list_id] = collect_and_report_bayes(fits, alpha_samples, cutoff_k=cutoff_k)
             else:
