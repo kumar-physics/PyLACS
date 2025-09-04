@@ -434,6 +434,7 @@ def collect_and_report_bayes(fits: Dict[str, FitResult],
     """
     base = collect_and_report(fits, cutoff_k=cutoff_k)
     offsets_bayes = {}
+    offsets_bayes_split={}
     for atom, fr in fits.items():
         pos = alpha_samples.get(atom, {}).get('pos', np.array([], float))
         neg = alpha_samples.get(atom, {}).get('neg', np.array([], float))
@@ -454,7 +455,27 @@ def collect_and_report_bayes(fits: Dict[str, FitResult],
                      None if np.isnan(hi) else round(hi, 4)],
             "sd": None if np.isnan(sd) else round(sd, 4),
         }
+        lo_p, hi_p, sd_p = _ci_and_sd(pos, level=0.95)
+        pos_stat = {
+            "mean": round(mean, 4),
+            "ci95": [None if np.isnan(lo_p) else round(lo_p, 4),
+                     None if np.isnan(hi_p) else round(hi_p, 4)],
+            "sd": None if np.isnan(sd_p) else round(sd_p, 4),
+        }
+        offsets_bayes_split[atom]={'pos':pos_stat}
+        lo_p, hi_p, sd_p = _ci_and_sd(neg, level=0.95)
+        pos_stat = {
+            "mean": round(mean, 4),
+            "ci95": [None if np.isnan(lo_p) else round(lo_p, 4),
+                     None if np.isnan(hi_p) else round(hi_p, 4)],
+            "sd": None if np.isnan(sd_p) else round(sd_p, 4),
+        }
+        offsets_bayes_split[atom] = {'neg': pos_stat}
+
+
+
     base["offsets_bayes"] = offsets_bayes
+    base["offsets_bayes_split"] = offsets_bayes_split
     return base
 
 
