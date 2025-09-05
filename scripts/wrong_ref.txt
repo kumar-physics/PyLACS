@@ -2070,6 +2070,7 @@
 530,1,quantile,ca,-2.829
 530,1,ransac,ca,-2.924
 530,1,theilsen,ca,-2.797
+27230,2,ransac,ca,3.074
 27233,1,ransac,ca,-3.331
 27233,1,bayes,ca,-3.3
 27233,1,theilsen,ca,-3.38
