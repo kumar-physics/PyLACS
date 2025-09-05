@@ -122,6 +122,8 @@ def main() -> None:
     ha_method=[]
     wrong_ref =[]
     tot=[]
+    fo=open('wrong_ref.txt','w')
+
     for jf in iter_json_files(args.directory, recursive=args.recursive, include_root=args.include_root):
         total += 1
         path, data, err = parse_json_file(jf)
@@ -139,7 +141,7 @@ def main() -> None:
                 for atom in data[list_id]['offsets']:
                     if atom == 'ca' and abs(data[list_id]['offsets'][atom])>1.7:
                         if atom == 'ca' and entry_id not in wrong_ref: wrong_ref.append(entry_id)
-                        print(f'{entry_id},{list_id},{method},{atom},{data[list_id]['offsets'][atom]}')
+                        fo.write(f'{entry_id},{list_id},{method},{atom},{data[list_id]['offsets'][atom]}\n')
                     if atom == 'ca':
                         ca.append(data[list_id]['offsets'][atom])
                         ca_method.append(method)
