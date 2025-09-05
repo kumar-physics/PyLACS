@@ -123,6 +123,11 @@ def main() -> None:
     wrong_ref =[]
     tot=[]
     fo=open('wrong_ref.txt','w')
+    fo_ca = open('offsets_ca.csv','w')
+    fo_cb = open('offsets_cb.csv', 'w')
+    fo_c = open('offsets_c.csv', 'w')
+    fo_n = open('offsets_n.csv', 'w')
+    fo_ha = open('offsets_ha.csv', 'w')
 
     for jf in iter_json_files(args.directory, recursive=args.recursive, include_root=args.include_root):
         total += 1
@@ -145,18 +150,23 @@ def main() -> None:
                     if atom == 'ca':
                         ca.append(data[list_id]['offsets'][atom])
                         ca_method.append(method)
+                        fo_ca.write(f'{entry_id},{list_id},{method},{atom},{data[list_id]['offsets'][atom]}\n')
                     elif atom == 'cb':
                         cb.append(data[list_id]['offsets'][atom])
                         cb_method.append(method)
+                        fo_cb.write(f'{entry_id},{list_id},{method},{atom},{data[list_id]['offsets'][atom]}\n')
                     elif atom == 'c':
                         c.append(data[list_id]['offsets'][atom])
                         c_method.append(method)
+                        fo_c.write(f'{entry_id},{list_id},{method},{atom},{data[list_id]['offsets'][atom]}\n')
                     elif atom == 'n':
                         n.append(data[list_id]['offsets'][atom])
                         n_method.append(method)
+                        fo_n.write(f'{entry_id},{list_id},{method},{atom},{data[list_id]['offsets'][atom]}\n')
                     elif atom == 'ha':
                         ha.append(data[list_id]['offsets'][atom])
                         ha_method.append(method)
+                        fo_ha.write(f'{entry_id},{list_id},{method},{atom},{data[list_id]['offsets'][atom]}\n')
                     dict_data[method][atom].append(data[list_id]['offsets'][atom])
     # df_ca = pd.DataFrame({'tukey':dict_data['tukey']['ca'],
     #                       'ransac':dict_data['ransac']['ca'],
