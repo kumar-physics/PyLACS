@@ -1,8 +1,7 @@
 import math
-import numpy as np
 import pytest
 
-from pylacs import random_coil as rcmod
+from pylacs.src import random_coil as rcmod
 
 
 def test_atoms_contains_expected():

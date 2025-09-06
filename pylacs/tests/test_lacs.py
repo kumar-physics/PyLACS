@@ -1,8 +1,7 @@
-import json
 import numpy as np
 import pytest
 
-from pylacs import lacs as lacsmod
+from pylacs.src import lacs as lacsmod
 
 
 def test_mad_basic_and_zero_guard():

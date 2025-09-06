@@ -1,8 +1,7 @@
 import csv
 import json
-from pylacs.lacs import run_lacs
+from pylacs import run_lacs
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple
 
 
 def read_csv_file(csvfile):
