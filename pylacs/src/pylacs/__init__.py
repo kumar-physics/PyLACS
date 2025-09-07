@@ -1,2 +1,2 @@
-__all__ = ["lacs", "random_coil"]
+__all__ = ["lacs", "random_coil","apply_lacs_correction"]
 __version__ = "0.1.0"
