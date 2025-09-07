@@ -74,10 +74,10 @@ except Exception as e:
     raise SystemExit("This script requires 'pynmrstar' (pip install pynmrstar).") from e
 
 try:
-    from .random_coil import RandomCoil
+    from pylacs.random_coil import RandomCoil
 except Exception as e:
     try:
-        from random_coil import RandomCoil
+        from pylacs.random_coil import RandomCoil
     except Exception as e:
         raise SystemExit("Couldn't import random_coil.py. Ensure it is on PYTHONPATH or in the same folder.") from e
 
@@ -1012,6 +1012,20 @@ def _default_json_path(outdir: Optional[Path], data_id: str, method: str) -> Pat
     base = Path.cwd() if outdir is None else Path(outdir)
     return base / f"{data_id}_{method}.json"
 
+def apply_offset_correction(str_file: str, data_id: str,lacs_output: str,outdir: Optional[Path] = None):
+   """Apply offset correction to a LACS output file.
+
+   Parameters
+   ----------
+   str_file : str
+       Path to NMR-STAR file.
+   data_id : str
+       Identifier for the dataset/entry.
+   lacs_output : str
+       Path to LACS output file.
+   outdir : Path | None
+       Where to save plots; ``None`` defaults to ``./lacs_output``.
+       """
 
 def main(argv=None) -> None:
     """Command-line entry point.

@@ -1,7 +1,10 @@
 import numpy as np
 import pytest
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from pylacs.src import lacs as lacsmod
+from pylacs import lacs as lacsmod
 
 
 def test_mad_basic_and_zero_guard():

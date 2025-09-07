@@ -1,7 +1,9 @@
 import math
 import pytest
-
-from pylacs.src import random_coil as rcmod
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from pylacs import random_coil as rcmod
 
 
 def test_atoms_contains_expected():
