@@ -2,21 +2,21 @@
 """
 apply_lacs_correction.py
 
-Apply constant offsets to CA, CB, C (carbonyl), N, and HA chemical shifts in an
+Apply constant offsets to *selected* atoms among {CA, CB, C, N} in an
 NMR-STAR file, restricted to a specific chemical-shift list ID, and append a
 row to the Release/_Release loop documenting the correction.
 
 Release behavior:
 - Increments the release number (Ordinal / Release_number / Number) by +1.
 - Copies Entry_ID from the previous Release row if present; else falls back to _Entry.ID.
-- Writes a detailed offsets string into the Release Detail/Details/Deatils column
-  (prefers existing '_Release.Detail' if present).
+- Writes a detailed offsets string (only for atoms actually applied) into the
+  Release Detail/Details/Deatils column (prefers existing '_Release.Detail').
 - Preserves existing loop schema; does not change tag order; pads unspecified cells with ".".
 """
 
 import argparse
 import sys
-from typing import Dict, Optional, List, Tuple
+from typing import Dict, Optional, List, Tuple, Iterable
 from datetime import date
 
 import pynmrstar
@@ -110,18 +110,22 @@ def resolve_list_id_for_loop(sf: pynmrstar.Saveframe, loop) -> Optional[int]:
 def apply_offsets_to_entry_for_list(entry: pynmrstar.Entry,
                                     offsets: Dict[str, float],
                                     target_list_id: int,
-                                    ha_include_all: bool) -> Dict[str, int]:
-    counts = {"CA": 0, "CB": 0, "C": 0, "N": 0, "HA": 0,
-              "total": 0, "loops_seen": 0, "loops_matched": 0}
+                                    atoms_to_apply: Iterable[str]) -> Dict[str, int]:
+    """
+    Apply offsets to Atom_chem_shift loops in-place, but only for the specified
+    chemical-shift list ID and only for atom names in `atoms_to_apply` (subset of CA, CB, C, N).
+    """
+    atoms_set = {a.upper() for a in atoms_to_apply}
+    # Canonical set we support
+    allowed = {"CA", "CB", "C", "N"}
+
+    counts = {k: 0 for k in allowed}
+    counts.update({"total": 0, "loops_seen": 0, "loops_matched": 0})
 
     def eligible_atom(atom: str) -> Optional[str]:
         a = _norm_atom_id(atom)
-        if a in ("CA", "CB", "C", "N"):
+        if a in allowed and a in atoms_set:
             return a
-        if a == "HA":
-            return "HA"
-        if ha_include_all and a.startswith("HA"):  # HA2, HA3...
-            return "HA"
         return None
 
     for sf in entry:
@@ -167,7 +171,7 @@ def apply_offsets_to_entry_for_list(entry: pynmrstar.Entry,
                 key = eligible_atom(row[atom_col])
                 if key is None:
                     continue
-                off = offsets.get(key, 0.0)
+                off = float(offsets.get(key, 0.0))
                 if off == 0.0:
                     continue
                 try:
@@ -290,7 +294,7 @@ def append_release_note(entry: pynmrstar.Entry,
     author_idx  = _first_present(["_Release.Author", "Release.Author", "Author"], tags)
     date_idx    = _first_present(["_Release.Date", "Release.Date", "Date"], tags)
 
-    # Prefer singular 'Detail' (matches your file); fall back to Details/Deatils if needed
+    # Prefer singular 'Detail'; fall back to Details/Deatils
     detail_idx = _first_present(
         ["_Release.Detail", "Release.Detail", "Detail",
          "_Release.Details", "Release.Details", "Details",
@@ -304,7 +308,7 @@ def append_release_note(entry: pynmrstar.Entry,
     if date_idx is not None:
         row[date_idx] = date_str
     if detail_idx is not None:
-        row[detail_idx] = details  # <-- write the offsets text here
+        row[detail_idx] = details  # write the details string here
 
     # Increment release number if a numeric column exists
     release_num_idx = _first_present(
@@ -349,11 +353,74 @@ def append_release_note(entry: pynmrstar.Entry,
         _get_loop_data(release_loop).append(row)
 
 
+# --------------------------- Public wrapper API ---------------------------
+
+def apply_selected_offsets_and_note(
+    input_path: str,
+    output_path: str,
+    list_id: int,
+    offsets: Dict[str, float],
+    atoms: Iterable[str] = ("CA", "CB", "C", "N"),
+    release_author: str = "BMRB",
+    release_details: Optional[str] = None,
+) -> Dict[str, int]:
+    """
+    Single-call wrapper for external use (e.g., from lacs.py or notebooks).
+
+    Parameters
+    ----------
+    input_path : str
+        Path to input NMR-STAR file.
+    output_path : str
+        Where to write corrected file.
+    list_id : int
+        Chemical-shift list ID to modify.
+    offsets : Dict[str, float]
+        Offsets per atom; only keys in {'CA','CB','C','N'} are used.
+    atoms : Iterable[str]
+        Subset of atoms to which offsets should be applied (defaults to all four).
+    release_author : str
+        Author to place in the Release row (default 'BMRB').
+    release_details : Optional[str]
+        If provided, used verbatim in the Release Detail field; otherwise composed automatically.
+
+    Returns
+    -------
+    Dict[str, int]
+        Counts dictionary with per-atom and total updates.
+    """
+    # Normalize offsets and atom list
+    allowed = {"CA", "CB", "C", "N"}
+    atoms_upper = [a.upper() for a in atoms if a is not None]
+    atoms_use = [a for a in atoms_upper if a in allowed]
+    offs = {k: float(offsets.get(k, 0.0)) for k in allowed}
+
+    entry = pynmrstar.Entry.from_file(input_path)
+    counts = apply_offsets_to_entry_for_list(entry, offs, list_id, atoms_use)
+
+    # Compose default details message if not provided
+    if release_details is None:
+        parts = [f"{a}={offs[a]:+g}" for a in atoms_use]
+        detail_offsets = ", ".join(parts) if parts else "none"
+        details = (
+            f"Applied chemical-shift offsets (ppm) to list_id {list_id}: "
+            f"{detail_offsets}. Rows updated: " +
+            ", ".join(f"{a}={counts[a]}" for a in atoms_use) +
+            f"; total={counts['total']}."
+        )
+    else:
+        details = release_details
+
+    append_release_note(entry, author=release_author, details=details)
+    entry.write_to_file(output_path)
+    return counts
+
+
 # ------------------------------------ CLI --------------------------------------
 
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
-        description="Apply CA/CB/C/N/HA offsets to a specific chemical-shift list in an NMR-STAR file and record a Release note."
+        description="Apply selected CA/CB/C/N offsets to a specific chemical-shift list in an NMR-STAR file and record a Release note."
     )
     p.add_argument("input", help="Input NMR-STAR file (e.g., .str)")
     p.add_argument("output", help="Output NMR-STAR file (corrected)")
@@ -363,12 +430,16 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--cb", type=float, default=0.0, help="Offset to add to CB shifts (ppm)")
     p.add_argument("--c",  type=float, default=0.0, help="Offset to add to C (carbonyl) shifts (ppm)")
     p.add_argument("--n",  type=float, default=0.0, help="Offset to add to N shifts (ppm)")
-    p.add_argument("--ha", type=float, default=0.0, help="Offset to add to HA shifts (ppm)")
-    p.add_argument("--ha-include-all", dest="ha_include_all", action="store_true",
-                   help="Apply HA offset to HA2/HA3 as well (default: on)")
-    p.add_argument("--no-ha-include-all", dest="ha_include_all", action="store_false",
-                   help="Restrict HA offset to only HA (not HA2/HA3).")
-    p.set_defaults(ha_include_all=True)
+
+    # NEW: restrict which atoms to apply
+    p.add_argument(
+        "--atoms",
+        nargs="+",
+        choices=["CA", "CB", "C", "N", "ca", "cb", "c", "n"],
+        default=["CA", "CB", "C", "N"],
+        help="Subset of atoms to correct (choose from CA CB C N). Default: all four."
+    )
+
     p.add_argument("--dry-run", action="store_true",
                    help="Report intended changes but do not write output.")
     return p.parse_args()
@@ -376,9 +447,12 @@ def _parse_args() -> argparse.Namespace:
 
 def main():
     args = _parse_args()
-    offsets = {"CA": args.ca, "CB": args.cb, "C": args.c, "N": args.n, "HA": args.ha}
+    # Normalize selected atoms to upper
+    atoms = [a.upper() for a in args.atoms]
 
-    if all(abs(v) < 1e-15 for v in offsets.values()):
+    offsets = {"CA": args.ca, "CB": args.cb, "C": args.c, "N": args.n}
+
+    if all(abs(float(offsets[k])) < 1e-15 for k in offsets):
         print("All offsets are zero; no changes will be applied.", file=sys.stderr)
 
     try:
@@ -387,30 +461,28 @@ def main():
         print(f"ERROR: Failed to read input NMR-STAR file '{args.input}': {e}", file=sys.stderr)
         sys.exit(1)
 
-    counts = apply_offsets_to_entry_for_list(entry, offsets, args.list_id, args.ha_include_all)
+    counts = apply_offsets_to_entry_for_list(entry, offsets, args.list_id, atoms)
 
-    # Compose the text that goes into _Release.Detail
+    # Compose the text that goes into Release.Detail (only selected atoms)
+    parts = [f"{a}={offsets[a]:+g}" for a in atoms]
+    detail_offsets = ", ".join(parts) if parts else "none"
     details_text = (
         f"Applied chemical-shift offsets (ppm) to list_id {args.list_id}: "
-        f"CA={offsets['CA']:+.6g}, CB={offsets['CB']:+.6g}, C={offsets['C']:+.6g}, "
-        f"N={offsets['N']:+.6g}, HA={offsets['HA']:+.6g}; "
-        f"HA_include_all={args.ha_include_all}. "
-        f"Rows updated: CA={counts['CA']}, CB={counts['CB']}, C={counts['C']}, N={counts['N']}, HA={counts['HA']}; "
-        f"total={counts['total']}."
+        f"{detail_offsets}. Rows updated: " +
+        ", ".join(f"{a}={counts[a]}" for a in atoms) +
+        f"; total={counts['total']}."
     )
     append_release_note(entry, author="BMRB", details=details_text)
 
     # Report
     print("Target chemical-shift list ID:", args.list_id)
+    print("Atoms corrected:", ", ".join(atoms) if atoms else "(none)")
     print("Offset summary (ppm):")
-    print(f"  CA: {offsets['CA']:+.6g}, CB: {offsets['CB']:+.6g}, C: {offsets['C']:+.6g}, "
-          f"N: {offsets['N']:+.6g}, HA: {offsets['HA']:+.6g}")
+    for a in atoms:
+        print(f"  {a}: {float(offsets[a]):+g}")
     print("Rows updated:")
-    print(f"  CA: {counts['CA']}")
-    print(f"  CB: {counts['CB']}")
-    print(f"   C: {counts['C']}")
-    print(f"   N: {counts['N']}")
-    print(f"  HA: {counts['HA']}")
+    for a in atoms:
+        print(f"  {a}: {counts[a]}")
     print(f"Total updated: {counts['total']}")
     print(f"Loops scanned: {counts['loops_seen']}, matched list ID: {counts['loops_matched']}")
 

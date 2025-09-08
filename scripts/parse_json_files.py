@@ -105,11 +105,11 @@ def main() -> None:
     total = 0
     ok = 0
     errors = 0
-    dict_data = {'tukey': {'ca': [], 'cb': [], 'c': [], 'n': [], 'ha': []},
-                 'ransac': {'ca': [], 'cb': [], 'c': [], 'n': [], 'ha': []},
-                 'quantile': {'ca': [], 'cb': [], 'c': [], 'n': [], 'ha': []},
-                 'theilsen': {'ca': [], 'cb': [], 'c': [], 'n': [], 'ha': []},
-                 'bayes': {'ca': [], 'cb': [], 'c': [], 'n': [], 'ha': []}}
+    dict_data = {'tukey': {'ca': None, 'cb': None, 'c': None, 'n': None, 'ha': None},
+                 'ransac': {'ca': None, 'cb': None, 'c': None, 'n': None, 'ha': None},
+                 'quantile':{'ca': None, 'cb': None, 'c': None, 'n': None, 'ha': None},
+                 'theilsen':{'ca': None, 'cb': None, 'c': None, 'n': None, 'ha': None},
+                 'bayes': {'ca': None, 'cb': None, 'c': None, 'n': None, 'ha': None}}
     ca=[]
     ca_method=[]
     cb=[]
@@ -128,7 +128,7 @@ def main() -> None:
     fo_c = open('offsets_c.csv', 'w')
     fo_n = open('offsets_n.csv', 'w')
     fo_ha = open('offsets_ha.csv', 'w')
-
+    offsets={}
     for jf in iter_json_files(args.directory, recursive=args.recursive, include_root=args.include_root):
         total += 1
         path, data, err = parse_json_file(jf)
@@ -140,10 +140,19 @@ def main() -> None:
         #process_json(data, path)
         if len(data):
             entry_id = path.stem.split("_")[0]
+            if entry_id not in offsets:
+                offsets[entry_id] = {}
             method = path.stem.split("_")[-1]
             if entry_id not in tot: tot.append(entry_id)
             for list_id in data:
+                if list_id not in offsets[entry_id]:
+                    offsets[entry_id][list_id]={'tukey': {'ca': None, 'cb': None, 'c': None, 'n': None, 'ha': None},
+                 'ransac': {'ca': None, 'cb': None, 'c': None, 'n': None, 'ha': None},
+                 'quantile':{'ca': None, 'cb': None, 'c': None, 'n': None, 'ha': None},
+                 'theilsen':{'ca': None, 'cb': None, 'c': None, 'n': None, 'ha': None},
+                 'bayes': {'ca': None, 'cb': None, 'c': None, 'n': None, 'ha': None}}
                 for atom in data[list_id]['offsets']:
+                    offsets[entry_id][list_id][method][atom] = -data[list_id]['offsets'][atom]
                     if atom == 'ca' and abs(data[list_id]['offsets'][atom])>1.7:
                         if atom == 'ca' and entry_id not in wrong_ref: wrong_ref.append(entry_id)
                         fo.write(f'{entry_id},{list_id},{method},{atom},{data[list_id]['offsets'][atom]}\n')
@@ -167,7 +176,7 @@ def main() -> None:
                         ha.append(data[list_id]['offsets'][atom])
                         ha_method.append(method)
                         fo_ha.write(f'{entry_id},{list_id},{method},{atom},{data[list_id]['offsets'][atom]}\n')
-                    dict_data[method][atom].append(data[list_id]['offsets'][atom])
+                    #dict_data[method][atom].append(data[list_id]['offsets'][atom])
     # df_ca = pd.DataFrame({'tukey':dict_data['tukey']['ca'],
     #                       'ransac':dict_data['ransac']['ca'],
     #                       'quantile':dict_data['quantile']['ca'],
@@ -193,25 +202,80 @@ def main() -> None:
     #                       'quantile':dict_data['quantile']['ha'],
     #                       'theilsen':dict_data['theilsen']['ha'],
     #                       'bayes':dict_data['bayes']['ha']})
-    fig = px.histogram(x=ca,color=ca_method,nbins=500,barmode='overlay',title='CA')
-    fig.write_html('ca.html')
-    fig = px.histogram(x=cb,color=cb_method,nbins=500,barmode='overlay',title='CB')
-    fig.write_html('cb.html')
-    fig = px.histogram(x=c,color=c_method,nbins=500,barmode='overlay',title='C')
-    fig.write_html('c.html')
-    fig = px.histogram(x=n,color=n_method,nbins=500,barmode='overlay',title='N')
-    fig.write_html('n.html')
-    fig = px.histogram(x=ha,color=ha_method,nbins=500,barmode='overlay',title='HA')
-    fig.write_html('ha.html')
-
+    # fig = px.histogram(x=ca,color=ca_method,nbins=500,barmode='overlay',title='CA')
+    # fig.write_html('ca.html')
+    # fig = px.histogram(x=cb,color=cb_method,nbins=500,barmode='overlay',title='CB')
+    # fig.write_html('cb.html')
+    # fig = px.histogram(x=c,color=c_method,nbins=500,barmode='overlay',title='C')
+    # fig.write_html('c.html')
+    # fig = px.histogram(x=n,color=n_method,nbins=500,barmode='overlay',title='N')
+    # fig.write_html('n.html')
+    # fig = px.histogram(x=ha,color=ha_method,nbins=500,barmode='overlay',title='HA')
+    # fig.write_html('ha.html')
+    with open('bmrb_offsets.json', "w", encoding="utf-8") as f:
+        json.dump(offsets, f, indent=2)
     print("-" * 80)
     print(f"Scanned: {total} file(s) | Parsed OK: {ok} | Errors: {errors}")
-    for method in dict_data:
-        for atom in dict_data[method]:
-            print(f'{method},{atom},{len(dict_data[method][atom])},{np.mean(dict_data[method][atom])},{np.std(dict_data[method][atom])}')
-    print (f'Wrong reference: {len(wrong_ref)}')
-    print (f'Total: {len(tot)}')
-    print (wrong_ref)
+    # for method in dict_data:
+    #     for atom in dict_data[method]:
+    #         print(f'{method},{atom},{len(dict_data[method][atom])},{np.mean(dict_data[method][atom])},{np.std(dict_data[method][atom])}')
+    # print (f'Wrong reference: {len(wrong_ref)}')
+    # print (f'Total: {len(tot)}')
+    # print (wrong_ref)
+
+def read_json_result(fname):
+    with open(fname, "r", encoding="utf-8") as f:
+        report2 = json.load(f)
+    print(len(report2))
+    for bmrb_id in report2:
+        if len(report2[bmrb_id])==0:
+            print(bmrb_id)
+        for list_id in report2[bmrb_id]:
+            if len(report2[bmrb_id][list_id])==0:
+                print(bmrb_id, list_id)
+            ca = []
+            cb = []
+            c = []
+            n = []
+            ha = []
+            ofs={}
+            for method in report2[bmrb_id][list_id]:
+                for atom in report2[bmrb_id][list_id][method]:
+                    if report2[bmrb_id][list_id][method][atom] is not None:
+                        if atom=='ca': ca.append(report2[bmrb_id][list_id][method][atom])
+                        if atom=='cb': cb.append(report2[bmrb_id][list_id][method][atom])
+                        if atom=='c': c.append(report2[bmrb_id][list_id][method][atom])
+                        if atom=='n': n.append(report2[bmrb_id][list_id][method][atom])
+                        if atom=='ha':ha.append(report2[bmrb_id][list_id][method][atom])
+
+            if np.median(ca)>0.2:
+                #print (bmrb_id,list_id,ca,np.mean(ca),np.std(ca),'CA')
+                ofs['CA']=round(np.median(ca),2)
+            if np.median(cb)>0.2:
+                #print (bmrb_id,list_id,cb,np.mean(cb),np.std(cb),'CB')
+                ofs['CB']=round(np.median(cb),2)
+            if np.median(c)>0.2:
+                #print (bmrb_id,list_id,c,np.mean(c),np.std(c),'C')
+                ofs['C']=round(np.median(c),2)
+            if np.median(n)>0.2:
+                #print (bmrb_id,list_id,n,np.mean(n),np.std(n),'N')
+                ofs['N']=round(np.median(n),2)
+            if ofs:
+                if 'CA' in ofs and 'CB' not in ofs:
+                    avg= round((ofs['CA']+np.median(cb))/2.0,2)
+                    ofs['CA']=avg
+                    ofs['CB']=avg
+                if 'CB' in ofs and 'CA' not in ofs:
+                    avg = round((ofs['CB'] + np.median(ca)) / 2.0, 2)
+                    ofs['CA'] = avg
+                    ofs['CB'] = avg
+                print(bmrb_id, list_id,ofs)
+
+
+
+            
+
 
 if __name__ == "__main__":
-    main()
+    # main()
+    read_json_result('bmrb_offsets.json')
