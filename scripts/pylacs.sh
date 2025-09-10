@@ -42,8 +42,15 @@ print("PyMC:", pm.__version__)
 PY
 
 # Run your job
-$PY  lacs.py $1 --data-id $2 --out /home/nmrbox/kbaskaran/lacs/bayes/$2 --method bayes
-$PY  lacs.py $1 --data-id $2 --out /home/nmrbox/kbaskaran/lacs/bayes/$2 --method theilsen
-$PY  lacs.py $1 --data-id $2 --out /home/nmrbox/kbaskaran/lacs/bayes/$2 --method ransac
-$PY  lacs.py $1 --data-id $2 --out /home/nmrbox/kbaskaran/lacs/bayes/$2 --method quantile
-$PY  lacs.py $1 --data-id $2 --out /home/nmrbox/kbaskaran/lacs/bayes/$2 --method tukey
+$PY  lacs.py $1 --data-id $2 --out /home/nmrbox/kbaskaran/lacs/bayes/$2 --method bayes --apply-offsets --output-corrected /home/nmrbox/kbaskaran/lacs/bayes/$2/$2_corrected.str
+$PY  lacs.py $1 --data-id $2 --out /home/nmrbox/kbaskaran/lacs/theilsen/$2 --method theilsen --apply-offsets --output-corrected /home/nmrbox/kbaskaran/lacs/bayes/$2/$2_corrected.str
+$PY  lacs.py $1 --data-id $2 --out /home/nmrbox/kbaskaran/lacs/ransac/$2 --method ransac --apply-offsets --output-corrected /home/nmrbox/kbaskaran/lacs/bayes/$2/$2_corrected.str
+$PY  lacs.py $1 --data-id $2 --out /home/nmrbox/kbaskaran/lacs/quantile/$2 --method quantile --apply-offsets --output-corrected /home/nmrbox/kbaskaran/lacs/bayes/$2/$2_corrected.str
+$PY  lacs.py $1 --data-id $2 --out /home/nmrbox/kbaskaran/lacs/tukey/$2 --method tukey --apply-offsets --output-corrected /home/nmrbox/kbaskaran/lacs/bayes/$2/$2_corrected.str
+#re run corrected ones
+$PY  lacs.py /home/nmrbox/kbaskaran/lacs/bayes/$2/$2_corrected.str  --data-id $2 --out /home/nmrbox/kbaskaran/lacs/bayes/corrected/$2 --method bayes
+$PY  lacs.py /home/nmrbox/kbaskaran/lacs/theilsen/$2/$2_corrected.str  --data-id $2 --out /home/nmrbox/kbaskaran/lacs/theilsen/corrected/$2 --method theilsen
+$PY  lacs.py /home/nmrbox/kbaskaran/lacs/ransac/$2/$2_corrected.str  --data-id $2 --out /home/nmrbox/kbaskaran/lacs/ransac/corrected/$2 --method ransac
+$PY  lacs.py /home/nmrbox/kbaskaran/lacs/quantile/$2/$2_corrected.str  --data-id $2 --out /home/nmrbox/kbaskaran/lacs/quantile/corrected/$2 --method quantile
+$PY  lacs.py /home/nmrbox/kbaskaran/lacs/tukey/$2/$2_corrected.str  --data-id $2 --out /home/nmrbox/kbaskaran/lacs/tukey/corrected/$2 --method tukey
+

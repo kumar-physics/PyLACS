@@ -5,7 +5,7 @@ executable              = pylacs.sh
 arguments               = /reboxitory/2025/08/BMRB/macromolecules/bmr$(bmrbid)/bmr$(bmrbid)_3.str $(bmrbid)
 
 # Stage inputs into the execute slot:
-transfer_input_files    = pylacs.sh,lacs.py,random_coil.py,pymc_portable.tar.gz
+transfer_input_files    = pylacs.sh,lacs.py,random_coil.py,pymc_portable.tar.gz,apply_lacs_correction.py
 
 should_transfer_files   = YES
 when_to_transfer_output = ON_EXIT
@@ -17,9 +17,9 @@ request_memory          = 6 GB
 request_disk            = 6 GB
 
 # Logs (create the directory first: mkdir -p logs)
-output                  = /home/nmrbox/kbaskaran/lacs/bayes/out/$(bmrbid).$(Cluster).$(Process).out
-error                   = /home/nmrbox/kbaskaran/lacs/bayes/err/$(bmrbid).$(Cluster).$(Process).err
-log                     = /home/nmrbox/kbaskaran/lacs/bayes/log/$(bmrbid).$(Cluster).$(Process).log
+output                  = /home/nmrbox/kbaskaran/lacs/out/$(bmrbid).$(Cluster).$(Process).out
+error                   = /home/nmrbox/kbaskaran/lacs/err/$(bmrbid).$(Cluster).$(Process).err
+log                     = /home/nmrbox/kbaskaran/lacs/log/$(bmrbid).$(Cluster).$(Process).log
 
 # Keep your NMRBox domain constraint
 requirements            = (UidDomain == "nmrbox.org")

@@ -27,16 +27,16 @@ def read_json_result(fname):
                         if atom=='n': n.append(report2[bmrb_id][list_id][method][atom])
                         if atom=='ha':ha.append(report2[bmrb_id][list_id][method][atom])
 
-            if np.median(ca)>0.2:
+            if abs(np.median(ca))>0.2:
                 #print (bmrb_id,list_id,ca,np.mean(ca),np.std(ca),'CA')
                 ofs['CA']=round(np.median(ca),2)
-            if np.median(cb)>0.2:
+            if abs(np.median(cb))>0.2:
                 #print (bmrb_id,list_id,cb,np.mean(cb),np.std(cb),'CB')
                 ofs['CB']=round(np.median(cb),2)
-            if np.median(c)>0.2:
+            if abs(np.median(c))>0.2:
                 #print (bmrb_id,list_id,c,np.mean(c),np.std(c),'C')
                 ofs['C']=round(np.median(c),2)
-            if np.median(n)>0.2:
+            if abs(np.median(n))>0.2:
                 #print (bmrb_id,list_id,n,np.mean(n),np.std(n),'N')
                 ofs['N']=round(np.median(n),2)
             if ofs:
@@ -50,7 +50,7 @@ def read_json_result(fname):
                     ofs['CB'] = avg
                 parts = [f"{a}={ofs[a]:+g}" for a in ofs]
                 details = (
-                        f"CS reference correction applied to list_id {list_id} : "
+                        f"CS offset correction applied to list_id {list_id} : "
                         + (", ".join(parts) if parts else "none")
                         + ". Source: PyLACS."
                 )
