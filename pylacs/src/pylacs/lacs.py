@@ -59,6 +59,10 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
+# Minimum points required per sign side
+MIN_PER_SIDE_DEFAULT = 5
+
+
 # ----------------------------- Optional plotting ------------------------------
 try:  # pragma: no cover - optional
     import plotly.express as px
@@ -486,26 +490,42 @@ def _ci_and_sd(samples: np.ndarray, level: float = 0.95) -> Tuple[float, float, 
 def collect_and_report(fits: Dict[str, FitResult], cutoff_k: float = 5.0) -> Dict[str, Dict]:
     """Assemble offsets and outlier lists into a serializable report.
 
-    Parameters
-    ----------
-    fits : dict[str, FitResult]
-        Per-nucleus fit results.
-    cutoff_k : float
-        Cutoff multiplier used for outlier scoring (for reproducibility in logs).
-
-    Returns
-    -------
-    dict
-        Report with keys ``offsets`` and ``outliers``.
+    If both sides were fit (non-empty), offset = -average(intercepts).
+    If only one side was fit, offset = -that side's intercept.
     """
-    offsets = {atom: -round((fr.intercept_pos + fr.intercept_neg) / 2.0, 3) for atom, fr in fits.items()}
-    offsets_split = {atom: {'pos':-round(fr.intercept_pos,3),'neg':-round(fr.intercept_neg,3)} for atom, fr in fits.items()}
-    report: Dict[str, Dict] = {"offsets": offsets, "offsets_split": offsets_split, "outliers": {}, "meta": {"cutoff_k": cutoff_k}}
+    offsets: Dict[str, float] = {}
+    offsets_split: Dict[str, Dict[str, Optional[float]]] = {}
+    used_side: Dict[str, str] = {}
+
+    for atom, fr in fits.items():
+        has_pos = len(fr.x_pos) > 0
+        has_neg = len(fr.x_neg) > 0
+        offsets_split[atom] = {
+            'pos': None if not has_pos else round(-fr.intercept_pos, 3),
+            'neg': None if not has_neg else round(-fr.intercept_neg, 3),
+        }
+        if has_pos and has_neg:
+            off = -0.5 * (fr.intercept_pos + fr.intercept_neg)
+            used_side[atom] = 'both'
+        elif has_pos:
+            off = -fr.intercept_pos
+            used_side[atom] = 'pos'
+        elif has_neg:
+            off = -fr.intercept_neg
+            used_side[atom] = 'neg'
+        else:
+            off = 0.0
+            used_side[atom] = 'none'
+        offsets[atom] = round(float(off), 3)
+
+    report: Dict[str, Dict] = {"offsets": offsets, "offsets_split": offsets_split, "outliers": {}, "meta": {"cutoff_k": cutoff_k, "used_side": used_side}}
+
+    # Outliers from residuals on whichever sides were fit
     for atom, fr in fits.items():
         resid_all = np.array(fr.resid_pos + fr.resid_neg, dtype=float)
         tags_all  = fr.tags_pos + fr.tags_neg
         flags, probs = outlier_stats(resid_all, cutoff_k=cutoff_k)
-        out = []
+        out: List[Dict[str, object]] = []
         for tag, f, p, r in zip(tags_all, flags, probs, resid_all.tolist()):
             out.append({
                 "residue_key": {"entity": tag[0], "assembly": tag[1], "index": tag[2], "comp": tag[3]},
@@ -544,48 +564,83 @@ def collect_and_report_bayes(fits: Dict[str, FitResult],
     base = collect_and_report(fits, cutoff_k=cutoff_k)
     offsets_bayes = {}
     offsets_bayes_split={}
+# Compute offsets_bayes with single-side fallback
+    offsets_bayes = {}
     for atom, fr in fits.items():
-        pos = -alpha_samples.get(atom, {}).get('pos', np.array([], float))
-        neg = -alpha_samples.get(atom, {}).get('neg', np.array([], float))
-        if pos.size > 0 and neg.size > 0:
-            n = min(pos.size, neg.size)
-            offs_draws = 0.5 * (pos[:n] + neg[:n])
-        elif pos.size > 0:
-            offs_draws = pos
-        elif neg.size > 0:
-            offs_draws = neg
+        has_pos = len(fr.x_pos)>0
+        has_neg = len(fr.x_neg)>0
+        if has_pos and has_neg:
+            # combine posterior samples if available
+            pos_draws = alpha_samples.get(atom, {}).get('pos', np.array([]))
+            neg_draws = alpha_samples.get(atom, {}).get('neg', np.array([]))
+            if pos_draws.size and neg_draws.size:
+                comb = -0.5*(pos_draws + neg_draws)
+                mean, lo, hi = _ci_and_sd(comb)
+                offsets_bayes[atom] = {'mean': round(mean,3), 'ci95': [round(lo,3), round(hi,3)], 'sd': round(np.std(comb),3)}
+            else:
+                # fallback to means
+                offsets_bayes[atom] = {'mean': round(-0.5*(fr.intercept_pos+fr.intercept_neg),3)}
+        elif has_pos:
+            pos_draws = alpha_samples.get(atom, {}).get('pos', np.array([]))
+            if pos_draws.size:
+                comb = -pos_draws
+                mean, lo, hi = _ci_and_sd(comb)
+                offsets_bayes[atom] = {'mean': round(mean,3), 'ci95': [round(lo,3), round(hi,3)], 'sd': round(np.std(comb),3)}
+            else:
+                offsets_bayes[atom] = {'mean': round(-fr.intercept_pos,3)}
+        elif has_neg:
+            neg_draws = alpha_samples.get(atom, {}).get('neg', np.array([]))
+            if neg_draws.size:
+                comb = -neg_draws
+                mean, lo, hi = _ci_and_sd(comb)
+                offsets_bayes[atom] = {'mean': round(mean,3), 'ci95': [round(lo,3), round(hi,3)], 'sd': round(np.std(comb),3)}
+            else:
+                offsets_bayes[atom] = {'mean': round(-fr.intercept_neg,3)}
         else:
-            offs_draws = np.array([], float)
-        mean = float(np.mean(offs_draws)) if offs_draws.size else float((fr.intercept_pos + fr.intercept_neg)/2.0)
-        lo, hi, sd = _ci_and_sd(offs_draws, level=0.95)
-        offsets_bayes[atom] = {
-            "mean": round(mean, 4),
-            "ci95": [None if np.isnan(lo) else round(lo, 4),
-                     None if np.isnan(hi) else round(hi, 4)],
-            "sd": None if np.isnan(sd) else round(sd, 4),
-        }
-        lo_p, hi_p, sd_p = _ci_and_sd(pos, level=0.95)
-        pos_stat = {
-            "mean": round(mean, 4),
-            "ci95": [None if np.isnan(lo_p) else round(lo_p, 4),
-                     None if np.isnan(hi_p) else round(hi_p, 4)],
-            "sd": None if np.isnan(sd_p) else round(sd_p, 4),
-        }
-        offsets_bayes_split[atom]={'pos':pos_stat}
-        lo_p, hi_p, sd_p = _ci_and_sd(neg, level=0.95)
-        pos_stat = {
-            "mean": round(mean, 4),
-            "ci95": [None if np.isnan(lo_p) else round(lo_p, 4),
-                     None if np.isnan(hi_p) else round(hi_p, 4)],
-            "sd": None if np.isnan(sd_p) else round(sd_p, 4),
-        }
-        offsets_bayes_split[atom] = {'neg': pos_stat}
+            offsets_bayes[atom] = {'mean': 0.0}
+
+        for atom, fr in fits.items():
+            pos = -alpha_samples.get(atom, {}).get('pos', np.array([], float))
+            neg = -alpha_samples.get(atom, {}).get('neg', np.array([], float))
+            if pos.size > 0 and neg.size > 0:
+                n = min(pos.size, neg.size)
+                offs_draws = 0.5 * (pos[:n] + neg[:n])
+            elif pos.size > 0:
+                offs_draws = pos
+            elif neg.size > 0:
+                offs_draws = neg
+            else:
+                offs_draws = np.array([], float)
+            mean = float(np.mean(offs_draws)) if offs_draws.size else float((fr.intercept_pos + fr.intercept_neg)/2.0)
+            lo, hi, sd = _ci_and_sd(offs_draws, level=0.95)
+            offsets_bayes[atom] = {
+                "mean": round(mean, 4),
+                "ci95": [None if np.isnan(lo) else round(lo, 4),
+                         None if np.isnan(hi) else round(hi, 4)],
+                "sd": None if np.isnan(sd) else round(sd, 4),
+            }
+            lo_p, hi_p, sd_p = _ci_and_sd(pos, level=0.95)
+            pos_stat = {
+                "mean": round(mean, 4),
+                "ci95": [None if np.isnan(lo_p) else round(lo_p, 4),
+                         None if np.isnan(hi_p) else round(hi_p, 4)],
+                "sd": None if np.isnan(sd_p) else round(sd_p, 4),
+            }
+            offsets_bayes_split[atom]={'pos':pos_stat}
+            lo_p, hi_p, sd_p = _ci_and_sd(neg, level=0.95)
+            pos_stat = {
+                "mean": round(mean, 4),
+                "ci95": [None if np.isnan(lo_p) else round(lo_p, 4),
+                         None if np.isnan(hi_p) else round(hi_p, 4)],
+                "sd": None if np.isnan(sd_p) else round(sd_p, 4),
+            }
+            offsets_bayes_split[atom] = {'neg': pos_stat}
 
 
 
-    base["offsets_bayes"] = offsets_bayes
-    base["offsets_bayes_split"] = offsets_bayes_split
-    return base
+        base["offsets_bayes"] = offsets_bayes
+        base["offsets_bayes_split"] = offsets_bayes_split
+        return base
 
 
 # =============================================================================
@@ -959,28 +1014,18 @@ def fit_side_bayes_t(x: Sequence[float], y: Sequence[float]) -> Tuple[float, flo
 
 # ---------------------- nucleus-level orchestration ---------------------------
 
-def _fit_atom_by_method(method: str, xvals: List[float], yvals: List[float], tags: List[ResidueKey]) -> FitResult:
+def _fit_atom_by_method(method: str, xvals: List[float], yvals: List[float], tags: List[ResidueKey],
+                        min_per_side: int = MIN_PER_SIDE_DEFAULT) -> FitResult:
     """Fit a single nucleus by splitting x by sign and applying ``method``.
 
-    Parameters
-    ----------
-    method : {'tukey','theilsen','ransac','quantile','bayes'}
-        Robust regression method.
-    xvals, yvals : list[float]
-        Independent (x) and dependent (y) values per residue.
-    tags : list[ResidueKey]
-        Residue identifiers in the same order as data.
-
-    Returns
-    -------
-    FitResult
-        Per-side parameters, residuals, and bookkeeping.
+    Only fit a side if it contains at least ``min_per_side`` points.
     """
     x = np.asarray(xvals, dtype=float); y = np.asarray(yvals, dtype=float)
     pos = x >= 0; neg = ~pos
 
     def do_side(mask):
-        if mask.sum() < 2:
+        if int(mask.sum()) < int(min_per_side):
+            # Not enough data for this side; mark as empty
             return 1.0, 0.0, [], [], [], [], []
         xx, yy = x[mask], y[mask]
         if method == "tukey":
@@ -1004,28 +1049,15 @@ def _fit_atom_by_method(method: str, xvals: List[float], yvals: List[float], tag
     return FitResult(s_p, b_p, f_p, r_p, xp, yp, t_p, s_n, b_n, f_n, r_n, xn, yn, t_n)
 
 
-def _fit_atom_bayes(xvals: List[float], yvals: List[float], tags: List[ResidueKey]) -> Tuple[FitResult, Dict[str, np.ndarray]]:
-    """Bayesian version of :func:`_fit_atom_by_method` that also returns intercept draws.
-
-    Parameters
-    ----------
-    xvals, yvals : list[float]
-        Independent (x) and dependent (y) values per residue.
-    tags : list[ResidueKey]
-        Residue identifiers in the same order as data.
-
-    Returns
-    -------
-    (FitResult, dict)
-        ``FitResult`` with posterior means, and a dict containing posterior draws
-        of the intercept on each side: ``{'pos': alpha_draws_pos, 'neg': alpha_draws_neg}``.
-    """
+def _fit_atom_bayes(xvals: List[float], yvals: List[float], tags: List[ResidueKey],
+                    min_per_side: int = MIN_PER_SIDE_DEFAULT) -> Tuple[FitResult, Dict[str, np.ndarray]]:
+    """Bayesian version of :func:`_fit_atom_by_method` that also returns intercept draws."""
     x = np.asarray(xvals, dtype=float); y = np.asarray(yvals, dtype=float)
     pos = x >= 0; neg = ~pos
     draws: Dict[str, np.ndarray] = {"pos": np.array([], float), "neg": np.array([], float)}
 
     def do_side(mask, side_key):
-        if mask.sum() < 2:
+        if int(mask.sum()) < int(min_per_side):
             return 1.0, 0.0, [], [], [], [], []
         xx, yy = x[mask], y[mask]
         s, b, f, r, _, _, alpha_draws = fit_side_bayes_t(xx, yy)
@@ -1041,7 +1073,8 @@ def _fit_atom_bayes(xvals: List[float], yvals: List[float], tags: List[ResidueKe
 
 
 def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequence[str] | str] = None,
-             outdir: Optional[Path] = None, plots: bool = True, cutoff_k: float = 5.0) -> Dict[str, Dict]:
+             outdir: Optional[Path] = None, plots: bool = True, cutoff_k: float = 5.0,
+             min_per_side: int = MIN_PER_SIDE_DEFAULT) -> Dict[str, Dict]:
     """Run the selected robust method over an NMR-STAR file.
 
     Parameters
@@ -1082,10 +1115,10 @@ def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequen
                 xvals = d[xkey]; tg = tags[atom]
             if len(yvals) >= 2 and len(xvals) == len(yvals):
                 if method == "bayes":
-                    fr, draws = _fit_atom_bayes(xvals, yvals, tg)
+                    fr, draws = _fit_atom_bayes(xvals, yvals, tg, min_per_side=min_per_side)
                     alpha_samples[atom] = draws
                 else:
-                    fr = _fit_atom_by_method(method, xvals, yvals, tg)
+                    fr = _fit_atom_by_method(method, xvals, yvals, tg, min_per_side=min_per_side)
                 fits[atom] = fr
 
         if fits:
@@ -1145,14 +1178,16 @@ def main(argv=None) -> None:
 
     p = argparse.ArgumentParser(description="LACS unified CLI for robust linear fits.")
     p.add_argument("star_file", help="Path to NMR-STAR .str file")
-    p.add_argument("--method", required=True,
+    p.add_argument("--method", default='bayes',
                    choices=["tukey","theilsen","ransac","quantile","bayes"],
-                   help="Robust regression method to use")
+                   help="Robust regression method to use (default Bayes)")
     p.add_argument("--data-id", default="LACS")
     p.add_argument("--rc-model", nargs="*", default=None,
                    help="Random-coil model alias(es), e.g. wis wan; omit for average of all")
     p.add_argument("--out", type=Path, default=None, help="Output directory for plots")
     p.add_argument("--no-plots", action="store_true", help="Disable plotting entirely")
+    p.add_argument('--min-per-side', type=int, default=MIN_PER_SIDE_DEFAULT,
+                   help='Minimum number of points required on each sign side (default: 5).')
     p.add_argument("--cutoff-k", type=float, default=5.0, help="Outlier cutoff multiplier (default 5.0)")
     p.add_argument("--json-out", type=Path, default=None, help="Where to write JSON (defaults to <data_id>_<method>.json)")
 
@@ -1171,7 +1206,7 @@ def main(argv=None) -> None:
     args = p.parse_args(argv)
     rc_model = None if args.rc_model == [] else (args.rc_model if args.rc_model is not None else None)
     report = run_lacs(args.star_file, method=args.method, data_id=args.data_id,
-                      rc_model=rc_model, outdir=args.out, plots=not args.no_plots, cutoff_k=args.cutoff_k)
+                      rc_model=rc_model, outdir=args.out, plots=not args.no_plots, cutoff_k=args.cutoff_k, min_per_side=args.min_per_side)
 
     json_path = args.json_out or _default_json_path(args.out, args.data_id, args.method)
     json_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1222,7 +1257,6 @@ def main(argv=None) -> None:
                         release_details=details,
                     )
             else:
-                print ('Here',offsets_uc)
                 counts = apply_selected_offsets_and_note(
                     input_path=args.star_file,
                     output_path=str(args.output_corrected),
