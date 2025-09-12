@@ -3,8 +3,11 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+import json
 
 from pylacs.lacs import run_lacs  # reuse your library function
+from pylacs.apply_lacs_correction import apply_selected_offsets_and_note
+from pylacs.lacs import _extract_offsets_for_list,_default_json_path,_normalize_atoms
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
@@ -15,6 +18,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--method", choices=["tukey", "theilsen", "ransac", "quantile", "bayes"],
                    default="tukey", help="Robust regression method")
     p.add_argument("--data-id", type=int, default=None, help="BMRB entry ID for labeling")
+    p.add_argument("--rc-model", nargs="*", default=None,
+                   help="Random-coil model alias(es), e.g. wis wan; omit for average of all")
     p.add_argument("--out", dest="outdir", type=Path, default=Path.cwd(),
                    help="Output directory (default: current dir)")
     p.add_argument("--no-plots", action="store_true", help="Disable plot generation")
@@ -26,6 +31,20 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("-q", "--quiet", action="store_true", help="Less logging")
     p.additionaL_argument = None  # placeholder to prevent syntax highlight bugs
     p.add_argument("-V", "--version", action="version", version=_version_string())
+    p.add_argument("--json-out", type=Path, default=None,
+                   help="Where to write JSON (defaults to <data_id>_<method>.json)")
+
+    p.add_argument("--apply-offsets", action="store_true",
+                   help="After computing offsets, apply them to the input .str.")
+
+    p.add_argument("--output-corrected", type=Path,
+                   help="Path to write the corrected NMR-STAR file (required with --apply-offsets).")
+    p.add_argument("--atoms", nargs="+",
+                   choices=["CA", "CB", "C", "N", "ca", "cb", "c", "n"],
+                   default=["CA", "CB", "C", "N"],
+                   help="Subset of atoms to correct (default: CA CB C N).")
+    p.add_argument("--release-author", default="BMRB",
+                   help="Author to record in the Release loop (default: BMRB).")
     return p
 
 def _version_string() -> str:
@@ -43,12 +62,14 @@ def _version_string() -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
+    rc_model = None if args.rc_model == [] else (args.rc_model if args.rc_model is not None else None)
 
     try:
         report = run_lacs(
-            star_file=str(args.star_file),
+            str_file=str(args.star_file),
             method=args.method,
             data_id=args.data_id,
+            rc_model=rc_model,
             outdir=str(args.outdir),
             plots=not args.no_plots,
             cutoff_k=args.cutoff_k,
@@ -56,6 +77,73 @@ def main(argv: list[str] | None = None) -> int:
         )
         # Optionally print a summary path or JSON to stdout for pipelines
         print(f"[pylacs] done. outputs → {args.outdir}")
+        json_path = args.json_out or _default_json_path(args.outdir, args.data_id, args.method)
+        json_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(report, f, indent=2)
+        if args.apply_offsets:
+            if apply_selected_offsets_and_note is None:
+                raise SystemExit("Cannot apply offsets: apply_lacs_correction.py not importable.")
+            if not args.output_corrected:
+                corrected_path = json_path.parent / f'{args.data_id}_corrected,str'
+                corrected_path.parent.mkdir(parents=True, exist_ok=True)
+                #raise SystemExit("--output-corrected is required with --apply-offsets.")
+            else:
+                corrected_path = args.output_corrected
+            # print (report)
+            for list_id in report:
+                try:
+                    offsets_uc = _extract_offsets_for_list(report, list_id)
+                except KeyError as e:
+                    # Graceful fallback: try reading the freshly written JSON (identical content)
+                    with open(json_path, "r", encoding="utf-8") as f:
+                        report2 = json.load(f)
+                    offsets_uc = _extract_offsets_for_list(report2, list_id)
+
+                atoms_use = _normalize_atoms(args.atoms)
+                parts = [f"{a}={offsets_uc[a]:+g}" for a in atoms_use]
+                details = (
+                        f"LACS correction applied to list_id {list_id} ({args.data_id}): "
+                        + (", ".join(parts) if parts else "none")
+                        + ". Source: LACS (same run)."
+                )
+                if len(report) > 1:
+                    list_ids = list(report.keys())
+                    if list_ids.index(list_id) > 0:
+                        counts = apply_selected_offsets_and_note(
+                            input_path=str(args.star_file),
+                            output_path=corrected_path,
+                            list_id=int(list_id),
+                            offsets=offsets_uc,
+                            atoms=atoms_use,
+                            release_author=args.release_author,
+                            release_details=details,
+                        )
+                    else:
+                        counts = apply_selected_offsets_and_note(
+                            input_path=str(args.star_file),
+                            output_path=corrected_path,
+                            list_id=int(list_id),
+                            offsets=offsets_uc,
+                            atoms=atoms_use,
+                            release_author=args.release_author,
+                            release_details=details,
+                        )
+                else:
+                    counts = apply_selected_offsets_and_note(
+                        input_path=str(args.star_file),
+                        output_path=corrected_path,
+                        list_id=int(list_id),
+                        offsets=offsets_uc,
+                        atoms=atoms_use,
+                        release_author=args.release_author,
+                        release_details=details,
+                    )
+            print("Applied offsets to file:")
+            for a in atoms_use:
+                print(f"  {a}: {counts[a]}")
+            print(f"Total updated: {counts['total']}")
+            print(f"Wrote corrected file: {args.output_corrected}")
         return 0
     except KeyboardInterrupt:
         return 130

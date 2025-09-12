@@ -394,7 +394,7 @@ def apply_selected_offsets_and_note(
     atoms_upper = [a.upper() for a in atoms if a is not None]
     atoms_use = [a for a in atoms_upper if a in allowed]
     offs = {k: float(offsets.get(k, 0.0)) for k in allowed}
-
+    print (input_path)
     entry = pynmrstar.Entry.from_file(input_path)
     counts = apply_offsets_to_entry_for_list(entry, offs, list_id, atoms_use)
 

@@ -1216,8 +1216,11 @@ def main(argv=None) -> None:
         if apply_selected_offsets_and_note is None:
             raise SystemExit("Cannot apply offsets: apply_lacs_correction.py not importable.")
         if not args.output_corrected:
-            raise SystemExit("--output-corrected is required with --apply-offsets.")
-        #print (report)
+            corrected_path = json_path.parent / f'{args.data_id}_corrected,str'
+            corrected_path.parent.mkdir(parents=True, exist_ok=True)
+            #raise SystemExit("--output-corrected is required with --apply-offsets.")
+        else:
+            corrected_path = args.output_corrected
         for list_id in report:
             try:
                 offsets_uc = _extract_offsets_for_list(report, list_id)
@@ -1238,8 +1241,8 @@ def main(argv=None) -> None:
                 list_ids = list(report.keys())
                 if list_ids.index(list_id)>0:
                     counts = apply_selected_offsets_and_note(
-                        input_path=args.output_corrected,
-                        output_path=str(args.output_corrected),
+                        input_path=args.star_file,
+                        output_path=corrected_path,
                         list_id=int(list_id),
                         offsets=offsets_uc,
                         atoms=atoms_use,
@@ -1249,7 +1252,7 @@ def main(argv=None) -> None:
                 else:
                     counts = apply_selected_offsets_and_note(
                         input_path=args.star_file,
-                        output_path=str(args.output_corrected),
+                        output_path=corrected_path,
                         list_id=int(list_id),
                         offsets=offsets_uc,
                         atoms=atoms_use,
@@ -1259,18 +1262,18 @@ def main(argv=None) -> None:
             else:
                 counts = apply_selected_offsets_and_note(
                     input_path=args.star_file,
-                    output_path=str(args.output_corrected),
+                    output_path=corrected_path,
                     list_id=int(list_id),
                     offsets=offsets_uc,
                     atoms=atoms_use,
                     release_author=args.release_author,
                     release_details=details,
                 )
-        print("Applied offsets to file:")
-        for a in atoms_use:
-            print(f"  {a}: {counts[a]}")
-        print(f"Total updated: {counts['total']}")
-        print(f"Wrote corrected file: {args.output_corrected}")
+            print("Applied offsets to file:")
+            for a in atoms_use:
+                print(f"  {a}: {counts[a]}")
+            print(f"Total updated: {counts['total']}")
+        print(f"Wrote corrected file: {corrected_path}")
 
 
 
