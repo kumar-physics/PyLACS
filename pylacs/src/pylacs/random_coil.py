@@ -33,7 +33,8 @@ from typing import Dict, Iterable, List, Mapping, Sequence, Tuple, Union
 import math
 import numpy as np
 import warnings
-
+import plotly.express as px
+from statsmodels.sandbox.distributions.genpareto import shape
 
 ResidueCode = str
 AtomName = str
@@ -145,6 +146,7 @@ class RandomCoil:
             'schwarzinger': self.schwarzinger,
             'poulsen': self.poulsen
         }
+
         return {n: models[n] for n in names}
 
     # ------------------------------- public ---------------------------------
@@ -383,11 +385,41 @@ class RandomCoil:
         "Y":[-12.0,-7.7,-5.0, 2.9,-7.7, 0.5]
     }
 
+    # Comparison plot for RC
+    # def plot_rc(self):
+    #     models = {
+    #         'wishart': self.wishart,
+    #         'wang': self.wang,
+    #         'lukhin': self.lukhin,
+    #         'schwarzinger': self.schwarzinger,
+    #         'poulsen': self.poulsen
+    #     }
+    #     method = []
+    #     atom=[]
+    #     rc=[]
+    #     res=[]
+    #     for model in models:
+    #         for k in models[model]:
+    #             for i in range(len(models[model][k])):
+    #                 print (model,k,self._ATOMS[i],models[model][k][i])
+    #                 try:
+    #                     res.append(self._ONE_TO_THREE[k])
+    #                     method.append(model)
+    #                     atom.append(self._ATOMS[i])
+    #                     rc.append(models[model][k][i])
+    #                 except KeyError:
+    #                     pass
+    #     fig = px.scatter(x=rc, y= res, color=method,symbol=atom)
+    #     fig.write_html('../../../scripts/RC.html')
+
 
 def _demo() -> None:
     rc = RandomCoil()
-    print(rc.get_value('HIS', 'C',['wis','wan']))
-    print(rc.get_value('HIS', 'C', 'pou',temp=10))
+    print('Avg of Wishart and Wang',rc.get_value('HIS', 'C',['wis','wan']))
+    print('Paulsen RC at 10C ',rc.get_value('HIS', 'C', 'pou',temp=10))
+    print('Paulsen RC at 25C ', rc.get_value('HIS', 'C', 'pou', temp=25))
+    print('Paulsen RC at 30C ', rc.get_value('HIS', 'C', 'pou', temp=30))
+
 
 if __name__ == '__main__':
     _demo()
