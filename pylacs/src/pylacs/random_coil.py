@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Random coil chemical-shift utilities.
@@ -81,14 +80,14 @@ class RandomCoil:
         Parameters
         ----------
         short_or_long:
-            ``'short'`` -> ``['wis','wan','luk','sch']``;
-            ``'long'``  -> ``['wishart','wang','lukhin','schwarzinger']``
+            ``'short'`` -> ``['wis','wan','luk','sch','pou']``;
+            ``'long'``  -> ``['wishart','wang','lukhin','schwarzinger','poulsen']``
 
         """
         if short_or_long == 'short':
-            return ['wis', 'wan', 'luk', 'sch']
+            return ['wis', 'wan', 'luk', 'sch', 'pou']
         if short_or_long == 'long':
-            return ['wishart', 'wang', 'lukhin', 'schwarzinger']
+            return ['wishart', 'wang', 'lukhin', 'schwarzinger', 'poulsen']
         raise ValueError("short_or_long must be 'short' or 'long'")
 
     # ------------------------------ helpers --------------------------------
@@ -124,9 +123,10 @@ class RandomCoil:
             'wan': 'wang', 'wang': 'wang',
             'luk': 'lukhin', 'lukhin': 'lukhin',
             'sch': 'schwarzinger', 'schwarzinger': 'schwarzinger',
+            'pou': 'poulsen', 'poulsen': 'poulsen'
         }
         if rc_name is None:
-            names = ['wishart', 'wang', 'lukhin', 'schwarzinger']
+            names = ['wishart', 'wang', 'lukhin', 'schwarzinger','poulsen']
         elif isinstance(rc_name, str):
             if rc_name.lower() not in alias_map:
                 raise ValueError(f"Unknown random-coil model: {rc_name}")
@@ -143,12 +143,13 @@ class RandomCoil:
             'wang': self.wang,
             'lukhin': self.lukhin,
             'schwarzinger': self.schwarzinger,
+            'poulsen': self.poulsen
         }
         return {n: models[n] for n in names}
 
     # ------------------------------- public ---------------------------------
     def get_value(self, res: ResidueCode, atom: AtomName,
-                  rc_name: Union[None, str, Sequence[str]] = None) -> Scalar:
+                  rc_name: Union[None, str, Sequence[str]] = None,temp: float=25.0) -> Scalar:
         """Return the random-coil value (ppm) for a residue/atom.
 
         Parameters
@@ -161,6 +162,8 @@ class RandomCoil:
             - ``None``: average across **all** models
             - ``str``: a single model (alias accepted, e.g., ``'wis'``)
             - ``Sequence[str]``: average across the specified models
+        temp:
+            Temperature in C It will be used only when the rc_name is pou or poulsen
 
         Returns
         -------
@@ -185,9 +188,20 @@ class RandomCoil:
             val = table[r1][idx]
             values.append(math.nan if val is None else float(val))
 
+
         # Average across models (handles NaNs)
         arr = np.array(values, dtype=float)
-        return float(np.nanmean(arr))
+        if rc_name == 'pou' or rc_name == ['pou'] or rc_name == 'poulsen' or rc_name == ['poulsen']:
+            coeff: List[float] = []
+            for _, table in {'ce': self.poulsen_temp_coeff}.items():
+                val = table[r1][idx]
+                coeff.append(math.nan if val is None else float(val))
+                coef = np.array(coeff, dtype=float)
+                cs_t = arr + coef * (temp - 25.0)
+                return round(float(np.nanmean(cs_t)),2)
+        else:
+            return float(np.nanmean(arr))
+
 
     def get_average(self, name_list: Sequence[str] | None = None) -> Mapping[str, List[float]]:
         """
@@ -323,12 +337,57 @@ class RandomCoil:
         "W": [122.1, 177.1, 57.6, 29.8, 8.22, 4.70],
         "Y": [120.9, 176.7, 58.3, 38.9, 8.26, 4.58],
     }
+    # pH 6.5 1M urea and temperature 25C DOI 10.1007/s10858-011-9472-x
+    poulsen: Mapping[str, Sequence[Scalar]] = {
+        "A": [124.14, 178.64, 52.77, 19.18, 8.35, 4.37],#
+        "C": [118.74, 175.49, 58.64, 28.12, 8.42, 4.59],#
+        "D": [120.43, 177.25, 54.42, 41.29, 8.39, 4.65],#
+        "E": [121.03, 177.52, 57.02, 30.09, 8.55, 4.32],#
+        "F": [120.35, 176.76, 58.06, 39.55, 8.26, 4.65],#
+        "G": [109.04, 175.08, 45.37, None,  8.42, 4.02],#
+        "H": [118.78, 175.75, 55.88, 29.83, 8.41, 4.73],#
+        "I": [120.08, 177.29, 61.57, 38.71, 8.13, 4.21],#
+        "K": [120.99, 177.48, 56.54, 32.98, 8.33, 4.37],#
+        "L": [121.83, 178.39, 55.48, 42.32, 8.27, 4.38],#
+        "M": [119.95, 177.18, 55.71, 32.75, 8.40, 4.54],#
+        "N": [118.88, 176.14, 53.63, 38.97, 8.49, 4.78],#
+        "P": [None,   178.08, 63.71, 32.09, None, 4.46],#
+        "Q": [120.04, 176.88, 56.14, 29.38, 8.43, 4.39],#
+        "R": [120.72, 177.23, 56.38, 30.71, 8.35, 4.38],#
+        "S": [116.04, 175.43, 58.60, 63.90, 8.41, 4.51],#
+        "T": [113.05, 175.64, 62.06, 69.84, 8.24, 4.41], #
+        "V": [119.30, 177.21, 62.64, 32.64, 8.13, 4.17],#
+        "W": [121.26, 177.18, 57.59, 29.51, 8.16, 4.70],#
+        "Y": [120.48, 176.82, 58.24, 38.73, 8.21, 4.58],#
+    }
+    poulsen_temp_coeff: Mapping[str,Sequence[Scalar]]={
+        "A":[-5.3,-7.1,-2.2, 4.7,-9.0, 0.7],
+        "C":[-8.2,-2.6,-0.9, 1.3,-7.0, 0.0],
+        "D":[-3.9,-4.8,2.8, 6.5,-6.2,-0.1],
+        "E":[-3.7,-4.9,0.9, 4.6,-6.5, 0.3],
+        "F":[-11.2,-6.9,-4.7, 2.4,-7.5, 0.4],
+        "G":[-6.2,-3.2,3.3,None, -9.1, 0.0],
+        "H":[3.3, 3.1,7.8, 15.5,  -7.8, 0.4],
+        "I":[-12.7,-8.7,-2.0, 4.6,-7.8, 0.4],
+        "K":[-7.6,-7.1,-0.8, 2.4,-7.5, 0.4],
+        "L":[-2.9, -8.2,1.7 ,4.9,-7.5, 0.1],
+        "M":[-6.2,-8.2, 4.1, 9.4,-7.1,-0.5],
+        "N":[-3.3, -6.1,2.8, 5.1,-7.0,-2.9],
+        "P":[None,-4.0,1.1,-0.2,  None, 0.0],
+        "Q":[-6.5,-5.7,2.3, 3.6,-7.2, 0.3],
+        "R":[-5.3,-6.9,-1.4, 3.5,-7.1, 0.4],
+        "S":[-3.8,-4.7,-1.7, 4.4,-7.6, 0.1],
+        "T":[-6.7,-5.2,0.0, 2.2,-7.3, 0.0],
+        "V":[-14.2,-8.1,-2.8, 2.5,-7.6, 0.5],
+        "W":[-10.1,-7.9,-2.7, 3.1,-7.8, 0.4],
+        "Y":[-12.0,-7.7,-5.0, 2.9,-7.7, 0.5]
+    }
 
 
 def _demo() -> None:
     rc = RandomCoil()
-    print(rc.get_value('HIS', 'C', ['wis', 'wan']))
-
+    print(rc.get_value('HIS', 'C',['wis','wan']))
+    print(rc.get_value('HIS', 'C', 'pou',temp=10))
 
 if __name__ == '__main__':
     _demo()
