@@ -10,6 +10,12 @@ from pylacs.apply_lacs_correction import apply_selected_offsets_and_note
 from pylacs.lacs import _extract_offsets_for_list,_default_json_path,_normalize_atoms
 
 def build_parser() -> argparse.ArgumentParser:
+    """
+    Build a command-line argument parser for pylacs.
+
+    :param argv: List of command-line arguments (default: sys.argv[1:])
+    :return: ArgumentParser object
+    """
     p = argparse.ArgumentParser(
         prog="pylacs",
         description="Compute LACS offsets, outliers, and plots from NMR-STAR files."
@@ -60,6 +66,7 @@ def _version_string() -> str:
     return f"pylacs {v}"
 
 def main(argv: list[str] | None = None) -> int:
+    """Main entry point for pylacs command-line interface."""
     parser = build_parser()
     args = parser.parse_args(argv)
     rc_model = None if args.rc_model == [] else (args.rc_model if args.rc_model is not None else None)

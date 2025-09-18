@@ -138,31 +138,14 @@ def apply_offset_correction(
     """
     Apply offset correction to an NMR-STAR file using a LACS JSON output.
 
-    Parameters
-    ----------
-    str_file : str
-        Path to input NMR-STAR .str
-    data_id : str
-        Dataset/entry identifier (for logging only)
-    lacs_output : str
-        Path to the JSON file produced by LACS (run_lacs / CLI)
-    output_corrected : str
-        Where to write the corrected .str
-    list_id : int
-        Chemical-shift list ID to modify
-    atoms : sequence[str]
-        Subset of atoms to correct among {CA, CB, C, N}
-    release_author : str
-        Value to use in the Release Author field
-
-    Returns
-    -------
-    dict : counts per atom + totals from the apply script
-
-    Notes
-    -----
-    - Requires `apply_selected_offsets_and_note` to be importable from
-      `apply_lacs_correction.py`.
+    :param str_file: Path to input NMR-STAR file.
+    :param data_id: Data ID to place in the Release row.
+    :param lacs_output: Path to LACS JSON output file.
+    :param output_corrected: Where to write corrected file.
+    :param list_id: Chemical-shift list ID to modify.
+    :param atoms: Subset of atoms to which offsets should be applied (defaults to all four).
+    :param release_author: Author to place in the Release row (default 'BMRB').
+    :return: Counts dictionary with per-atom and total updates.
     """
     if apply_selected_offsets_and_note is None:
         raise RuntimeError("apply_selected_offsets_and_note not available. Ensure apply_lacs_correction.py is on PYTHONPATH.")
@@ -209,7 +192,7 @@ CB_SCALE = {'ILE': 2.4, 'GLN': 3.5, 'GLY': 1.0, 'GLU': 3.4, 'CYS': 3.6, 'ASP': 1
 POS_SCALE = {'ILE': 4.83, 'GLN': 3.82, 'GLY': 1.0, 'GLU': 3.24, 'CYS': 4.35, 'ASP': 3.42, 'SER': 3.98, 'LYS': 3.42, 'PRO': 3.12, 'ASN': 2.94, 'VAL': 5.19, 'THR': 5.56, 'HIS': 4.26, 'TRP': 3.09, 'PHE': 4.04, 'ALA': 4.01, 'MET': 3.44, 'LEU': 3.47, 'ARG': 3.65, 'TYR': 3.84}
 NEG_SCALE = {'ILE': 2.37, 'GLN': 4.18, 'GLY': 1.0, 'GLU': 4.66, 'CYS': 5.85, 'ASP': 2.68, 'SER': 2.67, 'LYS': 3.58, 'PRO': 0.98, 'ASN': 2.36, 'VAL': 3.31, 'THR': 0.84, 'HIS': 3.14, 'TRP': 2.81, 'PHE': 3.76, 'ALA': 5.29, 'MET': 3.56, 'LEU': 3.48, 'ARG': 3.65, 'TYR': 3.96}
 
-def tag_to_label(tag: tuple) -> str:
+def _tag_to_label(tag: tuple) -> str:
     """Convert a ResidueKey to a short label like ``56H`` (index+one-letter).
 
     - Uses ``Comp_index_ID`` as the residue number
@@ -231,25 +214,22 @@ def tag_to_label(tag: tuple) -> str:
 class FitResult:
     """Container for per-side fit results.
 
-    Parameters
-    ----------
-    slope_pos, intercept_pos : float
-        Slope and intercept for the ``x ≥ 0`` side.
-    fitted_pos, resid_pos : list[float]
-        Fitted values and residuals for points on the positive side.
-    x_pos, y_pos : list[float]
-        Observed x and y values on the positive side.
-    tags_pos : list[ResidueKey]
-        Residue identifiers for positive-side points.
+    :param slope_pos: Positive slope.
+    :param intercept_pos: Positive intercept.
+    :param fitted_pos: Fitted values for positive side.
+    :param resid_pos: Residuals for positive side.
+    :param x_pos: X values for positive side.
+    :param y_pos: Y values for positive side.
+    :param tags_pos: Residue tags for positive side.
+    :param slope_neg: Negative slope.
+    :param intercept_neg: Negative intercept.
+    :param fitted_neg: Fitted values for negative side.
+    :param resid_neg: Residuals for negative side.
+    :param x_neg: X values for negative side.
+    :param y_neg: Y values for negative side.
+    :param tags_neg: Residue tags for negative side.
 
-    slope_neg, intercept_neg : float
-        Slope and intercept for the ``x < 0`` side.
-    fitted_neg, resid_neg : list[float]
-        Fitted values and residuals for points on the negative side.
-    x_neg, y_neg : list[float]
-        Observed x and y values on the negative side.
-    tags_neg : list[ResidueKey]
-        Residue identifiers for negative-side points.
+
     """
     slope_pos: float
     intercept_pos: float
@@ -271,19 +251,12 @@ class FitResult:
 def read_star(file_name: str) -> Dict[str, Dict[ResidueKey, Dict[str, float]]]:
     """Read an NMR-STAR file and extract atom chemical shifts.
 
-    Parameters
-    ----------
-    file_name : str
-        Path to a ``.str`` file.
+    :param file_name: Path to NMR-STAR file.
+    :return: Chemical-shift map for each list id as a dict of dicts.
+        Keys are residue tags, values are dicts of atom names to chemical shifts.
 
-    Returns
-    -------
-    dict
-        Mapping ``{list_id -> {(entity, assembly, comp_index, comp_id) -> {atom -> value}}}``.
-
-    Notes
-    -----
-    Only rows in the ``Atom_chem_shift`` category are parsed. Non-numeric
+    Notes:
+    - Only rows in the ``Atom_chem_shift`` category are parsed. Non-numeric
     values are skipped.
     """
     try:
@@ -323,23 +296,16 @@ def read_star(file_name: str) -> Dict[str, Dict[ResidueKey, Dict[str, float]]]:
 def compute_deltas(resmap: Dict[ResidueKey, Dict[str, float]], rc_model: Optional[Sequence[str] | str]) -> Tuple[Dict[str, List[float]], Dict[str, List[ResidueKey]]]:
     """Compute Δδ against random-coil and assemble arrays for each nucleus.
 
-    Parameters
-    ----------
-    resmap : dict
-        Chemical-shift map for a single list id as returned by :func:`read_star`.
-    rc_model : sequence[str] | str | None
-        Random-coil model alias(es) to pass to :class:`RandomCoil`. If ``None``,
-        the model averages all available references.
+    :param resmap: Chemical-shift map for each list id as a dict of dicts.
+        Keys are residue tags, values are dicts of atom names to chemical shifts.
+    :param rc_model: Random-coil model to use.
+    :return: Tuple of dicts of lists and dicts of lists of residue tags.
+        Keys are atom names, values are lists of Δδ values and residue tags.
+    :raises ValueError: If the random-coil model is not recognized.
+    :raises KeyError: If the chemical-shift map is empty.
 
-    Returns
-    -------
-    (dict, dict)
-        The first dict holds numeric arrays:
-        ``{'ca','cb','c','n','ha','x_for_c','x_for_n','x_for_h'}``.
-        The second dict holds residue tags per nucleus.
+    Notes:
 
-    Notes
-    -----
     - ``x = ΔδCA − ΔδCB`` is computed only when both CA and CB are present.
     - Δδ values are formed by subtracting the random-coil reference for the
       residue type from the observed chemical shift.
@@ -400,14 +366,11 @@ def compute_deltas(resmap: Dict[ResidueKey, Dict[str, float]], rc_model: Optiona
 def mad(arr: np.ndarray) -> float:
     """Median absolute deviation (MAD).
 
-    Parameters
-    ----------
-    arr : ndarray
+    :param arr: Array of values.
+    :return: Median absolute deviation.
+    :raises ValueError: If the array is empty.
 
-    Returns
-    -------
-    float
-        MAD of the input, or 1.0 if the MAD is zero (prevents divide-by-zero).
+
     """
     med = np.median(arr)
     m = np.median(np.abs(arr - med))
@@ -417,20 +380,11 @@ def mad(arr: np.ndarray) -> float:
 def logistic_prob(z: np.ndarray, slope: float = 6.0, hinge: float = 1.0) -> np.ndarray:
     """Logistic map from a nonnegative score to a soft probability in [0, 1].
 
-    Parameters
-    ----------
-    z : ndarray
-        Nonnegative score (e.g., robust z-score), where 1 corresponds to the
-        desired cutoff.
-    slope : float, optional
-        Steepness of the logistic curve.
-    hinge : float, optional
-        Center point of the curve (probability 0.5 at ``z = hinge``).
-
-    Returns
-    -------
-    ndarray
-        Probabilities of the same shape as ``z``.
+    :param z: Array of scores.
+    :param slope: Slope of the logistic map (default 6.0).
+    :param hinge: Hinge of the logistic map (default 1.0).
+    :return: Array of soft probabilities.
+    :raises ValueError: If the array is empty.
     """
     return 1.0 / (1.0 + np.exp(-slope * (z - hinge)))
 
@@ -438,20 +392,11 @@ def logistic_prob(z: np.ndarray, slope: float = 6.0, hinge: float = 1.0) -> np.n
 def outlier_stats(residuals: np.ndarray, scale: Optional[float] = None, cutoff_k: float = 5.0) -> Tuple[List[int], List[float]]:
     """Compute 0/1 outlier flags and smooth probabilities from residuals.
 
-    Parameters
-    ----------
-    residuals : ndarray
-        Fitted residuals.
-    scale : float, optional
-        Robust scale (MAD) to use. If ``None``, MAD is computed from data.
-    cutoff_k : float, optional
-        Scale multiplier for the cutoff (default 5.0). Points with
-        ``|r|/(k·MAD) > 1`` are flagged as outliers.
-
-    Returns
-    -------
-    (list[int], list[float])
-        Flags and probabilities for each residual.
+    :param residuals: Array of residuals.
+    :param scale: Scale factor for outlier detection (default 5.0).
+    :param cutoff_k: Cutoff multiplier for outlier detection (default 5.0).
+    :return: Tuple of lists of 0/1 flags and soft probabilities.
+    :raises ValueError: If the array is empty.
     """
     if residuals.size == 0:
         return [], []
@@ -491,6 +436,10 @@ def collect_and_report(fits: Dict[str, FitResult], cutoff_k: float = 5.0) -> Dic
 
     If both sides were fit (non-empty), offset = -average(intercepts).
     If only one side was fit, offset = -that side's intercept.
+
+    :param fits: Dictionary of fit results.
+    :param cutoff_k: Outlier cutoff multiplier used for residual-based probabilities.
+    :return: Dictionary of offsets and outlier lists.
     """
     offsets: Dict[str, float] = {}
     offsets_split: Dict[str, Dict[str, Optional[float]]] = {}
@@ -541,24 +490,18 @@ def collect_and_report_bayes(fits: Dict[str, FitResult],
                              cutoff_k: float = 5.0) -> Dict[str, Dict]:
     """Assemble report including Bayesian **offset uncertainties**.
 
-    Parameters
-    ----------
-    fits : dict[str, FitResult]
-        Per-nucleus fit results (means).
-    alpha_samples : dict[str, dict[str, ndarray]]
-        Posterior draws of per-side intercepts for each nucleus.
-        Structure: ``alpha_samples[atom]['pos']`` and ``['neg']`` -> 1D arrays.
-    cutoff_k : float
-        Outlier cutoff multiplier used for residual-based probabilities.
+    :param fits: Dictionary of fit results.
+    :param alpha_samples: Dictionary of posterior draws for each atom.
+    :param cutoff_k: Outlier cutoff multiplier used for residual-based probabilities.
+    :return: Dictionary of offsets and outlier lists.
 
-    Returns
-    -------
-    dict
-        Report with keys:
-        - ``offsets``: mean offsets (as before)
-        - ``offsets_bayes``: dict with ``mean``, ``ci95``, ``sd`` per atom
-        - ``outliers``: list of outlier diagnostics per atom
-        - ``meta.cutoff_k``: scalar
+    Notes:
+    Report with keys:
+    - ``offsets``: mean offsets (as before)
+    - ``offsets_bayes``: dict with ``mean``, ``ci95``, ``sd`` per atom
+    - ``outliers``: list of outlier diagnostics per atom
+    - ``meta.cutoff_k``: scalar
+
     """
     base = collect_and_report(fits, cutoff_k=cutoff_k)
     offsets_bayes = {}
@@ -650,18 +593,13 @@ def collect_and_report_bayes(fits: Dict[str, FitResult],
 def _plot_atom(atom: str, fr: FitResult, outdir: Path, data_id: str, list_id, method: str, cutoff_k: float = 5.0) -> None:
     """Render interactive plots for a single nucleus with residue labels.
 
-    Parameters
-    ----------
-    atom : str
-        Nucleus key (``'ca','cb','c','n','ha'``).
-    fr : FitResult
-        Fit results for the nucleus.
-    outdir : Path
-        Output directory for plots (HTML and optional PDF via kaleido).
-    data_id : str
-        Identifier to include in figure titles/filenames.
-    cutoff_k : float, optional
-        Outlier cutoff multiplier used when coloring points.
+   :param atom: Atom name.
+   :param fr: Fit result.
+   :param outdir: Output directory.
+   :param data_id: Data identifier.
+   :param list_id: List identifier.
+   :param method: Method name.
+   :param cutoff_k: Outlier cutoff.
     """
     if not PLOTLY_AVAILABLE:
         return
@@ -670,8 +608,8 @@ def _plot_atom(atom: str, fr: FitResult, outdir: Path, data_id: str, list_id, me
     x_neg, y_neg = np.asarray(fr.x_neg, float), np.asarray(fr.y_neg, float)
 
     # Pre-compute labels like "56H"
-    labels_pos = [tag_to_label(t) for t in fr.tags_pos]
-    labels_neg = [tag_to_label(t) for t in fr.tags_neg]
+    labels_pos = [_tag_to_label(t) for t in fr.tags_pos]
+    labels_neg = [_tag_to_label(t) for t in fr.tags_neg]
 
     def line_xy(x, slope, intercept):
         if x.size == 0:
@@ -771,18 +709,15 @@ def _plot_atom(atom: str, fr: FitResult, outdir: Path, data_id: str, list_id, me
 def maybe_plot_all(fits: Dict[str, FitResult], outdir: Optional[Path], data_id: str, method: str, enable_plots: bool, list_id,cutoff_k: float = 5.0) -> None:
     """Render all per-nucleus plots if plotting is enabled and supported.
 
-    Parameters
-    ----------
-    fits : dict[str, FitResult]
-        Per-nucleus fit results.
-    outdir : Path | None
-        Directory for plot outputs. If ``None``, ``./lacs_output`` is used.
-    data_id : str
-        Identifier included in figure titles/filenames.
-    enable_plots : bool
-        If ``False`` or Plotly is unavailable, plotting is skipped.
-    cutoff_k : float, optional
-        Outlier cutoff multiplier used when coloring points.
+    :param fits: Dictionary of FitResult objects for each nucleus.
+    :param outdir: Output directory for plots.  If ``None``, ``./lacs_output`` is used.
+    :param data_id: Data identifier.
+    :param method: Method identifier.
+    :param enable_plots: Whether to enable plotting. If ``False`` or Plotly is unavailable, plotting is skipped.
+    :param list_id: List identifier.
+    :param cutoff_k: Cutoff for outlier detection.
+
+
     """
     if not enable_plots or not fits:
         return
@@ -802,19 +737,12 @@ def maybe_plot_all(fits: Dict[str, FitResult], outdir: Optional[Path], data_id: 
 def fit_side_rlm_tukey(x: Sequence[float], y: Sequence[float]) -> Tuple[float, float, List[float], List[float]]:
     """Robust linear fit with Tukey biweight via statsmodels RLM.
 
-    Parameters
-    ----------
-    x, y : sequence[float]
-        Data for one side (x ≥ 0 or x < 0).
+    :param x: sequence[float]
+    :param y: sequence[float]
+    :return: (slope, intercept, fitted, residuals) : tuple
 
-    Returns
-    -------
-    (slope, intercept, fitted, residuals) : tuple
-        Estimated line parameters and diagnostics.
-
-    Notes
-    -----
-    Uses IRLS with a redescending ψ; scale estimation uses MAD when available
+    Notes:
+    - Uses IRLS with a redescending ψ; scale estimation uses MAD when available
     (``scale_est='mad'``), with a safe fallback to the default.
     """
     try:
@@ -841,17 +769,12 @@ def fit_side_rlm_tukey(x: Sequence[float], y: Sequence[float]) -> Tuple[float, f
 def fit_side_theilsen(x: Sequence[float], y: Sequence[float]) -> Tuple[float, float, List[float], List[float]]:
     """Theil–Sen median-of-slopes regression via scikit-learn.
 
-    Parameters
-    ----------
-    x, y : sequence[float]
+    :param x: sequence[float]
+    :param y: sequence[float]
+    :return: (slope, intercept, fitted, residuals) : tuple
 
-    Returns
-    -------
-    (slope, intercept, fitted, residuals) : tuple
-
-    Notes
-    -----
-    More robust than OLS with breakdown ≈ 29%, distribution-free; still
+    Notes:
+    - More robust than OLS with breakdown ≈ 29%, distribution-free; still
     sensitive to extreme x-leverage.
     """
     try:
@@ -872,17 +795,12 @@ def fit_side_theilsen(x: Sequence[float], y: Sequence[float]) -> Tuple[float, fl
 def fit_side_ransac(x: Sequence[float], y: Sequence[float]) -> Tuple[float, float, List[float], List[float]]:
     """RANSAC regression with a MAD-derived residual threshold.
 
-    Parameters
-    ----------
-    x, y : sequence[float]
+    :param x: sequence[float]
+    :param y: sequence[float]
+    :return: (slope, intercept, fitted, residuals) : tuple
 
-    Returns
-    -------
-    (slope, intercept, fitted, residuals) : tuple
-
-    Notes
-    -----
-    Uses a robust, data-driven residual threshold: baseline OLS residuals -> MAD
+    Notes:
+    - Uses a robust, data-driven residual threshold: baseline OLS residuals -> MAD
     -> σ ≈ 1.4826·MAD -> threshold ≈ 2.5·σ. Compatible with modern sklearn
     (``estimator=...``, numeric ``residual_threshold``).
     """
@@ -916,13 +834,13 @@ def fit_side_ransac(x: Sequence[float], y: Sequence[float]) -> Tuple[float, floa
 def fit_side_quantile(x: Sequence[float], y: Sequence[float]) -> Tuple[float, float, List[float], List[float]]:
     """Median (τ=0.5) quantile regression via statsmodels.
 
-    Parameters
-    ----------
-    x, y : sequence[float]
+    :param x: sequence[float]
+    :param y: sequence[float]
+    :return: (slope, intercept, fitted, residuals) : tuple
 
-    Returns
-    -------
-    (slope, intercept, fitted, residuals) : tuple
+    Notes:
+    - More robust than OLS with breakdown ≈ 50%, distribution-free; still
+    sensitive to extreme x-leverage.
     """
     try:
         import statsmodels.api as sm
@@ -943,16 +861,12 @@ def fit_side_quantile(x: Sequence[float], y: Sequence[float]) -> Tuple[float, fl
 def fit_side_bayes_t(x: Sequence[float], y: Sequence[float]) -> Tuple[float, float, List[float], List[float], float, float, np.ndarray]:
     """Bayesian linear regression with Student‑t noise (PyMC).
 
-    Parameters
-    ----------
-    x, y : sequence[float]
+    :param x: sequence[float]
+    :param y: sequence[float]
+    :return: (slope, intercept, fitted, residuals) : tuple
 
-    Returns
-    -------
-    (slope, intercept, fitted, residuals, nu, sigma, alpha_draws) : tuple
+    Notes:
 
-    Notes
-    -----
     Prior defaults (weakly informative on ppm scale):
 
     - alpha ~ Normal(0, 10)
@@ -1076,27 +990,19 @@ def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequen
              min_per_side: int = MIN_PER_SIDE_DEFAULT) -> Dict[str, Dict]:
     """Run the selected robust method over an NMR-STAR file.
 
-    Parameters
-    ----------
-    str_file : str
-        Path to NMR-STAR file.
-    method : {'tukey','theilsen','ransac','quantile','bayes'}
-        Robust regression method to apply.
-    data_id : str
-        Identifier for figure titles/file names.
-    rc_model : sequence[str] | str | None
-        Random-coil model alias(es) for :class:`RandomCoil`. ``None`` uses the average.
-    outdir : Path | None
-        Where to save plots; ``None`` defaults to ``./lacs_output``.
-    plots : bool
-        Whether to generate Plotly plots.
-    cutoff_k : float
-        Outlier cutoff multiplier (k in |r|/(k·MAD)).
+    :param str_file: Path to NMR-STAR file.
+    :param method: Robust regression method to use.
+    :param data_id: Identifier for the dataset/entry.
+    :param rc_model: Random-coil model alias(es), e.g. wis wan; omit for average of all.
+    :param outdir: Output directory for plots.``None`` defaults to ``./lacs_output``.
+    :param plots: Whether to generate plots.
+    :param cutoff_k: Outlier cutoff multiplier.(k in |r|/(k·MAD)).
+    :param min_per_side: Minimum number of points required on each sign side.
+    :return: Dictionary of results, keyed by list ID.
 
-    Returns
-    -------
-    dict
-        Structured report keyed by chemical-shift list id.
+
+
+
     """
     cs = read_star(str_file)
     results: Dict[str, Dict] = {}
@@ -1157,21 +1063,20 @@ def _default_json_path(outdir: Optional[Path], data_id: str, method: str) -> Pat
 def main(argv=None) -> None:
     """Command-line entry point.
 
-    Parameters
-    ----------
-    argv : list[str] | None
-        Argument vector; if ``None``, uses ``sys.argv[1:]``.
+    :param argv: Command-line arguments (defaults to ``None``).
 
-    Side Effects
-    ------------
+
+    Side Effects:
+
     - Generates optional Plotly plots (HTML and PDF if ``kaleido`` is installed).
     - Writes a JSON report to ``--json-out`` or to a sensible default.
 
-    Examples
-    --------
+    Examples:
+
     .. code-block:: bash
 
         python lacs_unified.py entry.str --method theilsen --data-id demo --out figs --json-out demo_theilsen.json
+
     """
     import argparse
 
