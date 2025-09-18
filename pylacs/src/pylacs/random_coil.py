@@ -25,6 +25,8 @@ Design notes
 - Public API is intentionally small: prefer :meth:`RandomCoil.get_value` and
   :meth:`RandomCoil.get_average` over accessing model dicts directly.
 
+Author:
+
 """
 
 from __future__ import annotations
@@ -385,32 +387,50 @@ class RandomCoil:
         "Y":[-12.0,-7.7,-5.0, 2.9,-7.7, 0.5]
     }
 
-    # Comparison plot for RC
-    # def plot_rc(self):
-    #     models = {
-    #         'wishart': self.wishart,
-    #         'wang': self.wang,
-    #         'lukhin': self.lukhin,
-    #         'schwarzinger': self.schwarzinger,
-    #         'poulsen': self.poulsen
-    #     }
-    #     method = []
+
+    # def plot_tem(self):
+    #     t=[]
+    #     res=[]
     #     atom=[]
     #     rc=[]
-    #     res=[]
-    #     for model in models:
-    #         for k in models[model]:
-    #             for i in range(len(models[model][k])):
-    #                 print (model,k,self._ATOMS[i],models[model][k][i])
-    #                 try:
-    #                     res.append(self._ONE_TO_THREE[k])
-    #                     method.append(model)
-    #                     atom.append(self._ATOMS[i])
-    #                     rc.append(models[model][k][i])
-    #                 except KeyError:
-    #                     pass
-    #     fig = px.scatter(x=rc, y= res, color=method,symbol=atom)
-    #     fig.write_html('../../../scripts/RC.html')
+    #     for temp in range(0,50,5):
+    #         for k in self.poulsen:
+    #             for atm in self._ATOMS:
+    #                 t.append(temp)
+    #                 res.append(self._ONE_TO_THREE[k])
+    #                 atom.append(atm)
+    #                 rc.append(self.get_value(k,atm,'pou',temp))
+    #     fig = px.scatter(x=rc, y= t,color=atom,symbol=res,labels={'x':'Random Coil Shift','y':'Temperature (C)'})
+    #     fig.write_html('../../../scripts/RC_temp1.html')
+    #     fig = px.scatter(x=rc, y=t, color=res, symbol=atom, labels={'x': 'Random Coil Shift', 'y': 'Temperature (C)'})
+    #     fig.write_html('../../../scripts/RC_temp2.html')
+
+    # Comparison plot for RC
+    def plot_rc(self):
+        models = {
+            'wishart': self.wishart,
+            'wang': self.wang,
+            'lukhin': self.lukhin,
+            'schwarzinger': self.schwarzinger,
+            'poulsen': self.poulsen
+        }
+        method = []
+        atom=[]
+        rc=[]
+        res=[]
+        for model in models:
+            for k in models[model]:
+                for i in range(len(models[model][k])):
+                    print (model,k,self._ATOMS[i],models[model][k][i])
+                    try:
+                        res.append(self._ONE_TO_THREE[k])
+                        method.append(model)
+                        atom.append(self._ATOMS[i])
+                        rc.append(models[model][k][i])
+                    except KeyError:
+                        pass
+        fig = px.scatter(x=rc, y= res, color=method,symbol=atom,labels={'x':'Random coil shift','y': 'Amino acids'})
+        fig.write_html('../../../scripts/RC.html')
 
 
 def _demo() -> None:
@@ -419,7 +439,7 @@ def _demo() -> None:
     print('Paulsen RC at 10C ',rc.get_value('HIS', 'C', 'pou',temp=10))
     print('Paulsen RC at 25C ', rc.get_value('HIS', 'C', 'pou', temp=25))
     print('Paulsen RC at 30C ', rc.get_value('HIS', 'C', 'pou', temp=30))
-
+    rc.plot_rc()
 
 if __name__ == '__main__':
     _demo()
