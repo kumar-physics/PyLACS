@@ -35,8 +35,7 @@ from typing import Dict, Iterable, List, Mapping, Sequence, Tuple, Union
 import math
 import numpy as np
 import warnings
-import plotly.express as px
-from statsmodels.sandbox.distributions.genpareto import shape
+
 
 ResidueCode = str
 AtomName = str
@@ -406,31 +405,31 @@ class RandomCoil:
     #     fig.write_html('../../../scripts/RC_temp2.html')
 
     # Comparison plot for RC
-    def plot_rc(self):
-        models = {
-            'wishart': self.wishart,
-            'wang': self.wang,
-            'lukhin': self.lukhin,
-            'schwarzinger': self.schwarzinger,
-            'poulsen': self.poulsen
-        }
-        method = []
-        atom=[]
-        rc=[]
-        res=[]
-        for model in models:
-            for k in models[model]:
-                for i in range(len(models[model][k])):
-                    print (model,k,self._ATOMS[i],models[model][k][i])
-                    try:
-                        res.append(self._ONE_TO_THREE[k])
-                        method.append(model)
-                        atom.append(self._ATOMS[i])
-                        rc.append(models[model][k][i])
-                    except KeyError:
-                        pass
-        fig = px.scatter(x=rc, y= res, color=method,symbol=atom,labels={'x':'Random coil shift','y': 'Amino acids'})
-        fig.write_html('../../../scripts/RC.html')
+    # def plot_rc(self):
+    #     models = {
+    #         'wishart': self.wishart,
+    #         'wang': self.wang,
+    #         'lukhin': self.lukhin,
+    #         'schwarzinger': self.schwarzinger,
+    #         'poulsen': self.poulsen
+    #     }
+    #     method = []
+    #     atom=[]
+    #     rc=[]
+    #     res=[]
+    #     for model in models:
+    #         for k in models[model]:
+    #             for i in range(len(models[model][k])):
+    #                 print (model,k,self._ATOMS[i],models[model][k][i])
+    #                 try:
+    #                     res.append(self._ONE_TO_THREE[k])
+    #                     method.append(model)
+    #                     atom.append(self._ATOMS[i])
+    #                     rc.append(models[model][k][i])
+    #                 except KeyError:
+    #                     pass
+    #     fig = px.scatter(x=rc, y= res, color=method,symbol=atom,labels={'x':'Random coil shift','y': 'Amino acids'})
+    #     fig.write_html('../../../scripts/RC.html')
 
 
 def _demo() -> None:
