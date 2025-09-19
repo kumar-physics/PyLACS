@@ -55,6 +55,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
+from datetime import datetime, UTC
+from typing import Dict, Any, List
 
 import numpy as np
 
@@ -91,9 +93,6 @@ from typing import Dict, Any, Optional, Sequence
 import json
 import numpy as np
 
-# at top
-from datetime import datetime, UTC
-from typing import Dict, Any, List
 
 def _star_tag_value(value: Any):
     """Serializer for SAVEFRAME TAGS: None for empty -> '.' in STAR."""
@@ -166,12 +165,17 @@ def _flatten_meta(d: Dict[str, Any], parent: str = "") -> List[tuple[str, str]]:
 
 def write_star_pynmrstar(report: Dict[str, Any], filepath: str, params: Dict[str, Any]) -> None:
     """
-     Write STAR with requested prefixes:
-      - Metadata:   _LACS_metadata.*
-      - Offsets:    _LACS_offsets.*     (includes pos/neg and optional Bayes overall row)
-      - Fit data:   _LACS_fitdata.*     (x, y, residual, flag, prob)
-      - Per-list meta (from JSON 'meta') also under _LACS_metadata.* loop
-      :
+      :param report: output dictonary frm run_lacs
+      :param filepath: outut STAR file path
+      :param params: input parameters of run_lacs
+      :return: None (writes outout file)
+
+      Write STAR with requested prefixes:
+
+      - Metadata:   _LACS_metadata.
+      - Offsets:    _LACS_offsets.     (includes pos/neg and optional Bayes overall row)
+      - Fit data:   _LACS_fitdata.    (x, y, residual, flag, prob)
+      - Per-list meta (from JSON 'meta') also under _LACS_metadata. loop
 
     """
     import pynmrstar as p
@@ -320,16 +324,22 @@ def write_star_pynmrstar(report: Dict[str, Any], filepath: str, params: Dict[str
 def write_report(
     report: Dict[str, Any],
     base_path: Path,
-    write_format: str = "json",
+    write_format: str = "both",
     params_for_star: Optional[Dict[str, Any]] = None,
     json_out: Optional[Path] = None,
     star_out: Optional[Path] = None,
 ) -> Dict[str, Path]:
     """
     Write report to disk as JSON, STAR, or both.
-
     Returns a dict of the actual paths written, e.g. {'json': Path(...), 'star': Path(...)}.
-    :
+
+    :param report: Output dictionary from run_lacs
+    :param base_path: Output path
+    :param write_format: 'json' or 'star' or 'both' default 'both'
+    :param params_for_star: Input parameters of run_lacs
+    :param json_out: JSON output file path
+    :param star_out: STAR output file path
+    :return: Returns a dict of the actual paths written, e.g. {'json': Path(...), 'star': Path(...)}.
     """
     write_format = (write_format or "json").lower()
     out_paths: Dict[str, Path] = {}
@@ -362,25 +372,13 @@ def apply_corrections_from_report(
     """
     Apply LACS offsets to an input NMR-STAR file for each list_id in report, and write a corrected file.
 
-    Parameters
-    ----------
-    report : dict
-        LACS report returned by run_lacs(...).
-    input_star : Path
-        Source .str/.star file.
-    output_star : Path
-        Destination corrected .str/.star file.
-    data_id : str
-        Identifier used in the Release.Detail note.
-    atoms : sequence of str
-        Subset of atoms to correct (default CA, CB, C, N).
-    release_author : str
-        Author recorded in Release loop.
-
-    Returns
-    -------
-    dict
-        Counts across the last applied list_id; includes per-atom keys and 'total'.
+    :param report: LACS report returned by run_lacs(...).
+    :param input_star: Source .str/.star file.
+    :param output_star: Destination corrected .str/.star file.
+    :param data_id: Identifier used in the Release.Detail note.
+    :param atoms: Subset of atoms to correct (default CA, CB, C, N).
+    :param release_author: Author recorded in Release loop.
+    :return: Counts across the last applied list_id; includes per-atom keys and 'total'.
         (If multiple list_ids exist, counts reflect the most recent application.)
     """
     if apply_selected_offsets_and_note is None:
@@ -425,6 +423,8 @@ def _extract_offsets_for_list(report: Dict, list_id: int) -> Dict[str, float]:
     Given a full LACS report (dict loaded from JSON or returned by run_lacs),
     extract offsets for the specified list_id.
     Returns keys in UPPER CASE: {'CA','CB','C','N'} (missing → 0.0).
+
+
     """
     sid = str(list_id)
     if sid not in report:
@@ -436,6 +436,7 @@ def _extract_offsets_for_list(report: Dict, list_id: int) -> Dict[str, float]:
             raise KeyError(f"List id {list_id} not found in report keys {list(report.keys())}")
     else:
         offs = report[sid].get("offsets", {})
+
 
     # Map lower-case keys used by LACS ('ca','cb','c','n') → upper-case
     out = {"CA": 0.0, "CB": 0.0, "C": 0.0, "N": 0.0}
@@ -449,6 +450,12 @@ def _extract_offsets_for_list(report: Dict, list_id: int) -> Dict[str, float]:
     return out
 
 def _normalize_atoms(atoms: Sequence[str] | None) -> List[str]:
+    """
+    this
+    :param atoms:
+    :return:
+    """
+
     allowed = {"CA", "CB", "C", "N"}
     if not atoms:
         return ["CA", "CB", "C", "N"]
@@ -832,6 +839,10 @@ def collect_and_report_bayes(
 ) -> Dict[str, Dict]:
     """
     Assemble a full Bayes report.
+
+    :param fits: Dictionary of fit results.
+    :param cutoff_k: Outlier cutoff multiplier used for residual-based probabilities.
+    :return: Dictionary of offsets and outlier lists.
 
     Returns a dict with keys:
       - offsets_bayes:        {atom: {"mean": float, "ci95": [lo, hi], "sd": float|None}}
