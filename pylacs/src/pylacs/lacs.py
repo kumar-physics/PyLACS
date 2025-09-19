@@ -1502,19 +1502,8 @@ def main(argv=None) -> None:
     p.add_argument('--min-per-side', type=int, default=MIN_PER_SIDE_DEFAULT,
                    help='Minimum number of points required on each sign side (default: 5).')
     p.add_argument("--cutoff-k", type=float, default=5.0, help="Outlier cutoff multiplier (default 5.0)")
-   # p.add_argument("--json-out", type=Path, default=None, help="Where to write JSON (defaults to <data_id>_<method>.json)")
-
     p.add_argument("--apply-offsets", action="store_true",
                    help="After computing offsets, apply them to the input .str.")
-
-    # p.add_argument("--output-corrected", type=Path,
-    #                help="Path to write the corrected NMR-STAR file (required with --apply-offsets).")
-    # p.add_argument("--atoms", nargs="+",
-    #                choices=["CA", "CB", "C", "N", "ca", "cb", "c", "n"],
-    #                default=["CA", "CB", "C", "N"],
-    #                help="Subset of atoms to correct (default: CA CB C N).")
-    # p.add_argument("--release-author", default="BMRB",
-    #                help="Author to record in the Release loop (default: BMRB).")
     p.add_argument("--out-format", choices=["json", "star", "both"], default="both",
                    help="Output format (default: both)")
     p.add_argument("--json-out", default=None, help="Explicit JSON path (overrides default).")
