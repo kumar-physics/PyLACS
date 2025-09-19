@@ -85,7 +85,337 @@ try:
     from pylacs.apply_lacs_correction import apply_selected_offsets_and_note
 except Exception as e:
     raise SystemExit("Couldn'timport apply_lacs_correction.py. Ensure it is on PYTHONPATH or in the same folder.") from e
-from pylacs.apply_lacs_correction import apply_selected_offsets_and_note
+from datetime import datetime, UTC
+from pathlib import Path
+from typing import Dict, Any, Optional, Sequence
+import json
+import numpy as np
+
+# at top
+from datetime import datetime, UTC
+from typing import Dict, Any, List
+
+def _star_tag_value(value: Any):
+    """Serializer for SAVEFRAME TAGS: None for empty -> '.' in STAR."""
+    try:
+        from pathlib import Path
+    except Exception:
+        Path = None  # type: ignore
+    import numpy as np
+    if value is None:
+        return None
+    if isinstance(value, np.generic):
+        value = value.item()
+    if isinstance(value, (list, tuple, set)):
+        if len(value) == 0:
+            return None
+        value = " ".join(map(str, value))
+    if Path and isinstance(value, Path):
+        value = str(value)
+    s = str(value).strip()
+    return None if s == "" else s
+
+def _star_loop_cell(value: Any) -> str:
+    """Serializer for LOOP CELLS: '.' for missing/empty."""
+    try:
+        from pathlib import Path
+    except Exception:
+        Path = None  # type: ignore
+    import numpy as np
+    if value is None:
+        return "."
+    if isinstance(value, np.generic):
+        value = value.item()
+    if isinstance(value, (list, tuple, set)):
+        if len(value) == 0:
+            return "."
+        value = " ".join(map(str, value))
+    if Path and isinstance(value, Path):
+        value = str(value)
+    s = str(value).strip()
+    return "." if s == "" else s
+
+def _make_loop(p, category: str, tag_names: List[str]):
+    """Create a pynmrstar Loop robustly across versions."""
+    for kw in ("tag_names", "tags"):
+        try:
+            return p.Loop.from_scratch(category=category, **{kw: tag_names})
+        except TypeError:
+            pass
+    loop = p.Loop.from_scratch(category=category)
+    if hasattr(loop, "set_tag_names"):
+        loop.set_tag_names(tag_names)
+    elif hasattr(loop, "add_tag_name"):
+        for nm in tag_names:
+            loop.add_tag_name(nm)
+    elif hasattr(loop, "add_tag"):
+        for nm in tag_names:
+            loop.add_tag(nm)
+    return loop
+
+def _flatten_meta(d: Dict[str, Any], parent: str = "") -> List[tuple[str, str]]:
+    """Flatten a small dict (e.g., meta) into (key_path, value_str)."""
+    rows: List[tuple[str, str]] = []
+    for k, v in (d or {}).items():
+        key = f"{parent}.{k}" if parent else k
+        if isinstance(v, dict):
+            rows.extend(_flatten_meta(v, key))
+        else:
+            rows.append((key, _star_loop_cell(v)))
+    return rows
+
+def write_star_pynmrstar(report: Dict[str, Any], filepath: str, params: Dict[str, Any]) -> None:
+    """
+    Write STAR with requested prefixes:
+      - Metadata:   _LACS_metadata.*
+      - Offsets:    _LACS_offsets.*     (includes pos/neg and optional Bayes overall row)
+      - Fit data:   _LACS_fitdata.*     (x, y, residual, flag, prob)
+      - Per-list meta (from JSON 'meta') also under _LACS_metadata.* loop
+    """
+    import pynmrstar as p
+
+    entry = p.Entry.from_scratch("pylacs_lacs")
+
+    # --------------------- global metadata (run params) -----------------------
+    sf_meta = p.Saveframe.from_scratch("save_LACS_metadata")
+    sf_meta.add_tag("_LACS_metadata.Generated_by", "PyLACS")
+    sf_meta.add_tag("_LACS_metadata.Generation_date", datetime.now(UTC).isoformat())
+    for k, v in (params or {}).items():
+        sf_meta.add_tag(f"_LACS_metadata.{k}", _star_tag_value(v))
+    entry.add_saveframe(sf_meta)
+
+    # ---------------------- per-list metadata (from JSON) ---------------------
+    # Mirrors JSON 'meta' dict (e.g., cutoff_k, used_side, bayes=True, etc.)
+    meta_tags = [
+        "_LACS_metadata.List_ID",
+        "_LACS_metadata.Key",
+        "_LACS_metadata.Value",
+    ]
+    sf_meta_pl = p.Saveframe.from_scratch("save_LACS_metadata_perlist")
+    sf_meta_pl.category   = "LACS_metadata"   # loops only → set category & prefix
+    sf_meta_pl.tag_prefix = "_LACS_metadata"
+    loop_meta_pl = _make_loop(p, category="LACS_metadata", tag_names=meta_tags)
+
+    meta_rows: List[List[str]] = []
+    for list_id, rep in (report or {}).items():
+        flat = _flatten_meta(rep.get("meta", {}))
+        for key_path, val in flat:
+            meta_rows.append([_star_loop_cell(list_id), _star_loop_cell(key_path), val])
+    if meta_rows:
+        loop_meta_pl.add_data(meta_rows)
+    sf_meta_pl.add_loop(loop_meta_pl)
+    entry.add_saveframe(sf_meta_pl)
+    # ---------------------- Offsets (pos/neg + Bayes overall) ----------------
+    off_tags = [
+        "_LACS_offsets.List_ID",
+        "_LACS_offsets.Atom",
+        "_LACS_offsets.Side",  # 'pos' | 'neg' | 'overall'
+        "_LACS_offsets.Value",  # pos/neg split value or Bayes mean for 'overall'
+        "_LACS_offsets.Bayes_mean",
+        "_LACS_offsets.Bayes_ci95_lo",
+        "_LACS_offsets.Bayes_ci95_hi",
+        "_LACS_offsets.Bayes_sd",
+    ]
+    sf_off = p.Saveframe.from_scratch("save_LACS_offsets")
+    sf_off.category = "LACS_offsets"
+    sf_off.tag_prefix = "_LACS_offsets"
+    loop_off = _make_loop(p, category="LACS_offsets", tag_names=off_tags)
+
+    off_rows: List[List[str]] = []
+    for list_id, rep in (report or {}).items():
+        split = rep.get("offsets_split", {})  # deterministic per-side offsets
+        bayes_overall = rep.get("offsets_bayes", {})  # overall Bayes stats
+        # Accept either name for per-side Bayes stats:
+        bayes_sides = (rep.get("offsets_bayes_sides") or
+                       rep.get("offsets_bayes_split") or {})  # per-side Bayes stats
+
+        # 1) pos/neg rows (fill Bayes_* from per-side stats if present)
+        for atom, sides in (split or {}).items():
+            for side in ("pos", "neg"):
+                val = None if sides is None else sides.get(side)
+                if val is None:
+                    continue
+                b = ((bayes_sides.get(atom) or {}).get(side) or {})
+                ci = b.get("ci95") or [None, None]
+                off_rows.append([
+                    _star_loop_cell(list_id),
+                    _star_loop_cell(str(atom).upper()),
+                    _star_loop_cell(side),
+                    _star_loop_cell(val),
+                    _star_loop_cell(b.get("mean")),
+                    _star_loop_cell(ci[0]),
+                    _star_loop_cell(ci[1]),
+                    _star_loop_cell(b.get("sd")),
+                ])
+
+        # 2) Bayes "overall" row
+        for atom, stats in (bayes_overall or {}).items():
+            mean = stats.get("mean")
+            ci95 = stats.get("ci95") or [None, None]
+            sd = stats.get("sd")
+            off_rows.append([
+                _star_loop_cell(list_id),
+                _star_loop_cell(str(atom).upper()),
+                _star_loop_cell("overall"),
+                _star_loop_cell(mean if mean is not None else "."),  # duplicate mean in Value
+                _star_loop_cell(mean),
+                _star_loop_cell(ci95[0]),
+                _star_loop_cell(ci95[1]),
+                _star_loop_cell(sd),
+            ])
+
+    if off_rows:
+        loop_off.add_data(off_rows)
+    sf_off.add_loop(loop_off)
+    entry.add_saveframe(sf_off)
+
+    # -------------------- Fit data (x,y,residual,flag,prob) -------------------
+    fit_tags = [
+        "_LACS_fitdata.List_ID",
+        "_LACS_fitdata.Atom",
+        "_LACS_fitdata.Entity_ID",
+        "_LACS_fitdata.Entity_assembly_ID",
+        "_LACS_fitdata.Comp_index_ID",
+        "_LACS_fitdata.Comp_ID",
+        "_LACS_fitdata.X",
+        "_LACS_fitdata.Y",
+        "_LACS_fitdata.Residual",
+        "_LACS_fitdata.Flag",
+        "_LACS_fitdata.Prob",
+    ]
+    sf_fit = p.Saveframe.from_scratch("save_LACS_fitdata")
+    sf_fit.category   = "LACS_fitdata"
+    sf_fit.tag_prefix = "_LACS_fitdata"
+    loop_fit = _make_loop(p, category="LACS_fitdata", tag_names=fit_tags)
+
+    fit_rows: List[List[str]] = []
+    for list_id, rep in (report or {}).items():
+        outliers = rep.get("outliers", {})
+        for atom, rows in (outliers or {}).items():
+            for row in rows:
+                rk = row.get("residue_key", {})
+                fit_rows.append([
+                    _star_loop_cell(list_id),
+                    _star_loop_cell(str(atom).upper()),
+                    _star_loop_cell(rk.get("entity")),
+                    _star_loop_cell(rk.get("assembly")),
+                    _star_loop_cell(rk.get("index")),
+                    _star_loop_cell(rk.get("comp")),
+                    _star_loop_cell(row.get("x")),
+                    _star_loop_cell(row.get("y")),
+                    _star_loop_cell(row.get("residual")),
+                    _star_loop_cell(row.get("flag")),
+                    _star_loop_cell(row.get("prob")),
+                ])
+    if fit_rows:
+        loop_fit.add_data(fit_rows)
+    sf_fit.add_loop(loop_fit)
+    entry.add_saveframe(sf_fit)
+
+    # ----------------------- write -----------------------
+    entry.write_to_file(filepath, skip_empty_tags=True, skip_empty_loops=True)
+
+def write_report(
+    report: Dict[str, Any],
+    base_path: Path,
+    write_format: str = "json",
+    params_for_star: Optional[Dict[str, Any]] = None,
+    json_out: Optional[Path] = None,
+    star_out: Optional[Path] = None,
+) -> Dict[str, Path]:
+    """
+    Write report to disk as JSON, STAR, or both.
+
+    Returns a dict of the actual paths written, e.g. {'json': Path(...), 'star': Path(...)}.
+    """
+    write_format = (write_format or "json").lower()
+    out_paths: Dict[str, Path] = {}
+
+    if write_format in ("json", "both"):
+        jp = Path(json_out) if json_out else base_path.with_suffix(".json")
+        jp.parent.mkdir(parents=True, exist_ok=True)
+        with open(jp, "w", encoding="utf-8") as f:
+            json.dump(report, f, indent=2)
+        out_paths["json"] = jp
+
+    if write_format in ("star", "both"):
+        sp = Path(star_out) if star_out else base_path.with_suffix(".star")
+        write_star_pynmrstar(report, sp, params_for_star or {})
+        out_paths["star"] = sp
+
+    if not out_paths:
+        raise ValueError("write_format must be one of {'json','star','both'}.")
+
+    return out_paths
+
+def apply_corrections_from_report(
+    report: Dict[str, Any],
+    input_star: Path,
+    output_star: Path,
+    data_id: str,
+    atoms: Sequence[str] = ("CA", "CB", "C", "N"),
+    release_author: str = "BMRB",
+) -> Dict[str, int]:
+    """
+    Apply LACS offsets to an input NMR-STAR file for each list_id in report, and write a corrected file.
+
+    Parameters
+    ----------
+    report : dict
+        LACS report returned by run_lacs(...).
+    input_star : Path
+        Source .str/.star file.
+    output_star : Path
+        Destination corrected .str/.star file.
+    data_id : str
+        Identifier used in the Release.Detail note.
+    atoms : sequence of str
+        Subset of atoms to correct (default CA, CB, C, N).
+    release_author : str
+        Author recorded in Release loop.
+
+    Returns
+    -------
+    dict
+        Counts across the last applied list_id; includes per-atom keys and 'total'.
+        (If multiple list_ids exist, counts reflect the most recent application.)
+    """
+    if apply_selected_offsets_and_note is None:
+        raise RuntimeError("apply_selected_offsets_and_note not available. Ensure apply_lacs_correction.py is importable.")
+
+    atoms_use = _normalize_atoms(atoms)
+
+    # Ensure string paths for pynmrstar compatibility
+    input_star_s = str(input_star)
+    output_star_s = str(output_star)
+
+    Path(output_star_s).parent.mkdir(parents=True, exist_ok=True)
+    if not Path(input_star_s).is_file():
+        raise FileNotFoundError(f"Input STAR file not found: {input_star_s}")
+    if Path(output_star_s).suffix.lower() not in {".str", ".star"}:
+        output_star_s = str(Path(output_star_s).with_suffix(".str"))
+
+    counts_last: Dict[str, int] = {}
+    # Iterate in the order present in the report
+    for list_id in report:
+        offsets_uc = _extract_offsets_for_list(report, list_id)
+        parts = [f"{a}={offsets_uc[a]:+g}" for a in atoms_use]
+        details = (
+            f"LACS correction applied to list_id {list_id} ({data_id}): "
+            + (", ".join(parts) if parts else "none")
+            + ". Source: LACS."
+        )
+        counts_last = apply_selected_offsets_and_note(
+            input_path=input_star_s,
+            output_path=output_star_s,
+            list_id=int(list_id),
+            offsets=offsets_uc,
+            atoms=atoms_use,
+            release_author=release_author,
+            release_details=details,
+        )
+    return counts_last
+
 
 def _extract_offsets_for_list(report: Dict, list_id: int) -> Dict[str, float]:
     """
@@ -246,6 +576,7 @@ class FitResult:
     x_neg: List[float]
     y_neg: List[float]
     tags_neg: List[ResidueKey]
+
 
 
 def read_star(file_name: str) -> Dict[str, Dict[ResidueKey, Dict[str, float]]]:
@@ -472,12 +803,18 @@ def collect_and_report(fits: Dict[str, FitResult], cutoff_k: float = 5.0) -> Dic
     for atom, fr in fits.items():
         resid_all = np.array(fr.resid_pos + fr.resid_neg, dtype=float)
         tags_all  = fr.tags_pos + fr.tags_neg
+        # >>> NEW: x/y aligned to tags across both sides
+        x_all = (fr.x_pos + fr.x_neg)
+        y_all = (fr.y_pos + fr.y_neg)
+        # <<< NEW
         flags, probs = outlier_stats(resid_all, cutoff_k=cutoff_k)
         out: List[Dict[str, object]] = []
-        for tag, f, p, r in zip(tags_all, flags, probs, resid_all.tolist()):
+        for tag, f, p, r, xv, yv in zip(tags_all, flags, probs, resid_all.tolist(), x_all, y_all):
             out.append({
                 "residue_key": {"entity": tag[0], "assembly": tag[1], "index": tag[2], "comp": tag[3]},
                 "residual": round(float(r), 4),
+                "x": round(float(xv), 4),  # <<< NEW
+                "y": round(float(yv), 4),  # <<< NEW
                 "flag": int(f),
                 "prob": round(float(p), 4),
             })
@@ -485,105 +822,115 @@ def collect_and_report(fits: Dict[str, FitResult], cutoff_k: float = 5.0) -> Dic
     return report
 
 
-def collect_and_report_bayes(fits: Dict[str, FitResult],
-                             alpha_samples: Dict[str, Dict[str, np.ndarray]],
-                             cutoff_k: float = 5.0) -> Dict[str, Dict]:
-    """Assemble report including Bayesian **offset uncertainties**.
-
-    :param fits: Dictionary of fit results.
-    :param alpha_samples: Dictionary of posterior draws for each atom.
-    :param cutoff_k: Outlier cutoff multiplier used for residual-based probabilities.
-    :return: Dictionary of offsets and outlier lists.
-
-    Notes:
-    Report with keys:
-    - ``offsets``: mean offsets (as before)
-    - ``offsets_bayes``: dict with ``mean``, ``ci95``, ``sd`` per atom
-    - ``outliers``: list of outlier diagnostics per atom
-    - ``meta.cutoff_k``: scalar
-
+def collect_and_report_bayes(
+    fits: Dict[str, FitResult],
+    alpha_samples: Dict[str, Dict[str, np.ndarray]],
+    cutoff_k: float = 5.0
+) -> Dict[str, Dict]:
     """
-    base = collect_and_report(fits, cutoff_k=cutoff_k)
-    offsets_bayes = {}
-    offsets_bayes_split={}
-# Compute offsets_bayes with single-side fallback
-    offsets_bayes = {}
+    Assemble a full Bayes report.
+
+    Returns a dict with keys:
+      - offsets_bayes:        {atom: {"mean": float, "ci95": [lo, hi], "sd": float|None}}
+      - offsets_bayes_sides:  {atom: {"pos": {...}, "neg": {...}}}
+      - offsets_split:        {atom: {"pos": float|None, "neg": float|None}}
+      - outliers:             {atom: [ {residue_key: {...}, x, y, residual, flag, prob}, ... ]}
+      - meta:                 {"cutoff_k": float, "bayes": True, "used_side": {atom: "both"|"pos"|"neg"|"none"}}
+    """
+    import numpy as np
+
+    offsets_bayes: Dict[str, Dict[str, Any]] = {}
+    offsets_bayes_sides: Dict[str, Dict[str, Dict[str, Optional[float]]]] = {}
+    offsets_split: Dict[str, Dict[str, Optional[float]]] = {}
+    used_side: Dict[str, str] = {}
+    outliers_map: Dict[str, List[Dict[str, object]]] = {}
+
     for atom, fr in fits.items():
-        has_pos = len(fr.x_pos)>0
-        has_neg = len(fr.x_neg)>0
-        if has_pos and has_neg:
-            # combine posterior samples if available
-            pos_draws = alpha_samples.get(atom, {}).get('pos', np.array([]))
-            neg_draws = alpha_samples.get(atom, {}).get('neg', np.array([]))
-            if pos_draws.size and neg_draws.size:
-                comb = -0.5*(pos_draws + neg_draws)
-                mean, lo, hi = _ci_and_sd(comb)
-                offsets_bayes[atom] = {'mean': round(mean,3), 'ci95': [round(lo,3), round(hi,3)], 'sd': round(np.std(comb),3)}
-            else:
-                # fallback to means
-                offsets_bayes[atom] = {'mean': round(-0.5*(fr.intercept_pos+fr.intercept_neg),3)}
-        elif has_pos:
-            pos_draws = alpha_samples.get(atom, {}).get('pos', np.array([]))
-            if pos_draws.size:
-                comb = -pos_draws
-                mean, lo, hi = _ci_and_sd(comb)
-                offsets_bayes[atom] = {'mean': round(mean,3), 'ci95': [round(lo,3), round(hi,3)], 'sd': round(np.std(comb),3)}
-            else:
-                offsets_bayes[atom] = {'mean': round(-fr.intercept_pos,3)}
-        elif has_neg:
-            neg_draws = alpha_samples.get(atom, {}).get('neg', np.array([]))
-            if neg_draws.size:
-                comb = -neg_draws
-                mean, lo, hi = _ci_and_sd(comb)
-                offsets_bayes[atom] = {'mean': round(mean,3), 'ci95': [round(lo,3), round(hi,3)], 'sd': round(np.std(comb),3)}
-            else:
-                offsets_bayes[atom] = {'mean': round(-fr.intercept_neg,3)}
+        # Which sides have data?
+        has_pos = len(fr.x_pos) > 0
+        has_neg = len(fr.x_neg) > 0
+        used_side[atom] = "both" if (has_pos and has_neg) else ("pos" if has_pos else ("neg" if has_neg else "none"))
+
+        # Deterministic per-side offsets from fitted intercepts
+        offsets_split[atom] = {
+            "pos": round(float(-fr.intercept_pos), 3) if has_pos else None,
+            "neg": round(float(-fr.intercept_neg), 3) if has_neg else None,
+        }
+
+        # Posterior draws for offset (= -alpha) per side
+        pos_draws = -alpha_samples.get(atom, {}).get("pos", np.array([], float))
+        neg_draws = -alpha_samples.get(atom, {}).get("neg", np.array([], float))
+
+        # Overall draws: combine sides when both present
+        if pos_draws.size > 0 and neg_draws.size > 0:
+            n = min(pos_draws.size, neg_draws.size)
+            overall_draws = 0.5 * (pos_draws[:n] + neg_draws[:n])
+        elif pos_draws.size > 0:
+            overall_draws = pos_draws
+        elif neg_draws.size > 0:
+            overall_draws = neg_draws
         else:
-            offsets_bayes[atom] = {'mean': 0.0}
+            overall_draws = np.array([], float)
 
-        for atom, fr in fits.items():
-            pos = -alpha_samples.get(atom, {}).get('pos', np.array([], float))
-            neg = -alpha_samples.get(atom, {}).get('neg', np.array([], float))
-            if pos.size > 0 and neg.size > 0:
-                n = min(pos.size, neg.size)
-                offs_draws = 0.5 * (pos[:n] + neg[:n])
-            elif pos.size > 0:
-                offs_draws = pos
-            elif neg.size > 0:
-                offs_draws = neg
-            else:
-                offs_draws = np.array([], float)
-            mean = float(np.mean(offs_draws)) if offs_draws.size else float((fr.intercept_pos + fr.intercept_neg)/2.0)
-            lo, hi, sd = _ci_and_sd(offs_draws, level=0.95)
-            offsets_bayes[atom] = {
-                "mean": round(mean, 4),
-                "ci95": [None if np.isnan(lo) else round(lo, 4),
-                         None if np.isnan(hi) else round(hi, 4)],
-                "sd": None if np.isnan(sd) else round(sd, 4),
+        # Overall Bayes stats (fallback to intercepts if no draws)
+        if overall_draws.size:
+            mean = float(np.mean(overall_draws))
+            lo, hi, sd = _ci_and_sd(overall_draws, level=0.95)  # returns (lo, hi, sd)
+        else:
+            mean = float(-0.5 * (fr.intercept_pos + fr.intercept_neg))
+            lo = hi = sd = float("nan")
+
+        offsets_bayes[atom] = {
+            "mean": round(mean, 4),
+            "ci95": [None if np.isnan(lo) else round(lo, 4),
+                     None if np.isnan(hi) else round(hi, 4)],
+            "sd":   None if np.isnan(sd) else round(sd, 4),
+        }
+
+        # Per-side Bayes stats
+        def _side_stats(arr: np.ndarray) -> Dict[str, Optional[float] | List[Optional[float]]]:
+            if arr.size == 0:
+                return {"mean": None, "ci95": [None, None], "sd": None}
+            m = float(np.mean(arr))
+            lo_s, hi_s, sd_s = _ci_and_sd(arr, level=0.95)
+            return {
+                "mean": round(m, 4),
+                "ci95": [None if np.isnan(lo_s) else round(lo_s, 4),
+                         None if np.isnan(hi_s) else round(hi_s, 4)],
+                "sd": None if np.isnan(sd_s) else round(sd_s, 4),
             }
-            lo_p, hi_p, sd_p = _ci_and_sd(pos, level=0.95)
-            pos_stat = {
-                "mean": round(mean, 4),
-                "ci95": [None if np.isnan(lo_p) else round(lo_p, 4),
-                         None if np.isnan(hi_p) else round(hi_p, 4)],
-                "sd": None if np.isnan(sd_p) else round(sd_p, 4),
-            }
-            offsets_bayes_split[atom]={'pos':pos_stat}
-            lo_p, hi_p, sd_p = _ci_and_sd(neg, level=0.95)
-            pos_stat = {
-                "mean": round(mean, 4),
-                "ci95": [None if np.isnan(lo_p) else round(lo_p, 4),
-                         None if np.isnan(hi_p) else round(hi_p, 4)],
-                "sd": None if np.isnan(sd_p) else round(sd_p, 4),
-            }
-            offsets_bayes_split[atom] = {'neg': pos_stat}
 
+        offsets_bayes_sides[atom] = {
+            "pos": _side_stats(pos_draws),
+            "neg": _side_stats(neg_draws),
+        }
 
+        # Outliers (with x/y attached)
+        resid_all = np.array(fr.resid_pos + fr.resid_neg, dtype=float)
+        tags_all  = fr.tags_pos + fr.tags_neg
+        x_all     = fr.x_pos + fr.x_neg
+        y_all     = fr.y_pos + fr.y_neg
 
-        base["offsets_bayes"] = offsets_bayes
-        base["offsets_bayes_split"] = offsets_bayes_split
-        return base
+        flags, probs = outlier_stats(resid_all, cutoff_k=cutoff_k)
+        rows: List[Dict[str, object]] = []
+        for tag, f, p, r, xv, yv in zip(tags_all, flags, probs, resid_all.tolist(), x_all, y_all):
+            rows.append({
+                "residue_key": {"entity": tag[0], "assembly": tag[1], "index": tag[2], "comp": tag[3]},
+                "x": round(float(xv), 6),
+                "y": round(float(yv), 6),
+                "residual": round(float(r), 4),
+                "flag": int(f),
+                "prob": round(float(p), 4),
+            })
+        outliers_map[atom] = rows
 
+    return {
+        "offsets_bayes": offsets_bayes,
+        "offsets_bayes_sides": offsets_bayes_sides,
+        "offsets_split": offsets_split,
+        "outliers": outliers_map,
+        "meta": {"cutoff_k": cutoff_k, "bayes": True, "used_side": used_side},
+    }
 
 # =============================================================================
 # Plotting (optional): scatter with outlier marks and probability bars
@@ -607,6 +954,9 @@ def _plot_atom(atom: str, fr: FitResult, outdir: Path, data_id: str, list_id, me
     x_pos, y_pos = np.asarray(fr.x_pos, float), np.asarray(fr.y_pos, float)
     x_neg, y_neg = np.asarray(fr.x_neg, float), np.asarray(fr.y_neg, float)
 
+    # --- NEW: if absolutely no points, skip plotting entirely
+    if (x_pos.size + x_neg.size) == 0:
+        return
     # Pre-compute labels like "56H"
     labels_pos = [_tag_to_label(t) for t in fr.tags_pos]
     labels_neg = [_tag_to_label(t) for t in fr.tags_neg]
@@ -987,7 +1337,15 @@ def _fit_atom_bayes(xvals: List[float], yvals: List[float], tags: List[ResidueKe
 
 def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequence[str] | str] = None,
              outdir: Optional[Path] = None, plots: bool = True, cutoff_k: float = 5.0,
-             min_per_side: int = MIN_PER_SIDE_DEFAULT) -> Dict[str, Dict]:
+             min_per_side: int = MIN_PER_SIDE_DEFAULT,
+             write_format: str = "json",  # {'json','star','both'}
+             json_out: Optional[Path] = None,
+             star_out: Optional[Path] = None,
+             params_for_star: Optional[Dict[str, Any]] = None,  # if None, we'll build one internally
+             apply_corrections: bool = False,
+             correction_atoms: Sequence[str] = ("CA", "CB", "C", "N"),
+             release_author: str = "BMRB",
+             output_corrected: Optional[Path] = None) -> Dict[str, Dict]:
     """Run the selected robust method over an NMR-STAR file.
 
     :param str_file: Path to NMR-STAR file.
@@ -1000,10 +1358,8 @@ def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequen
     :param min_per_side: Minimum number of points required on each sign side.
     :return: Dictionary of results, keyed by list ID.
 
-
-
-
     """
+
     cs = read_star(str_file)
     results: Dict[str, Dict] = {}
     for list_id, resmap in cs.items():
@@ -1032,7 +1388,46 @@ def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequen
                 results[list_id] = collect_and_report_bayes(fits, alpha_samples, cutoff_k=cutoff_k)
             else:
                 results[list_id] = collect_and_report(fits, cutoff_k=cutoff_k)
-    return results
+    # ---------- Writing (JSON / STAR / both) ----------
+    base_dir = Path.cwd() if outdir is None else Path(outdir)
+    base_dir.mkdir(parents=True, exist_ok=True)
+    base_path = base_dir / f"{data_id}_{method}"
+    report = results
+    # If caller didn't pass STAR metadata, build a minimal one from our args
+    if params_for_star is None:
+        params_for_star = dict(
+            str_file=str_file,
+            method=method,
+            data_id=data_id,
+            rc_model=rc_model if rc_model is not None else "",
+            outdir=str(base_dir),
+            plots=plots,
+            cutoff_k=cutoff_k,
+            min_per_side=min_per_side,
+        )
+
+    written = write_report(
+        report=report,
+        base_path=base_path,
+        write_format=write_format,
+        params_for_star=params_for_star,
+        json_out=json_out,
+        star_out=star_out,
+    )
+    # Optionally apply corrections
+    if apply_corrections:
+        # Decide corrected output path
+        corrected_path = Path(output_corrected) if output_corrected else base_path.with_name(f"{data_id}_corrected").with_suffix(".str")
+        apply_corrections_from_report(
+            report=report,
+            input_star=str(Path(str_file)),
+            output_star=corrected_path,
+            data_id=data_id,
+            atoms=correction_atoms,
+            release_author=release_author,
+        )
+
+    return report
 
 
 # =============================================================================
@@ -1093,91 +1488,113 @@ def main(argv=None) -> None:
     p.add_argument('--min-per-side', type=int, default=MIN_PER_SIDE_DEFAULT,
                    help='Minimum number of points required on each sign side (default: 5).')
     p.add_argument("--cutoff-k", type=float, default=5.0, help="Outlier cutoff multiplier (default 5.0)")
-    p.add_argument("--json-out", type=Path, default=None, help="Where to write JSON (defaults to <data_id>_<method>.json)")
+   # p.add_argument("--json-out", type=Path, default=None, help="Where to write JSON (defaults to <data_id>_<method>.json)")
 
     p.add_argument("--apply-offsets", action="store_true",
                    help="After computing offsets, apply them to the input .str.")
 
-    p.add_argument("--output-corrected", type=Path,
-                   help="Path to write the corrected NMR-STAR file (required with --apply-offsets).")
-    p.add_argument("--atoms", nargs="+",
-                   choices=["CA", "CB", "C", "N", "ca", "cb", "c", "n"],
-                   default=["CA", "CB", "C", "N"],
-                   help="Subset of atoms to correct (default: CA CB C N).")
+    # p.add_argument("--output-corrected", type=Path,
+    #                help="Path to write the corrected NMR-STAR file (required with --apply-offsets).")
+    # p.add_argument("--atoms", nargs="+",
+    #                choices=["CA", "CB", "C", "N", "ca", "cb", "c", "n"],
+    #                default=["CA", "CB", "C", "N"],
+    #                help="Subset of atoms to correct (default: CA CB C N).")
+    # p.add_argument("--release-author", default="BMRB",
+    #                help="Author to record in the Release loop (default: BMRB).")
+    p.add_argument("--out-format", choices=["json", "star", "both"], default="both",
+                   help="Output format (default: both)")
+    p.add_argument("--json-out", default=None, help="Explicit JSON path (overrides default).")
+    p.add_argument("--star-out", default=None, help="Explicit STAR path (overrides default).")
+    p.add_argument("--apply-corrections", action="store_true",
+                   help="Apply LACS offsets to input STAR and write a corrected file.")
+    p.add_argument("--correction-atoms", nargs="+", default=["CA", "CB", "C", "N"],
+                   help="Atoms to correct when applying offsets.")
     p.add_argument("--release-author", default="BMRB",
-                   help="Author to record in the Release loop (default: BMRB).")
+                   help="Author to record in Release loop for corrections.")
+    p.add_argument("--output-corrected", default=None,
+                   help="Path to corrected output STAR (.str) file.")
+
 
     args = p.parse_args(argv)
     rc_model = None if args.rc_model == [] else (args.rc_model if args.rc_model is not None else None)
     report = run_lacs(args.star_file, method=args.method, data_id=args.data_id,
-                      rc_model=rc_model, outdir=args.out, plots=not args.no_plots, cutoff_k=args.cutoff_k, min_per_side=args.min_per_side)
+                      rc_model=rc_model, outdir=args.out, plots=not args.no_plots, cutoff_k=args.cutoff_k, min_per_side=args.min_per_side,
+                      write_format=args.out_format,
+                      json_out=Path(args.json_out) if args.json_out else None,
+                      star_out=Path(args.star_out) if args.star_out else None,
+                      params_for_star=vars(args),  # capture CLI args as metadata
+                      apply_corrections=bool(args.apply_corrections),
+                      correction_atoms=args.correction_atoms,
+                      release_author=args.release_author,
+                      output_corrected=(Path(args.output_corrected) if args.output_corrected else None),
+                      )
 
-    json_path = args.json_out or _default_json_path(args.out, args.data_id, args.method)
-    json_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
-    if args.apply_offsets:
-        if apply_selected_offsets_and_note is None:
-            raise SystemExit("Cannot apply offsets: apply_lacs_correction.py not importable.")
-        if not args.output_corrected:
-            corrected_path = json_path.parent / f'{args.data_id}_corrected,str'
-            corrected_path.parent.mkdir(parents=True, exist_ok=True)
-            #raise SystemExit("--output-corrected is required with --apply-offsets.")
-        else:
-            corrected_path = args.output_corrected
-        for list_id in report:
-            try:
-                offsets_uc = _extract_offsets_for_list(report, list_id)
-            except KeyError as e:
-                # Graceful fallback: try reading the freshly written JSON (identical content)
-                with open(json_path, "r", encoding="utf-8") as f:
-                    report2 = json.load(f)
-                offsets_uc = _extract_offsets_for_list(report2, list_id)
-
-            atoms_use = _normalize_atoms(args.atoms)
-            parts = [f"{a}={offsets_uc[a]:+g}" for a in atoms_use]
-            details = (
-                    f"LACS correction applied to list_id {list_id} ({args.data_id}): "
-                    + (", ".join(parts) if parts else "none")
-                    + ". Source: LACS (same run)."
-            )
-            if len(report)>1:
-                list_ids = list(report.keys())
-                if list_ids.index(list_id)>0:
-                    counts = apply_selected_offsets_and_note(
-                        input_path=args.star_file,
-                        output_path=corrected_path,
-                        list_id=int(list_id),
-                        offsets=offsets_uc,
-                        atoms=atoms_use,
-                        release_author=args.release_author,
-                        release_details=details,
-                    )
-                else:
-                    counts = apply_selected_offsets_and_note(
-                        input_path=args.star_file,
-                        output_path=corrected_path,
-                        list_id=int(list_id),
-                        offsets=offsets_uc,
-                        atoms=atoms_use,
-                        release_author=args.release_author,
-                        release_details=details,
-                    )
-            else:
-                counts = apply_selected_offsets_and_note(
-                    input_path=args.star_file,
-                    output_path=corrected_path,
-                    list_id=int(list_id),
-                    offsets=offsets_uc,
-                    atoms=atoms_use,
-                    release_author=args.release_author,
-                    release_details=details,
-                )
-            print("Applied offsets to file:")
-            for a in atoms_use:
-                print(f"  {a}: {counts[a]}")
-            print(f"Total updated: {counts['total']}")
-        print(f"Wrote corrected file: {corrected_path}")
+    # json_path = args.json_out or _default_json_path(args.out, args.data_id, args.method)
+    # json_path.parent.mkdir(parents=True, exist_ok=True)
+    # with open(json_path, "w", encoding="utf-8") as f:
+    #     json.dump(report, f, indent=2)
+    # if args.apply_offsets:
+    #     if apply_selected_offsets_and_note is None:
+    #         raise SystemExit("Cannot apply offsets: apply_lacs_correction.py not importable.")
+    #     if not args.output_corrected:
+    #         corrected_path = json_path.parent / f'{args.data_id}_corrected,str'
+    #         corrected_path.parent.mkdir(parents=True, exist_ok=True)
+    #         #raise SystemExit("--output-corrected is required with --apply-offsets.")
+    #     else:
+    #         corrected_path = args.output_corrected
+    #     for list_id in report:
+    #         try:
+    #             offsets_uc = _extract_offsets_for_list(report, list_id)
+    #         except KeyError as e:
+    #             # Graceful fallback: try reading the freshly written JSON (identical content)
+    #             with open(json_path, "r", encoding="utf-8") as f:
+    #                 report2 = json.load(f)
+    #             offsets_uc = _extract_offsets_for_list(report2, list_id)
+    #
+    #         atoms_use = _normalize_atoms(args.atoms)
+    #         parts = [f"{a}={offsets_uc[a]:+g}" for a in atoms_use]
+    #         details = (
+    #                 f"LACS correction applied to list_id {list_id} ({args.data_id}): "
+    #                 + (", ".join(parts) if parts else "none")
+    #                 + ". Source: LACS (same run)."
+    #         )
+    #         if len(report)>1:
+    #             list_ids = list(report.keys())
+    #             if list_ids.index(list_id)>0:
+    #                 counts = apply_selected_offsets_and_note(
+    #                     input_path=args.star_file,
+    #                     output_path=corrected_path,
+    #                     list_id=int(list_id),
+    #                     offsets=offsets_uc,
+    #                     atoms=atoms_use,
+    #                     release_author=args.release_author,
+    #                     release_details=details,
+    #                 )
+    #             else:
+    #                 counts = apply_selected_offsets_and_note(
+    #                     input_path=args.star_file,
+    #                     output_path=corrected_path,
+    #                     list_id=int(list_id),
+    #                     offsets=offsets_uc,
+    #                     atoms=atoms_use,
+    #                     release_author=args.release_author,
+    #                     release_details=details,
+    #                 )
+    #         else:
+    #             counts = apply_selected_offsets_and_note(
+    #                 input_path=args.star_file,
+    #                 output_path=corrected_path,
+    #                 list_id=int(list_id),
+    #                 offsets=offsets_uc,
+    #                 atoms=atoms_use,
+    #                 release_author=args.release_author,
+    #                 release_details=details,
+    #             )
+    #         print("Applied offsets to file:")
+    #         for a in atoms_use:
+    #             print(f"  {a}: {counts[a]}")
+    #         print(f"Total updated: {counts['total']}")
+    #     print(f"Wrote corrected file: {corrected_path}")
 
 
 

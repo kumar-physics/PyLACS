@@ -34,7 +34,7 @@ def test_outlier_stats_simple_threshold():
 
 def test_tag_to_label():
     tag = ('1', '1', '56', 'HIS')  # (Entity_ID, Assembly_ID, Comp_index_ID, Comp_ID)
-    lbl = lacsmod.tag_to_label(tag)
+    lbl = lacsmod._tag_to_label(tag)
     assert lbl == "56H"
 
 
