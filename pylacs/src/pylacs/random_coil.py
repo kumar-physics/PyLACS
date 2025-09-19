@@ -25,7 +25,7 @@ Design notes
 - Public API is intentionally small: prefer :meth:`RandomCoil.get_value` and
   :meth:`RandomCoil.get_average` over accessing model dicts directly.
 
-Author:
+Author: Kumaran Baskaran
 
 """
 
@@ -44,18 +44,14 @@ Scalar = float
 
 
 class RandomCoil:
-    """Access random-coil chemical shift reference values.
+    """
+    Access random-coil chemical shift reference values.
 
-    Parameters
-    ----------
-    None
+    :notes:
+        - Supported atom names (case-insensitive): ``N, C, CA, CB, H, HA``.
+        - For glycine, ``HA2``/``HA3`` are normalized to ``HA``.
+        - Model name aliases (short/long) are accepted, e.g. ``'wis'`` or ``'wishart'``.
 
-    Notes
-    -----
-    - Supported atom names (case-insensitive): ``N, C, CA, CB, H, HA``.
-    - For glycine, ``HA2``/``HA3`` are normalized to ``HA``.
-    - Model name aliases (short/long) are accepted, e.g. ``'wis'`` or
-      ``'wishart'``.
 
     """
 
@@ -73,18 +69,24 @@ class RandomCoil:
 
     # ------------------------------- API -----------------------------------
     def atoms(self) -> List[str]:
-        """Return the list of supported atom names in canonical order."""
+        """
+        Return the list of supported atom names in canonical order.
+
+        :return: Atom names in canonical order.
+        :rtype: list[str]
+        """
         return list(self._ATOMS)
 
     def get_names(self, short_or_long: str = 'short') -> List[str]:
-        """Return the model names in either short or long form.
+        """
+        Return the model names in either short or long form.
 
-        Parameters
-        ----------
-        short_or_long:
-            ``'short'`` -> ``['wis','wan','luk','sch','pou']``;
-            ``'long'``  -> ``['wishart','wang','lukhin','schwarzinger','poulsen']``
-
+        :param short_or_long: ``'short'`` -> ``['wis','wan','luk','sch','pou']``;
+            ``'long'`` -> ``['wishart','wang','lukhin','schwarzinger','poulsen']``.
+        :type short_or_long: str
+        :return: Model names in the requested form.
+        :rtype: list[str]
+        :raises ValueError: If *short_or_long* is not ``'short'`` or ``'long'``.
         """
         if short_or_long == 'short':
             return ['wis', 'wan', 'luk', 'sch', 'pou']
@@ -94,6 +96,15 @@ class RandomCoil:
 
     # ------------------------------ helpers --------------------------------
     def _normalize_residue(self, res: ResidueCode) -> str:
+        """
+            Normalize a residue code to its one-letter form and validate it.
+
+            :param res: Residue code, 1- or 3-letter, case-insensitive.
+            :type res: str
+            :return: One-letter residue code.
+            :rtype: str
+            :raises ValueError: If the residue code is unknown or invalid length.
+        """
         res = res.upper()
         if len(res) == 3:
             if res not in self._THREE_TO_ONE:
@@ -106,6 +117,17 @@ class RandomCoil:
         raise ValueError(f"Residue code must be 1 or 3 letters, got: {res}")
 
     def _normalize_atom(self, atom: AtomName, res_one: str) -> str:
+        """
+            Normalize/validate an atom name for a given residue.
+
+            :param atom: Atom name (e.g., ``'CA'``, ``'N'``), case-insensitive.
+            :type atom: str
+            :param res_one: One-letter residue code (output of :meth:`_normalize_residue`).
+            :type res_one: str
+            :return: Canonical atom name.
+            :rtype: str
+            :raises ValueError: If the atom name is not supported.
+        """
         atom = atom.upper()
         if res_one == 'G' and atom in {'HA2', 'HA3'}:
             atom = 'HA'
@@ -114,11 +136,16 @@ class RandomCoil:
         return atom
 
     def _select_models(self, rc_name: Union[None, str, Sequence[str]]) -> Dict[str, Mapping[str, Sequence[Scalar]]]:
-        """Return a mapping of model_name -> table for the requested models.
+        """
+        Select and return a mapping of model name to its table based on aliases.
 
-        If ``rc_name`` is ``None``, all models are used (for averaging). If a
-        string is provided, it can be any accepted alias. If a sequence is
-        provided, each may be an alias.
+        :param rc_name: If ``None``, include all models. If a string, it can be
+            any accepted alias (e.g., ``'wis'``); if a sequence, each item can
+            be an alias. Short aliases map to long names internally.
+        :type rc_name: str | Sequence[str] | None
+        :return: Mapping of canonical model names to their data tables.
+        :rtype: dict[str, Mapping[str, Sequence[float]]]
+        :raises ValueError: If any provided model alias is unknown.
         """
         alias_map = {
             'wis': 'wishart', 'wishart': 'wishart',
@@ -153,30 +180,30 @@ class RandomCoil:
     # ------------------------------- public ---------------------------------
     def get_value(self, res: ResidueCode, atom: AtomName,
                   rc_name: Union[None, str, Sequence[str]] = None,temp: float=25.0) -> Scalar:
-        """Return the random-coil value (ppm) for a residue/atom.
+        """
+        Return the random-coil chemical shift value (ppm) for a residue/atom.
 
-        Parameters
-        ----------
-        res:
-            Residue code (one- or three-letter). Case-insensitive.
-        atom:
-            Atom name (e.g., ``'CA'``, ``'N'``). Case-insensitive.
-        rc_name:
+        :param res: Residue code (one- or three-letter). Case-insensitive.
+        :type res: str
+        :param atom: Atom name (e.g., ``'CA'``, ``'N'``). Case-insensitive.
+        :type atom: str
+        :param rc_name: Random-coil model(s) to use.
             - ``None``: average across **all** models
             - ``str``: a single model (alias accepted, e.g., ``'wis'``)
             - ``Sequence[str]``: average across the specified models
-        temp:
-            Temperature in C It will be used only when the rc_name is pou or poulsen
+        :type rc_name: str | Sequence[str] | None
+        :param temp: Temperature in °C. Used only when the model is ``'pou'``/``'poulsen'``.
+        :type temp: float
+        :return: Random-coil chemical shift value (ppm).
+        :rtype: float
+        :raises ValueError: If the residue code, atom name, or model name is invalid.
 
-        Returns
-        -------
-        float
-            The random-coil chemical shift value (ppm).
+        :examples:
+            .. code-block:: python
 
-        Raises
-        ------
-        ValueError
-            If the residue code, atom name, or model name is invalid.
+                >>> rc = RandomCoil()
+                >>> rc.get_value("ALA", "CA")
+                52.5
         """
         r1 = self._normalize_residue(res)
         atom = self._normalize_atom(atom, r1)
@@ -210,8 +237,16 @@ class RandomCoil:
         """
         Return per-residue averages across the given models (default: all).
 
-        - If a residue is missing from a model's table, it is treated as all-NaN for that model.
-        - Averages are computed with np.nanmean per atom, so missing entries are ignored.
+        :param name_list: Optional list of model aliases/names; if ``None``, use all models.
+        :type name_list: Sequence[str] | None
+        :return: Mapping of one-letter residue code to a list of averaged values
+                 in the atom order ``('N','C','CA','CB','H','HA')``. Values are
+                 rounded to two decimals; missing entries are ``math.nan``.
+        :rtype: Mapping[str, list[float]]
+
+        :notes:
+            - If a residue is missing from a model's table, it is treated as all-NaN for that model.
+            - Averages are computed with :func:`numpy.nanmean` per atom, so missing entries are ignored.
         """
         selected = self._select_models(None if name_list is None else name_list)
 
@@ -433,6 +468,12 @@ class RandomCoil:
 
 
 def _demo() -> None:
+    """
+       Small CLI demo to show basic usage.
+
+       :return: ``None``
+       :rtype: None
+       """
     rc = RandomCoil()
     print('Avg of Wishart and Wang',rc.get_value('HIS', 'C',['wis','wan']))
     print('Paulsen RC at 10C ',rc.get_value('HIS', 'C', 'pou',temp=10))
