@@ -166,11 +166,13 @@ def _flatten_meta(d: Dict[str, Any], parent: str = "") -> List[tuple[str, str]]:
 
 def write_star_pynmrstar(report: Dict[str, Any], filepath: str, params: Dict[str, Any]) -> None:
     """
-    Write STAR with requested prefixes:
+     Write STAR with requested prefixes:
       - Metadata:   _LACS_metadata.*
       - Offsets:    _LACS_offsets.*     (includes pos/neg and optional Bayes overall row)
       - Fit data:   _LACS_fitdata.*     (x, y, residual, flag, prob)
       - Per-list meta (from JSON 'meta') also under _LACS_metadata.* loop
+      :
+
     """
     import pynmrstar as p
 
@@ -327,6 +329,7 @@ def write_report(
     Write report to disk as JSON, STAR, or both.
 
     Returns a dict of the actual paths written, e.g. {'json': Path(...), 'star': Path(...)}.
+    :
     """
     write_format = (write_format or "json").lower()
     out_paths: Dict[str, Path] = {}
