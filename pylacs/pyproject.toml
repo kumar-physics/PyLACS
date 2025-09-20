@@ -4,7 +4,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pylacs"
-version = "0.1.0"
 description = "Robust LACS offsets, uncertainties, outliers, and plots from NMR-STAR files"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -12,6 +11,7 @@ license = { text = "MIT" }
 authors = [
   { name = "Kumaran Baskaran", email = "kumar.physics@gmail.com" }
 ]
+dynamic = ["version"]
 keywords = ["NMR", "chemical shifts", "LACS", "referencing", "biomolecular"]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -43,15 +43,18 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourname/pylacs"
-Issues = "https://github.com/yourname/pylacs/issues"
+Homepage = "https://github.com/kumar-physics/PyLACS"
+Issues = "https://github.com/kumar-physics/PyLACS"
 
 # Console script: `pylacs` runs main() in src/pylacs/lacs.py
 [project.scripts]
-pylacs = "pylacs.lacs:main"
+pylacs = "pylacs.cli:main"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
+
+[tool.setuptools.dynamic]
+version = {attr = "pylacs.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
