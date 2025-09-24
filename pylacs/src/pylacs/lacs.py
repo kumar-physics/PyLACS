@@ -527,6 +527,7 @@ AA3_TO_1 = {
     'HID':'H','HIE':'H','HIP':'H','HSD':'H','HSE':'H','HSP':'H',
     'CYX':'C','CSE':'C','CSO':'C','MSE':'M','SEC':'U','PYL':'O'
 }
+#Place holder for scale factors, if available in the future
 CA_SCALE = {'ILE': 4.8, 'GLN': 4.5, 'GLY': 1.7, 'GLU': 4.5, 'CYS': 6.6, 'ASP': 4.2, 'SER': 4.1, 'LYS': 4.6, 'PRO': 3.1, 'ASN': 3.6, 'VAL': 5.8, 'THR': 4.9, 'HIS': 4.0, 'TRP': 4.0, 'PHE': 5.3, 'ALA': 5.1, 'MET': 4.2, 'LEU': 4.3, 'ARG': 4.6, 'TYR': 4.7}
 CB_SCALE = {'ILE': 2.4, 'GLN': 3.5, 'GLY': 1.0, 'GLU': 3.4, 'CYS': 3.6, 'ASP': 1.9, 'SER': 2.55, 'LYS': 2.4, 'PRO': 1.0, 'ASN': 1.7, 'VAL': 2.7, 'THR': 1.5, 'HIS': 3.4, 'TRP': 1.9, 'PHE': 2.5, 'ALA': 4.2, 'MET': 2.8, 'LEU': 2.65, 'ARG': 2.7, 'TYR': 3.1}
 POS_SCALE = {'ILE': 4.83, 'GLN': 3.82, 'GLY': 1.0, 'GLU': 3.24, 'CYS': 4.35, 'ASP': 3.42, 'SER': 3.98, 'LYS': 3.42, 'PRO': 3.12, 'ASN': 2.94, 'VAL': 5.19, 'THR': 5.56, 'HIS': 4.26, 'TRP': 3.09, 'PHE': 4.04, 'ALA': 4.01, 'MET': 3.44, 'LEU': 3.47, 'ARG': 3.65, 'TYR': 3.84}
@@ -703,6 +704,74 @@ def compute_deltas(resmap: Dict[ResidueKey, Dict[str, float]], rc_model: Optiona
             continue
     return d, tags
 
+def compute_deltas2(resmap: Dict[ResidueKey, Dict[str, float]], rc_model: Optional[Sequence[str] | str]) -> Tuple[Dict[str, List[float]], Dict[str, List[ResidueKey]]]:
+    """Compute Δδ against random-coil and assemble arrays for each nucleus.
+
+    :param resmap: Chemical-shift map for each list id as a dict of dicts.
+        Keys are residue tags, values are dicts of atom names to chemical shifts.
+    :param rc_model: Random-coil model to use.
+    :return: Tuple of dicts of lists and dicts of lists of residue tags.
+        Keys are atom names, values are lists of Δδ values and residue tags.
+    :raises ValueError: If the random-coil model is not recognized.
+    :raises KeyError: If the chemical-shift map is empty.
+
+    Notes:
+
+    - ``x = ΔδCA − ΔδCB`` is computed only when both CA and CB are present.
+    - Δδ values are formed by subtracting the random-coil reference for the
+      residue type from the observed chemical shift.
+    """
+    rc = RandomCoil()
+    d: Dict[str, List[float]] = {
+        'ca': [], 'cb': [], 'c': [], 'n': [], 'ha': [],
+        'x_for_c': [], 'x_for_n': [], 'x_for_ha': [],
+    }
+    tags: Dict[str, List[ResidueKey]] = {k: [] for k in ['ca','cb','c','n','ha']}
+
+    for residue, atom_map in resmap.items():
+        comp_id = residue[-1]
+        try:
+            wca = CA_SCALE[comp_id]
+        except KeyError:
+            wca = 1.0
+        try:
+            wcb = CB_SCALE[comp_id]
+        except KeyError:
+            wcb = 1.0
+        if comp_id is None or not isinstance(comp_id, str):
+            continue
+        try:
+            ca = atom_map.get('CA')
+            cb = atom_map.get('CB')
+            c  = atom_map.get('C')
+            n  = atom_map.get('N')
+            ha  = atom_map.get('HA')
+
+            if ca is not None: ca = float(ca) - rc.get_value(comp_id, 'CA', rc_model)
+            if cb is not None: cb = float(cb) - rc.get_value(comp_id, 'CB', rc_model)
+            if c  is not None: c  = float(c)  - rc.get_value(comp_id, 'C',  rc_model)
+            if n  is not None: n  = float(n)  - rc.get_value(comp_id, 'N',  rc_model)
+            if ha  is not None: ha  = float(ha)  - rc.get_value(comp_id, 'HA',  rc_model)
+
+            if ca is not None and cb is not None and abs(ca)<15  and 15 > cb > -25:
+                x = ca - cb
+                # if x1 >=0 :
+                #     x=x1/POS_SCALE[comp_id]
+                # else:
+                #     x=x1/NEG_SCALE[comp_id]
+
+
+                d['ca'].append(ca); tags['ca'].append(residue)
+                d['cb'].append(cb); tags['cb'].append(residue)
+                if c is not None and abs(c)<12.0:
+                    d['c'].append(c); d['x_for_c'].append(x); tags['c'].append(residue)
+                if n is not None and abs(n)<20.0:
+                    d['n'].append(n); d['x_for_n'].append(x); tags['n'].append(residue)
+                if ha is not None and abs(ha)<4.0:
+                    d['ha'].append(ha); d['x_for_ha'].append(x); tags['ha'].append(residue)
+        except Exception:
+            continue
+    return d, tags
 
 def mad(arr: np.ndarray) -> float:
     """Median absolute deviation (MAD).
@@ -1347,6 +1416,101 @@ def _fit_atom_bayes(xvals: List[float], yvals: List[float], tags: List[ResidueKe
 
     fr = FitResult(s_p, b_p, f_p, r_p, xp, yp, t_p, s_n, b_n, f_n, r_n, xn, yn, t_n)
     return fr, draws
+
+
+def run_lacs2(cs : Dict[str, Dict[ResidueKey, Dict[str, float]]] = {}, method: str='tukey', data_id: str ='BMRB', rc_model: Optional[Sequence[str] | str] = None,
+             outdir: Optional[Path] = None, plots: bool = True, cutoff_k: float = 5.0,
+             min_per_side: int = 5,
+             write_format: str = "json",  # {'json','star','both'}
+             json_out: Optional[Path] = None,
+             star_out: Optional[Path] = None,
+             params_for_star: Optional[Dict[str, Any]] = None,  # if None, we'll build one internally
+             apply_corrections: bool = False,
+             correction_atoms: Sequence[str] = ("CA", "CB", "C", "N"),
+             release_author: str = "BMRB",
+             output_corrected: Optional[Path] = None) -> Dict[str, Dict]:
+    """Run the selected robust method over an NMR-STAR file.
+
+    :param str_file: Path to NMR-STAR file.
+    :param method: Robust regression method to use.
+    :param data_id: Identifier for the dataset/entry.
+    :param rc_model: Random-coil model alias(es), e.g. wis wan; omit for average of all.
+    :param outdir: Output directory for plots.``None`` defaults to ``./lacs_output``.
+    :param plots: Whether to generate plots.
+    :param cutoff_k: Outlier cutoff multiplier.(k in |r|/(k·MAD)).
+    :param min_per_side: Minimum number of points required on each sign side.
+    :return: Dictionary of results, keyed by list ID.
+
+    """
+
+    #cs = read_star(str_file)
+    results: Dict[str, Dict] = {}
+    for list_id, resmap in cs.items():
+        d, tags = compute_deltas2(resmap, rc_model)
+        fits: Dict[str, FitResult] = {}
+        alpha_samples: Dict[str, Dict[str, np.ndarray]] = {}
+
+        for atom, xkey in [('ca','ca'), ('cb','ca'), ('c','x_for_c'), ('n','x_for_n'), ('ha','x_for_ha')]:
+            yvals = d[atom]
+            if atom in {'ca','cb'}:
+                xvals = [a - b for a, b in zip(d['ca'], d['cb'])]
+                tg = tags[atom]
+            else:
+                xvals = d[xkey]; tg = tags[atom]
+            if len(yvals) >= 2 and len(xvals) == len(yvals):
+                if method == "bayes":
+                    fr, draws = _fit_atom_bayes(xvals, yvals, tg, min_per_side=min_per_side)
+                    alpha_samples[atom] = draws
+                else:
+                    fr = _fit_atom_by_method(method, xvals, yvals, tg, min_per_side=min_per_side)
+                fits[atom] = fr
+
+        if fits:
+            maybe_plot_all(fits, outdir, data_id, method, plots, list_id,cutoff_k=cutoff_k)
+            if method == "bayes":
+                results[list_id] = collect_and_report_bayes(fits, alpha_samples, cutoff_k=cutoff_k)
+            else:
+                results[list_id] = collect_and_report(fits, cutoff_k=cutoff_k)
+    # ---------- Writing (JSON / STAR / both) ----------
+    base_dir = Path.cwd() if outdir is None else Path(outdir)
+    base_dir.mkdir(parents=True, exist_ok=True)
+    base_path = base_dir / f"{data_id}_{method}"
+    report = results
+    # If caller didn't pass STAR metadata, build a minimal one from our args
+    if params_for_star is None:
+        params_for_star = dict(
+            str_file=str_file,
+            method=method,
+            data_id=data_id,
+            rc_model=rc_model if rc_model is not None else "",
+            outdir=str(base_dir),
+            plots=plots,
+            cutoff_k=cutoff_k,
+            min_per_side=min_per_side,
+        )
+
+    written = write_report(
+        report=report,
+        base_path=base_path,
+        write_format=write_format,
+        params_for_star=params_for_star,
+        json_out=json_out,
+        star_out=star_out,
+    )
+    # Optionally apply corrections
+    if apply_corrections:
+        # Decide corrected output path
+        corrected_path = Path(output_corrected) if output_corrected else base_path.with_name(f"{data_id}_corrected").with_suffix(".str")
+        apply_corrections_from_report(
+            report=report,
+            input_star=str(Path(str_file)),
+            output_star=corrected_path,
+            data_id=data_id,
+            atoms=correction_atoms,
+            release_author=release_author,
+        )
+
+    return report
 
 
 def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequence[str] | str] = None,
