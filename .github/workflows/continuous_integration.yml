@@ -18,10 +18,6 @@ jobs:
         python-version: [  3.11, 3.12, 3.13 ]
         include:
           - os: ubuntu-22.04
-            python-version: '3.9'
-          - os: ubuntu-22.04
-            python-version: '3.8'
-          - os: ubuntu-22.04
             python-version: '3.10'
     steps:
       - uses: actions/checkout@v4
