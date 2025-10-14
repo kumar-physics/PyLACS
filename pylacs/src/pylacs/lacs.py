@@ -53,9 +53,8 @@ from __future__ import annotations
 import json
 import sys
 from dataclasses import dataclass
-from pathlib import Path
+
 from typing import Dict, List, Optional, Sequence, Tuple
-from datetime import datetime, UTC
 from typing import Dict, Any, List
 
 import numpy as np
@@ -87,7 +86,13 @@ try:
     from pylacs.apply_lacs_correction import apply_selected_offsets_and_note
 except Exception as e:
     raise SystemExit("Couldn'timport apply_lacs_correction.py. Ensure it is on PYTHONPATH or in the same folder.") from e
-from datetime import datetime, UTC
+from datetime import datetime, timezone
+try:
+    # Python 3.11+
+    from datetime import UTC
+except ImportError:
+    # Older versions
+    UTC = timezone.utc
 from pathlib import Path
 from typing import Dict, Any, Optional, Sequence
 import json
