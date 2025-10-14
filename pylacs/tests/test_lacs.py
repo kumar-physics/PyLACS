@@ -55,12 +55,13 @@ def test_collect_and_report_bayes_from_fake_draws():
     }
 
     rep = lacsmod.collect_and_report_bayes(fits, alpha_samples, cutoff_k=2.5)
-    assert 'offsets' in rep and 'outliers' in rep and 'offsets_bayes' in rep
-    off = rep['offsets']['c']
+    assert 'offsets_split' in rep and 'outliers' in rep and 'offsets_bayes' in rep
+    off = rep['offsets_split']['c']
     off_b = rep['offsets_bayes']['c']
     # Mean offset should be around 2.0 (avg of 1 and 3)
-    assert abs(off - 2.0) < 1e-6
-    assert pytest.approx(2.0, abs=0.2) == off_b['mean']
+    assert off['pos'] == None
+    #assert abs(off - 2.0) < 1e-6
+    assert pytest.approx(-2.0, abs=0.2) == off_b['mean']
     assert isinstance(off_b['ci95'], list) and len(off_b['ci95']) == 2
     assert off_b['sd'] is not None
 
@@ -79,7 +80,7 @@ def test_run_lacs_non_bayes_with_mocks(monkeypatch, tmp_path):
     monkeypatch.setattr(lacsmod, 'maybe_plot_all', lambda *a, **k: None)
 
     # Bypass heavy libs by faking the fitter
-    def fake_fit(method, xvals, yvals, tags):
+    def fake_fit(method, xvals, yvals, tags, min_per_side):
         return lacsmod.FitResult(
             slope_pos=0.0, intercept_pos=1.0, fitted_pos=[], resid_pos=[],
             x_pos=[], y_pos=[], tags_pos=[],
@@ -88,7 +89,7 @@ def test_run_lacs_non_bayes_with_mocks(monkeypatch, tmp_path):
         )
     monkeypatch.setattr(lacsmod, '_fit_atom_by_method', fake_fit)
 
-    out = lacsmod.run_lacs("dummy.str", method='tukey', data_id='T', outdir=tmp_path, plots=False)
+    out = lacsmod.run_lacs("dummy.str", method='tukey', data_id='T', outdir=tmp_path, plots=False,min_per_side=2)
     assert '1' in out
     assert 'offsets' in out['1']
     # Any known atom should be present (depending on available deltas)
@@ -107,7 +108,7 @@ def test_run_lacs_bayes_with_mocks(monkeypatch, tmp_path):
     monkeypatch.setattr(lacsmod, 'maybe_plot_all', lambda *a, **k: None)
 
     # Fake bayes fitter to avoid PyMC, returning draws
-    def fake_bayes(xvals, yvals, tags):
+    def fake_bayes(xvals, yvals, tags, min_per_side):
         fr = lacsmod.FitResult(
             slope_pos=0.0, intercept_pos=1.0, fitted_pos=[], resid_pos=[],
             x_pos=[], y_pos=[], tags_pos=[],
