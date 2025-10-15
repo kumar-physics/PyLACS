@@ -91,6 +91,7 @@ def main():
     # 1) Count assigned shift saveframes per entry
     # Tag per BMRB dictionary: _Assigned_chem_shift_list.Sf_framecode
     shift_sf_map = get_tag_map("_Assigned_chem_shift_list.Sf_framecode")
+    shift_sf_list_id = get_tag_map("_Assigned_chem_shift_list.ID")
 
     # 2) Titles (nice to have)
     title_map = {}
