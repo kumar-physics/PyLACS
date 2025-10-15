@@ -97,6 +97,7 @@ def split_entry(entry, input_name: str, outdir: Path, prefix: str = None) -> int
         for sf in _all_saveframes(new_entry):
             cat = (getattr(sf, "category", "") or "").lower()
             name = (getattr(sf, "name", "") or "")
+            list_id = (getattr(sf, "ID", "") or "")
             is_shift = (
                 cat in ("assigned_chem_shift_list", "assigned_chemical_shifts")
                 or name.lower().startswith("assigned_chem_shift_list")
@@ -118,7 +119,9 @@ def split_entry(entry, input_name: str, outdir: Path, prefix: str = None) -> int
 
         # Build output path
         keep_name = getattr(keep_sf, "name", f"shiftlist_{idx}") or f"shiftlist_{idx}"
-        stem = f"{entry_id}__{sanitize_for_filename(keep_name)}"
+        keep_id = getattr(keep_sf,"_Assigned_chem_shift_list.ID",f"shiftlist_{idx}")
+        #stem = f"{entry_id}__{sanitize_for_filename(keep_name)}"
+        stem = f"{entry_id}_{keep_id}"
         if prefix:
             stem = f"{prefix}__{stem}"
         out_path = outdir / f"{stem}.str"
