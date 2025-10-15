@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Random coil chemical-shift utilities.
@@ -26,6 +25,8 @@ Design notes
 - Public API is intentionally small: prefer :meth:`RandomCoil.get_value` and
   :meth:`RandomCoil.get_average` over accessing model dicts directly.
 
+Author: Kumaran Baskaran
+
 """
 
 from __future__ import annotations
@@ -43,18 +44,14 @@ Scalar = float
 
 
 class RandomCoil:
-    """Access random-coil chemical shift reference values.
+    """
+    Access random-coil chemical shift reference values.
 
-    Parameters
-    ----------
-    None
+    :notes:
+        - Supported atom names (case-insensitive): ``N, C, CA, CB, H, HA``.
+        - For glycine, ``HA2``/``HA3`` are normalized to ``HA``.
+        - Model name aliases (short/long) are accepted, e.g. ``'wis'`` or ``'wishart'``.
 
-    Notes
-    -----
-    - Supported atom names (case-insensitive): ``N, C, CA, CB, H, HA``.
-    - For glycine, ``HA2``/``HA3`` are normalized to ``HA``.
-    - Model name aliases (short/long) are accepted, e.g. ``'wis'`` or
-      ``'wishart'``.
 
     """
 
@@ -72,27 +69,42 @@ class RandomCoil:
 
     # ------------------------------- API -----------------------------------
     def atoms(self) -> List[str]:
-        """Return the list of supported atom names in canonical order."""
+        """
+        Return the list of supported atom names in canonical order.
+
+        :return: Atom names in canonical order.
+        :rtype: list[str]
+        """
         return list(self._ATOMS)
 
     def get_names(self, short_or_long: str = 'short') -> List[str]:
-        """Return the model names in either short or long form.
+        """
+        Return the model names in either short or long form.
 
-        Parameters
-        ----------
-        short_or_long:
-            ``'short'`` -> ``['wis','wan','luk','sch']``;
-            ``'long'``  -> ``['wishart','wang','lukhin','schwarzinger']``
-
+        :param short_or_long: ``'short'`` -> ``['wis','wan','luk','sch','pou']``;
+            ``'long'`` -> ``['wishart','wang','lukhin','schwarzinger','poulsen']``.
+        :type short_or_long: str
+        :return: Model names in the requested form.
+        :rtype: list[str]
+        :raises ValueError: If *short_or_long* is not ``'short'`` or ``'long'``.
         """
         if short_or_long == 'short':
-            return ['wis', 'wan', 'luk', 'sch']
+            return ['wis', 'wan', 'luk', 'sch', 'pou']
         if short_or_long == 'long':
-            return ['wishart', 'wang', 'lukhin', 'schwarzinger']
+            return ['wishart', 'wang', 'lukhin', 'schwarzinger', 'poulsen']
         raise ValueError("short_or_long must be 'short' or 'long'")
 
     # ------------------------------ helpers --------------------------------
     def _normalize_residue(self, res: ResidueCode) -> str:
+        """
+            Normalize a residue code to its one-letter form and validate it.
+
+            :param res: Residue code, 1- or 3-letter, case-insensitive.
+            :type res: str
+            :return: One-letter residue code.
+            :rtype: str
+            :raises ValueError: If the residue code is unknown or invalid length.
+        """
         res = res.upper()
         if len(res) == 3:
             if res not in self._THREE_TO_ONE:
@@ -105,6 +117,17 @@ class RandomCoil:
         raise ValueError(f"Residue code must be 1 or 3 letters, got: {res}")
 
     def _normalize_atom(self, atom: AtomName, res_one: str) -> str:
+        """
+            Normalize/validate an atom name for a given residue.
+
+            :param atom: Atom name (e.g., ``'CA'``, ``'N'``), case-insensitive.
+            :type atom: str
+            :param res_one: One-letter residue code (output of :meth:`_normalize_residue`).
+            :type res_one: str
+            :return: Canonical atom name.
+            :rtype: str
+            :raises ValueError: If the atom name is not supported.
+        """
         atom = atom.upper()
         if res_one == 'G' and atom in {'HA2', 'HA3'}:
             atom = 'HA'
@@ -113,20 +136,26 @@ class RandomCoil:
         return atom
 
     def _select_models(self, rc_name: Union[None, str, Sequence[str]]) -> Dict[str, Mapping[str, Sequence[Scalar]]]:
-        """Return a mapping of model_name -> table for the requested models.
+        """
+        Select and return a mapping of model name to its table based on aliases.
 
-        If ``rc_name`` is ``None``, all models are used (for averaging). If a
-        string is provided, it can be any accepted alias. If a sequence is
-        provided, each may be an alias.
+        :param rc_name: If ``None``, include all models. If a string, it can be
+            any accepted alias (e.g., ``'wis'``); if a sequence, each item can
+            be an alias. Short aliases map to long names internally.
+        :type rc_name: str | Sequence[str] | None
+        :return: Mapping of canonical model names to their data tables.
+        :rtype: dict[str, Mapping[str, Sequence[float]]]
+        :raises ValueError: If any provided model alias is unknown.
         """
         alias_map = {
             'wis': 'wishart', 'wishart': 'wishart',
             'wan': 'wang', 'wang': 'wang',
             'luk': 'lukhin', 'lukhin': 'lukhin',
             'sch': 'schwarzinger', 'schwarzinger': 'schwarzinger',
+            'pou': 'poulsen', 'poulsen': 'poulsen'
         }
         if rc_name is None:
-            names = ['wishart', 'wang', 'lukhin', 'schwarzinger']
+            names = ['wishart', 'wang', 'lukhin', 'schwarzinger','poulsen']
         elif isinstance(rc_name, str):
             if rc_name.lower() not in alias_map:
                 raise ValueError(f"Unknown random-coil model: {rc_name}")
@@ -143,34 +172,38 @@ class RandomCoil:
             'wang': self.wang,
             'lukhin': self.lukhin,
             'schwarzinger': self.schwarzinger,
+            'poulsen': self.poulsen
         }
+
         return {n: models[n] for n in names}
 
     # ------------------------------- public ---------------------------------
     def get_value(self, res: ResidueCode, atom: AtomName,
-                  rc_name: Union[None, str, Sequence[str]] = None) -> Scalar:
-        """Return the random-coil value (ppm) for a residue/atom.
+                  rc_name: Union[None, str, Sequence[str]] = None,temp: float=25.0) -> Scalar:
+        """
+        Return the random-coil chemical shift value (ppm) for a residue/atom.
 
-        Parameters
-        ----------
-        res:
-            Residue code (one- or three-letter). Case-insensitive.
-        atom:
-            Atom name (e.g., ``'CA'``, ``'N'``). Case-insensitive.
-        rc_name:
+        :param res: Residue code (one- or three-letter). Case-insensitive.
+        :type res: str
+        :param atom: Atom name (e.g., ``'CA'``, ``'N'``). Case-insensitive.
+        :type atom: str
+        :param rc_name: Random-coil model(s) to use.
             - ``None``: average across **all** models
             - ``str``: a single model (alias accepted, e.g., ``'wis'``)
             - ``Sequence[str]``: average across the specified models
+        :type rc_name: str | Sequence[str] | None
+        :param temp: Temperature in °C. Used only when the model is ``'pou'``/``'poulsen'``.
+        :type temp: float
+        :return: Random-coil chemical shift value (ppm).
+        :rtype: float
+        :raises ValueError: If the residue code, atom name, or model name is invalid.
 
-        Returns
-        -------
-        float
-            The random-coil chemical shift value (ppm).
+        :examples:
+            .. code-block:: python
 
-        Raises
-        ------
-        ValueError
-            If the residue code, atom name, or model name is invalid.
+                >>> rc = RandomCoil()
+                >>> rc.get_value("ALA", "CA")
+                52.5
         """
         r1 = self._normalize_residue(res)
         atom = self._normalize_atom(atom, r1)
@@ -185,16 +218,35 @@ class RandomCoil:
             val = table[r1][idx]
             values.append(math.nan if val is None else float(val))
 
+
         # Average across models (handles NaNs)
         arr = np.array(values, dtype=float)
-        return float(np.nanmean(arr))
+        if rc_name == 'pou' or rc_name == ['pou'] or rc_name == 'poulsen' or rc_name == ['poulsen']:
+            coeff: List[float] = []
+            for _, table in {'ce': self.poulsen_temp_coeff}.items():
+                val = table[r1][idx]
+                coeff.append(math.nan if val is None else float(val))
+                coef = np.array(coeff, dtype=float)
+                cs_t = arr + coef * (temp - 25.0)
+                return round(float(np.nanmean(cs_t)),2)
+        else:
+            return float(np.nanmean(arr))
+
 
     def get_average(self, name_list: Sequence[str] | None = None) -> Mapping[str, List[float]]:
         """
         Return per-residue averages across the given models (default: all).
 
-        - If a residue is missing from a model's table, it is treated as all-NaN for that model.
-        - Averages are computed with np.nanmean per atom, so missing entries are ignored.
+        :param name_list: Optional list of model aliases/names; if ``None``, use all models.
+        :type name_list: Sequence[str] | None
+        :return: Mapping of one-letter residue code to a list of averaged values
+                 in the atom order ``('N','C','CA','CB','H','HA')``. Values are
+                 rounded to two decimals; missing entries are ``math.nan``.
+        :rtype: Mapping[str, list[float]]
+
+        :notes:
+            - If a residue is missing from a model's table, it is treated as all-NaN for that model.
+            - Averages are computed with :func:`numpy.nanmean` per atom, so missing entries are ignored.
         """
         selected = self._select_models(None if name_list is None else name_list)
 
@@ -323,12 +375,111 @@ class RandomCoil:
         "W": [122.1, 177.1, 57.6, 29.8, 8.22, 4.70],
         "Y": [120.9, 176.7, 58.3, 38.9, 8.26, 4.58],
     }
+    # pH 6.5 1M urea and temperature 25C DOI 10.1007/s10858-011-9472-x
+    poulsen: Mapping[str, Sequence[Scalar]] = {
+        "A": [124.14, 178.64, 52.77, 19.18, 8.35, 4.37],#
+        "C": [118.74, 175.49, 58.64, 28.12, 8.42, 4.59],#
+        "D": [120.43, 177.25, 54.42, 41.29, 8.39, 4.65],#
+        "E": [121.03, 177.52, 57.02, 30.09, 8.55, 4.32],#
+        "F": [120.35, 176.76, 58.06, 39.55, 8.26, 4.65],#
+        "G": [109.04, 175.08, 45.37, None,  8.42, 4.02],#
+        "H": [118.78, 175.75, 55.88, 29.83, 8.41, 4.73],#
+        "I": [120.08, 177.29, 61.57, 38.71, 8.13, 4.21],#
+        "K": [120.99, 177.48, 56.54, 32.98, 8.33, 4.37],#
+        "L": [121.83, 178.39, 55.48, 42.32, 8.27, 4.38],#
+        "M": [119.95, 177.18, 55.71, 32.75, 8.40, 4.54],#
+        "N": [118.88, 176.14, 53.63, 38.97, 8.49, 4.78],#
+        "P": [None,   178.08, 63.71, 32.09, None, 4.46],#
+        "Q": [120.04, 176.88, 56.14, 29.38, 8.43, 4.39],#
+        "R": [120.72, 177.23, 56.38, 30.71, 8.35, 4.38],#
+        "S": [116.04, 175.43, 58.60, 63.90, 8.41, 4.51],#
+        "T": [113.05, 175.64, 62.06, 69.84, 8.24, 4.41], #
+        "V": [119.30, 177.21, 62.64, 32.64, 8.13, 4.17],#
+        "W": [121.26, 177.18, 57.59, 29.51, 8.16, 4.70],#
+        "Y": [120.48, 176.82, 58.24, 38.73, 8.21, 4.58],#
+    }
+    poulsen_temp_coeff: Mapping[str,Sequence[Scalar]]={
+        "A":[-5.3,-7.1,-2.2, 4.7,-9.0, 0.7],
+        "C":[-8.2,-2.6,-0.9, 1.3,-7.0, 0.0],
+        "D":[-3.9,-4.8,2.8, 6.5,-6.2,-0.1],
+        "E":[-3.7,-4.9,0.9, 4.6,-6.5, 0.3],
+        "F":[-11.2,-6.9,-4.7, 2.4,-7.5, 0.4],
+        "G":[-6.2,-3.2,3.3,None, -9.1, 0.0],
+        "H":[3.3, 3.1,7.8, 15.5,  -7.8, 0.4],
+        "I":[-12.7,-8.7,-2.0, 4.6,-7.8, 0.4],
+        "K":[-7.6,-7.1,-0.8, 2.4,-7.5, 0.4],
+        "L":[-2.9, -8.2,1.7 ,4.9,-7.5, 0.1],
+        "M":[-6.2,-8.2, 4.1, 9.4,-7.1,-0.5],
+        "N":[-3.3, -6.1,2.8, 5.1,-7.0,-2.9],
+        "P":[None,-4.0,1.1,-0.2,  None, 0.0],
+        "Q":[-6.5,-5.7,2.3, 3.6,-7.2, 0.3],
+        "R":[-5.3,-6.9,-1.4, 3.5,-7.1, 0.4],
+        "S":[-3.8,-4.7,-1.7, 4.4,-7.6, 0.1],
+        "T":[-6.7,-5.2,0.0, 2.2,-7.3, 0.0],
+        "V":[-14.2,-8.1,-2.8, 2.5,-7.6, 0.5],
+        "W":[-10.1,-7.9,-2.7, 3.1,-7.8, 0.4],
+        "Y":[-12.0,-7.7,-5.0, 2.9,-7.7, 0.5]
+    }
+
+
+    # def plot_tem(self):
+    #     t=[]
+    #     res=[]
+    #     atom=[]
+    #     rc=[]
+    #     for temp in range(0,50,5):
+    #         for k in self.poulsen:
+    #             for atm in self._ATOMS:
+    #                 t.append(temp)
+    #                 res.append(self._ONE_TO_THREE[k])
+    #                 atom.append(atm)
+    #                 rc.append(self.get_value(k,atm,'pou',temp))
+    #     fig = px.scatter(x=rc, y= t,color=atom,symbol=res,labels={'x':'Random Coil Shift','y':'Temperature (C)'})
+    #     fig.write_html('../../../scripts/RC_temp1.html')
+    #     fig = px.scatter(x=rc, y=t, color=res, symbol=atom, labels={'x': 'Random Coil Shift', 'y': 'Temperature (C)'})
+    #     fig.write_html('../../../scripts/RC_temp2.html')
+
+    # Comparison plot for RC
+    # def plot_rc(self):
+    #     models = {
+    #         'wishart': self.wishart,
+    #         'wang': self.wang,
+    #         'lukhin': self.lukhin,
+    #         'schwarzinger': self.schwarzinger,
+    #         'poulsen': self.poulsen
+    #     }
+    #     method = []
+    #     atom=[]
+    #     rc=[]
+    #     res=[]
+    #     for model in models:
+    #         for k in models[model]:
+    #             for i in range(len(models[model][k])):
+    #                 print (model,k,self._ATOMS[i],models[model][k][i])
+    #                 try:
+    #                     res.append(self._ONE_TO_THREE[k])
+    #                     method.append(model)
+    #                     atom.append(self._ATOMS[i])
+    #                     rc.append(models[model][k][i])
+    #                 except KeyError:
+    #                     pass
+    #     fig = px.scatter(x=rc, y= res, color=method,symbol=atom,labels={'x':'Random coil shift','y': 'Amino acids'})
+    #     fig.write_html('../../../scripts/RC.html')
 
 
 def _demo() -> None:
-    rc = RandomCoil()
-    print(rc.get_value('HIS', 'C', ['wis', 'wan']))
+    """
+       Small CLI demo to show basic usage.
 
+       :return: ``None``
+       :rtype: None
+       """
+    rc = RandomCoil()
+    print('Avg of Wishart and Wang',rc.get_value('HIS', 'C',['wis','wan']))
+    print('Paulsen RC at 10C ',rc.get_value('HIS', 'C', 'pou',temp=10))
+    print('Paulsen RC at 25C ', rc.get_value('HIS', 'C', 'pou', temp=25))
+    print('Paulsen RC at 30C ', rc.get_value('HIS', 'C', 'pou', temp=30))
+    rc.plot_rc()
 
 if __name__ == '__main__':
     _demo()
