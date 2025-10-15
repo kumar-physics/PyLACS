@@ -1529,16 +1529,24 @@ def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequen
              correction_atoms: Sequence[str] = ("CA", "CB", "C", "N"),
              release_author: str = "BMRB",
              output_corrected: Optional[Path] = None) -> Dict[str, Dict]:
-    """Run the selected robust method over an NMR-STAR file.
+    """Run the LACS analysis using selected robust linear fit method over an NMR-STAR file.
 
     :param str_file: Path to NMR-STAR file.
     :param method: Robust regression method to use.
     :param data_id: Identifier for the dataset/entry.
     :param rc_model: Random-coil model alias(es), e.g. wis wan; omit for average of all.
     :param outdir: Output directory for plots.``None`` defaults to ``./lacs_output``.
-    :param plots: Whether to generate plots.
-    :param cutoff_k: Outlier cutoff multiplier.(k in |r|/(k·MAD)).
-    :param min_per_side: Minimum number of points required on each sign side.
+    :param plots: Whether to generate plots. default True
+    :param cutoff_k: Outlier cutoff multiplier.(k in |r|/(k·MAD)).: default 5
+    :param min_per_side: Minimum number of points required on each sign side.: default 5
+    :param write_format: output data file format json or star or both: default json
+    :param json_out: optional filename and path to output json file; default None
+    :param star_out: optional filename and path to output star file; default None
+    :param params_for_star: collects all command line arguments to prepare meta data for output star file
+    :param apply_corrections: whether to generated corrected output file; default False
+    :param correction_atoms: list of atom types to be offset corrected in the output file
+    :param release_author: metadata information about who is doing offset correction
+    :param output_corrected: file name for the offset corrected output file
     :return: Dictionary of results, keyed by list ID.
 
     """
@@ -1556,7 +1564,8 @@ def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequen
                 xvals = [a - b for a, b in zip(d['ca'], d['cb'])]
                 tg = tags[atom]
             else:
-                xvals = d[xkey]; tg = tags[atom]
+                xvals = d[xkey]
+                tg = tags[atom]
             if len(yvals) >= 2 and len(xvals) == len(yvals):
                 if method == "bayes":
                     fr, draws = _fit_atom_bayes(xvals, yvals, tg, min_per_side=min_per_side)
