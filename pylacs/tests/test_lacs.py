@@ -77,7 +77,7 @@ def test_run_lacs_non_bayes_with_mocks(monkeypatch, tmp_path):
     monkeypatch.setattr(lacsmod, 'read_star', lambda _: fake_cs)
 
     # Avoid plotting
-    monkeypatch.setattr(lacsmod, 'maybe_plot_all', lambda *a, **k: None)
+    monkeypatch.setattr(lacsmod, 'plot_all', lambda *a, **k: None)
 
     # Bypass heavy libs by faking the fitter
     def fake_fit(method, xvals, yvals, tags, min_per_side):
@@ -105,7 +105,7 @@ def test_run_lacs_bayes_with_mocks(monkeypatch, tmp_path):
         }
     }
     monkeypatch.setattr(lacsmod, 'read_star', lambda _: fake_cs)
-    monkeypatch.setattr(lacsmod, 'maybe_plot_all', lambda *a, **k: None)
+    monkeypatch.setattr(lacsmod, 'plot_all', lambda *a, **k: None)
 
     # Fake bayes fitter to avoid PyMC, returning draws
     def fake_bayes(xvals, yvals, tags, min_per_side):
