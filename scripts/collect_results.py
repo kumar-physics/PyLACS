@@ -1,8 +1,93 @@
 import os
 import json
+
+import fontTools.t1Lib
 import pandas as pd
 import plotly.express as px
+import pynmrstar
+from typing import Dict, List, Optional, Sequence, Tuple
 
+def read_str_files_in_a_folder(root_dir):
+    """
+        Reads STR files inside every folder under the given root directory.
+
+        Parameters:
+            root_dir (str): Path to the root directory
+        """
+    before = {}
+    after = {}
+    id = []
+    atms = ['ca', 'cb', 'c', 'n']
+    fo_bf = open('/home/nmrbox/kbaskaran/entropy/cs_before.csv','w')
+    fo_af = open('/home/nmrbox/kbaskaran/entropy/cs_after.csv', 'w')
+    for atom in atms:
+        before[atom] = []
+        after[atom] = []
+    for dirpath, _, filenames in os.walk(root_dir):
+        for file in filenames:
+            bmrb_id = file.split("_")[0]
+            rebox_path = f'/reboxitory/2025/08/BMRB/macromolecules/bmr{bmrb_id}/bmr{bmrb_id}_3.str'
+            if file.lower().endswith(".str"):
+                file_path = os.path.join(dirpath, file)
+                print (file_path,file, bmrb_id)
+                bf=read_star(rebox_path)
+                af=read_star(file_path)
+                for k in bf:
+                    fo_bf.write(f"{','.join(k)},{bf[k]}\n")
+                for k in af:
+                    fo_af.write(f"{','.join(k)},{af[k]}\n")
+
+ResidueKey = Tuple[str, str, str, str,str,str,str]
+def read_star(file_name: str) -> Dict[ResidueKey, float]:
+    """Read an NMR-STAR file and extract atom chemical shifts.
+
+    Parameters
+    ----------
+    file_name : str
+        Path to a ``.str`` file.
+
+    Returns
+    -------
+    dict
+        Mapping ``{list_id -> {(entity, assembly, comp_index, comp_id) -> {atom -> value}}}``.
+
+    Notes
+    -----
+    Only rows in the ``Atom_chem_shift`` category are parsed. Non-numeric
+    values are skipped.
+    """
+    try:
+        ent = pynmrstar.Entry.from_file(file_name)
+    except FileNotFoundError:
+        return {}
+
+    loops = ent.get_loops_by_category('Atom_chem_shift')
+    if not loops:
+        return {}
+    col = loops[0].get_tag_names()
+
+    idx_entity = col.index('_Atom_chem_shift.Entity_ID')
+    idx_assy = col.index('_Atom_chem_shift.Entity_assembly_ID')
+    idx_comp_index = col.index('_Atom_chem_shift.Comp_index_ID')
+    idx_comp = col.index('_Atom_chem_shift.Comp_ID')
+    idx_atom = col.index('_Atom_chem_shift.Atom_ID')
+    idx_val = col.index('_Atom_chem_shift.Val')
+    idx_list = col.index('_Atom_chem_shift.Assigned_chem_shift_list_ID')
+
+    cs_data: Dict[ResidueKey, float] = {}
+    for cs_loop in loops:
+        if not cs_loop.data:
+            continue
+        list_id = cs_loop.data[0][idx_list]
+        #cs_data.setdefault(list_id, {})
+        for row in cs_loop.data:
+            key: ResidueKey = (ent.entry_id,row[idx_entity], row[idx_assy], row[idx_comp_index], row[idx_comp],list_id,row[idx_atom])
+            try:
+                if row[idx_atom] in ['CA','CB','C','N']:
+                    cs_data[key] = float(row[idx_val])
+            except (TypeError, ValueError):
+                continue
+    return cs_data
 
 def read_json_in_folders(root_dir):
     """
@@ -102,4 +187,4 @@ def read_json_in_folders(root_dir):
 # Example usage:
 if __name__ == "__main__":
     root_directory = "/home/nmrbox/kbaskaran/lacs/bayes"
-    read_json_in_folders(root_directory)
+    read_str_files_in_a_folder(root_directory)
