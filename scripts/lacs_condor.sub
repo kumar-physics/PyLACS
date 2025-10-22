@@ -2,7 +2,7 @@ universe                = vanilla
 executable              = pylacs.sh
 
 # Your lacs.py args (keep what you had)
-arguments               = /reboxitory/2025/08/BMRB/macromolecules/bmr$(bmrbid)/bmr$(bmrbid)_3.str $(bmrbid)
+arguments               = /reboxitory/2025/09/BMRB/macromolecules/bmr$(bmrbid)/bmr$(bmrbid)_3.str $(bmrbid)
 
 # Stage inputs into the execute slot:
 transfer_input_files    = pylacs.sh,lacs.py,random_coil.py,pymc_portable.tar.gz,apply_lacs_correction.py

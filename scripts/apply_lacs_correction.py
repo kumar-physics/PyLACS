@@ -7,11 +7,12 @@ NMR-STAR file, restricted to a specific chemical-shift list ID, and append a
 row to the Release/_Release loop documenting the correction.
 
 Release behavior:
+
 - Increments the release number (Ordinal / Release_number / Number) by +1.
 - Copies Entry_ID from the previous Release row if present; else falls back to _Entry.ID.
 - Writes a detailed offsets string (only for atoms actually applied) into the
   Release Detail/Details/Deatils column (prefers existing '_Release.Detail').
-- Preserves existing loop schema; does not change tag order; pads unspecified cells with ".".
+- Preserves existing loop schema; does not change tag order; pads unspecified cells with "."
 """
 
 import argparse
@@ -68,7 +69,7 @@ def _norm_cat(cat: Optional[str]) -> str:
 
 # ------------------------- List ID resolution -------------------------
 
-def resolve_list_id_for_loop(sf: pynmrstar.Saveframe, loop) -> Optional[int]:
+def _resolve_list_id_for_loop(sf: pynmrstar.Saveframe, loop) -> Optional[int]:
     if not _loop_is_pynmrstar_loop(loop):
         return None
 
@@ -114,6 +115,13 @@ def apply_offsets_to_entry_for_list(entry: pynmrstar.Entry,
     """
     Apply offsets to Atom_chem_shift loops in-place, but only for the specified
     chemical-shift list ID and only for atom names in `atoms_to_apply` (subset of CA, CB, C, N).
+
+    :param entry: Entry to apply offsets to.
+    :param offsets: Dictionary of offsets to apply, keyed by atom name.
+    :param target_list_id: Chemical-shift list ID to apply offsets to.
+    :param atoms_to_apply: Iterable of atom names to apply offsets to.
+    :return: Dictionary of counts of atoms applied, keyed by atom name.
+             Also includes "total" and "loops_seen" counts.
     """
     atoms_set = {a.upper() for a in atoms_to_apply}
     # Canonical set we support
@@ -144,7 +152,7 @@ def apply_offsets_to_entry_for_list(entry: pynmrstar.Entry,
 
             counts["loops_seen"] += 1
 
-            list_id = resolve_list_id_for_loop(sf, loop)
+            list_id = _resolve_list_id_for_loop(sf, loop)
             if list_id is None or list_id != target_list_id:
                 continue
             counts["loops_matched"] += 1
@@ -270,10 +278,16 @@ def append_release_note(entry: pynmrstar.Entry,
                         date_str: Optional[str] = None) -> None:
     """
     Append a row to the existing Release/_Release loop (or create if missing).
+
     - Keeps existing schema/columns.
     - Increments release number.
     - Copies Entry_ID from previous row; else falls back to Entry.ID.
     - Writes `details` string into the Detail/Details/Deatils field (prefers 'Detail' if present).
+
+    :param entry: Entry to modify.
+    :param author: Author to place in the Release row.
+    :param details: Details to place in the Release row.
+    :param date_str: Date to place in the Release row (default: today's date).
     """
     date_str = date_str or date.today().isoformat()
     sf = _find_entry_information_sf(entry)
@@ -367,34 +381,21 @@ def apply_selected_offsets_and_note(
     """
     Single-call wrapper for external use (e.g., from lacs.py or notebooks).
 
-    Parameters
-    ----------
-    input_path : str
-        Path to input NMR-STAR file.
-    output_path : str
-        Where to write corrected file.
-    list_id : int
-        Chemical-shift list ID to modify.
-    offsets : Dict[str, float]
-        Offsets per atom; only keys in {'CA','CB','C','N'} are used.
-    atoms : Iterable[str]
-        Subset of atoms to which offsets should be applied (defaults to all four).
-    release_author : str
-        Author to place in the Release row (default 'BMRB').
-    release_details : Optional[str]
-        If provided, used verbatim in the Release Detail field; otherwise composed automatically.
-
-    Returns
-    -------
-    Dict[str, int]
-        Counts dictionary with per-atom and total updates.
+    :param input_path: Path to input NMR-STAR file.
+    :param output_path: Where to write corrected file.
+    :param list_id: Chemical-shift list ID to modify.
+    :param offsets: Offsets per atom; only keys in {'CA','CB','C','N'} are used.
+    :param atoms: Subset of atoms to which offsets should be applied (defaults to all four).
+    :param release_author: Author to place in the Release row (default 'BMRB').
+    :param release_details: If provided, used verbatim in the Release Detail field; otherwise composed automatically.
+    :return: Counts dictionary with per-atom and total updates.
     """
     # Normalize offsets and atom list
     allowed = {"CA", "CB", "C", "N"}
     atoms_upper = [a.upper() for a in atoms if a is not None]
     atoms_use = [a for a in atoms_upper if a in allowed]
     offs = {k: float(offsets.get(k, 0.0)) for k in allowed}
-
+    print("Input file:", input_path)
     entry = pynmrstar.Entry.from_file(input_path)
     counts = apply_offsets_to_entry_for_list(entry, offs, list_id, atoms_use)
 
@@ -419,6 +420,9 @@ def apply_selected_offsets_and_note(
 # ------------------------------------ CLI --------------------------------------
 
 def _parse_args() -> argparse.Namespace:
+    """    Parse command-line arguments.
+    """
+
     p = argparse.ArgumentParser(
         description="Apply selected CA/CB/C/N offsets to a specific chemical-shift list in an NMR-STAR file and record a Release note."
     )
@@ -446,6 +450,8 @@ def _parse_args() -> argparse.Namespace:
 
 
 def main():
+    """    Main entry point for command-line use.
+    """
     args = _parse_args()
     # Normalize selected atoms to upper
     atoms = [a.upper() for a in args.atoms]

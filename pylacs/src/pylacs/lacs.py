@@ -371,6 +371,7 @@ def apply_corrections_from_report(
     input_star: Path,
     output_star: Path,
     data_id: str,
+    method: str,
     atoms: Sequence[str] = ("CA", "CB", "C", "N"),
     release_author: str = "BMRB",
 ) -> Dict[str, int]:
@@ -404,7 +405,7 @@ def apply_corrections_from_report(
     counts_last: Dict[str, int] = {}
     # Iterate in the order present in the report
     for list_id in report:
-        offsets_uc = _extract_offsets_for_list(report, list_id)
+        offsets_uc = _extract_offsets_for_list(report, list_id, method)
         parts = [f"{a}={offsets_uc[a]:+g}" for a in atoms_use]
         details = (
             f"LACS correction applied to list_id {list_id} ({data_id}): "
@@ -423,7 +424,7 @@ def apply_corrections_from_report(
     return counts_last
 
 
-def _extract_offsets_for_list(report: Dict, list_id: int) -> Dict[str, float]:
+def _extract_offsets_for_list(report: Dict, list_id: int, method:str) -> Dict[str, float]:
     """
     Given a full LACS report (dict loaded from JSON or returned by run_lacs),
     extract offsets for the specified list_id.
@@ -434,13 +435,19 @@ def _extract_offsets_for_list(report: Dict, list_id: int) -> Dict[str, float]:
     sid = str(list_id)
     if sid not in report:
         # if the caller passed only the inner object (one list), accept that too
-        candidate = report.get("offsets")
+        if method == 'bayes':
+            candidate = report.get("offsets_bayes")
+        else:
+            candidate = report.get("offsets")
         if isinstance(candidate, dict):
             offs = candidate
         else:
             raise KeyError(f"List id {list_id} not found in report keys {list(report.keys())}")
     else:
-        offs = report[sid].get("offsets", {})
+        if method == 'bayes':
+            offs = report[sid].get("offsets_bayes", {})
+        else:
+            offs = report[sid].get("offsets", {})
 
 
     # Map lower-case keys used by LACS ('ca','cb','c','n') → upper-case
@@ -449,7 +456,10 @@ def _extract_offsets_for_list(report: Dict, list_id: int) -> Dict[str, float]:
         k_up = k_lc.upper()
         if k_up in out:
             try:
-                out[k_up] = float(v)
+                if method == 'bayes':
+                    out[k_up] = float(v['mean'])
+                else:
+                    out[k_up] = float(v)
             except Exception:
                 pass
     return out
@@ -477,6 +487,7 @@ def apply_offset_correction(
     lacs_output: str,
     output_corrected: str,
     list_id: int,
+    method: str,
     atoms: Sequence[str] = ("CA", "CB", "C", "N"),
     release_author: str = "BMRB",
 ) -> Dict[str, int]:
@@ -498,7 +509,7 @@ def apply_offset_correction(
     with open(lacs_output, "r", encoding="utf-8") as f:
         report = json.load(f)
 
-    offsets_uc = _extract_offsets_for_list(report, list_id)
+    offsets_uc = _extract_offsets_for_list(report, list_id, method)
     atoms_use = _normalize_atoms(atoms)
 
     # Compose a concise details string for the Release.Detail cell
@@ -1519,6 +1530,7 @@ def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequen
             input_star=str(Path(str_file)),
             output_star=corrected_path,
             data_id=data_id,
+            method = method,
             atoms=correction_atoms,
             release_author=release_author,
         )

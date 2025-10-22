@@ -34,7 +34,8 @@ export OPENBLAS_NUM_THREADS="${OPENBLAS_NUM_THREADS:-1}"
 
 # Outputs
 mkdir -p out
-
+fwe=$(basename "$2")
+dataid="${fwe%.*}"
 # (Optional) sanity check: will now succeed without HOME errors
 $PY - <<'PY'
 import pymc as pm, numpy as np, pynmrstar
@@ -42,15 +43,15 @@ print("PyMC:", pm.__version__)
 PY
 
 # Run your job
-$PY  lacs.py $1 --data-id $2 --out /scratch/kbaskaran/lacs/bayes/$2 --method bayes --apply-corrections --output-corrected /scratch/kbaskaran/lacs/bayes/$2/$2_corrected.str
-$PY  lacs.py $1 --data-id $2 --out /scratch/kbaskaran/lacs/theilsen/$2 --method theilsen --apply-corrections --output-corrected /scratch/kbaskaran/lacs/theilsen/$2/$2_corrected.str
-$PY  lacs.py $1 --data-id $2 --out /scratch/kbaskaran/lacs/ransac/$2 --method ransac --apply-corrections --output-corrected /scratch/kbaskaran/lacs/ransac/$2/$2_corrected.str
-$PY  lacs.py $1 --data-id $2 --out /scratch/kbaskaran/lacs/quantile/$2 --method quantile --apply-corrections --output-corrected /scratch/kbaskaran/lacs/quantile/$2/$2_corrected.str
-$PY  lacs.py $1 --data-id $2 --out /scratch/kbaskaran/lacs/tukey/$2 --method tukey --apply-corrections --output-corrected /scratch/kbaskaran/lacs/tukey/$2/$2_corrected.str
+$PY  lacs.py $1 --data-id $dataid --out /home/nmrbox/kbaskaran/lacs_output/bayes/$dataid --method bayes --apply-corrections --output-corrected /home/nmrbox/kbaskaran/lacs_output/bayes/$dataid/${dataid}_corrected.str
+$PY  lacs.py $1 --data-id $dataid --out /home/nmrbox/kbaskaran/lacs_output/theilsen/$dataid --method theilsen --apply-corrections --output-corrected /home/nmrbox/kbaskaran/lacs_output/theilsen/$dataid/${dataid}_corrected.str
+$PY  lacs.py $1 --data-id $dataid --out /home/nmrbox/kbaskaran/lacs_output/ransac/$dataid --method ransac --apply-corrections --output-corrected /home/nmrbox/kbaskaran/lacs_output/ransac/$dataid/${dataid}_corrected.str
+$PY  lacs.py $1 --data-id $dataid --out /home/nmrbox/kbaskaran/lacs_output/quantile/$dataid --method quantile --apply-corrections --output-corrected /home/nmrbox/kbaskaran/lacs_output/quantile/$dataid/${dataid}_corrected.str
+$PY  lacs.py $1 --data-id $dataid --out /home/nmrbox/kbaskaran/lacs_output/tukey/$dataid --method tukey --apply-corrections --output-corrected /home/nmrbox/kbaskaran/lacs_output/tukey/$dataid/${dataid}_corrected.str
 #re run corrected ones
-$PY  lacs.py /scratch/kbaskaran/lacs/bayes/$2/$2_corrected.str  --data-id $2 --out /home/nmrbox/kbaskaran/lacs/bayes/corrected/$2 --method bayes
-$PY  lacs.py /scratch/kbaskaran/lacs/theilsen/$2/$2_corrected.str  --data-id $2 --out /home/nmrbox/kbaskaran/lacs/theilsen/corrected/$2 --method theilsen
-$PY  lacs.py /scratch/kbaskaran/lacs/ransac/$2/$2_corrected.str  --data-id $2 --out /home/nmrbox/kbaskaran/lacs/ransac/corrected/$2 --method ransac
-$PY  lacs.py /scratch/kbaskaran/lacs/quantile/$2/$2_corrected.str  --data-id $2 --out /home/nmrbox/kbaskaran/lacs/quantile/corrected/$2 --method quantile
-$PY  lacs.py /scratch/kbaskaran/lacs/tukey/$2/$2_corrected.str  --data-id $2 --out /home/nmrbox/kbaskaran/lacs/tukey/corrected/$2 --method tukey
+$PY  lacs.py /home/nmrbox/kbaskaran/lacs_output/bayes/$dataid/${dataid}_corrected.str  --data-id $dataid --out /home/nmrbox/kbaskaran/lacs_output/bayes/corrected/$dataid --method bayes
+$PY  lacs.py /home/nmrbox/kbaskaran/lacs_output/theilsen/$dataid/${dataid}_corrected.str  --data-id $dataid --out /home/nmrbox/kbaskaran/lacs_output/theilsen/corrected/$dataid --method theilsen
+$PY  lacs.py /home/nmrbox/kbaskaran/lacs_output/ransac/$dataid/${dataid}_corrected.str  --data-id $dataid --out /home/nmrbox/kbaskaran/lacs_output/ransac/corrected/$dataid --method ransac
+$PY  lacs.py /home/nmrbox/kbaskaran/lacs_output/quantile/$dataid/${dataid}_corrected.str  --data-id $dataid --out /home/nmrbox/kbaskaran/lacs_output/quantile/corrected/$dataid --method quantile
+$PY  lacs.py /home/nmrbox/kbaskaran/lacs_output/tukey/$dataid/${dataid}_corrected.str  --data-id $dataid --out /home/nmrbox/kbaskaran/lacs_output/tukey/corrected/$dataid --method tukey
 
