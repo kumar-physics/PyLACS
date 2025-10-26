@@ -404,6 +404,7 @@ def apply_corrections_from_report(
 
     counts_last: Dict[str, int] = {}
     # Iterate in the order present in the report
+    multiple_list = False
     for list_id in report:
         offsets_uc = _extract_offsets_for_list(report, list_id, method)
         parts = [f"{a}={offsets_uc[a]:+g}" for a in atoms_use]
@@ -421,6 +422,9 @@ def apply_corrections_from_report(
             release_author=release_author,
             release_details=details,
         )
+        multiple_list = True
+        if multiple_list:
+            input_star_s = output_star_s #uploades the corrected file with multiple lists
     return counts_last
 
 

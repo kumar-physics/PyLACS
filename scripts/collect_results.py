@@ -186,5 +186,5 @@ def read_json_in_folders(root_dir):
 
 # Example usage:
 if __name__ == "__main__":
-    root_directory = "/home/nmrbox/kbaskaran/lacs/bayes"
-    read_str_files_in_a_folder(root_directory)
+    root_directory = "/home/nmrbox/kbaskaran/lacs/tukey"
+    read_json_in_folders(root_directory)
