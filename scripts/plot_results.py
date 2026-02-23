@@ -132,5 +132,29 @@ def plot_csv(csvfile):
     )
     fig.write_html('RefDBvsLACS_Bayes_HA_Scatter.html')
 
+
+def plot_csv2(csvfile):
+    with open(csvfile,'r') as csvFile:
+        csvf = csv.reader(csvFile)
+        data = list(csvf)
+
+    df = DataFrame({
+        "BMRB_ID" : [i[0] for i in data],
+        "CA" : [float(i[1]) for i in data],
+        "CB" : [float(i[2]) for i in data],
+        #"C" : [float(i[3]) for i in data],
+        #"N" : [float(i[4]) for i in data],
+    })
+    fig = px.histogram(df,x=["CA",'CB'],labels=dict(value="Offset calculated using LACS (ppm) ",count="Count"),barmode="group")
+    fig.update_layout(
+        xaxis=dict(range=[-10, 10]),  # Set the x-axis range from 0 to 10
+        #yaxis=dict(range=[-5, 5])  # Set the y-axis range from -5 to 5
+    )
+    fig.show()
+    fig.write_html('BMRB_offset.html')
+    fig.write_image('BMRB_offset.png',width=1200,height=800,scale=2)
+    fig.write_image('BMRB_offset.jpg', width=1200, height=800)
+    fig.write_image('BMRB_offset.pdf', width=1200, height=800)
 if __name__ == "__main__":
-    plot_csv('results2.csv')
+    #plot_csv('results2.csv')
+    plot_csv2('lacs_results_1026.csv')

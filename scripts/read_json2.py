@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+998#!/usr/bin/env python3
 """
 Fetch all macromolecular entry IDs from BMRB using the BMRB API.
 
