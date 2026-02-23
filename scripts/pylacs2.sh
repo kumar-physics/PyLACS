@@ -19,7 +19,7 @@ else
   ls -R env >&2 || true
   exit 2
 fi
-# 👉 Disable C compilation in PyTensor (portable; no ld needed)
+#  Disable C compilation in PyTensor (portable; no ld needed)
 export PYTENSOR_FLAGS='cxx=,optimizer=fast_compile,on_opt_error=warn'
 # ── IMPORTANT: give PyTensor a home/cache inside the sandbox ──
 export HOME="${HOME:-$PWD}"                    # ensure a usable HOME
