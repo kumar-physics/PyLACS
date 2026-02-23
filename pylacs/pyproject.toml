@@ -20,7 +20,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Intended Audience :: Education",
     "Topic :: Scientific/Engineering :: Chemistry",
-    "Topic :: Scientific/Engineering :: Biochemistry",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
 

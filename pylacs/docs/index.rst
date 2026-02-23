@@ -25,6 +25,7 @@ determinations.
    getting_started
    usage
    api/modules
+   release-notes
 
 Indices and tables
 ==================
