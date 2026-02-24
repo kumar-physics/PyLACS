@@ -1,11 +1,12 @@
-pylacs
+PyLACS
 ======
 
 **PyLACS** is a Python implementation of **Linear Analysis of Chemical Shifts (LACS)** :cite:`Wang2005` for identifying and
 quantifying **systematic chemical-shift referencing offsets** in biomolecular NMR datasets stored as
-NMR-STAR (``.str``) :cite:`Ulrich2019` chemical shift files.
+NMR-STAR (``.str``) :cite:`Ulrich2019` chemical shift files. PyLAC is developed and maintained by **Biological Magnetic
+Resonance data Bank (BMRB)** :cite:`Ulrich2007,Romero2020,Hoch2023`
 
-pylacs provides:
+PyLACS provides:
 
 - a command-line program ``pylacs`` (recommended entry point),
 - a programmatic API centered around :func:`pylacs.lacs.run_lacs`,

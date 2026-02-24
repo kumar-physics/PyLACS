@@ -16,7 +16,15 @@
 import os
 import sys
 from pathlib import Path
-sys.path.insert(0, os.path.abspath('..'))
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    release = version("pylacs")
+except PackageNotFoundError:
+    release = "unknown"
+
+version = release
+sys.path.insert(0, os.path.abspath('../src'))
 
 # -- Project information -----------------------------------------------------
 
@@ -43,7 +51,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinxcontrib.bibtex',
               ]
 bibtex_bibfiles = ['refs.bib']
-bibtex_default_style = 'unsrt'
+bibtex_default_style = 'plain'
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 

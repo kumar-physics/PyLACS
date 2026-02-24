@@ -15,8 +15,10 @@ linear-fit methods:
 - ``bayes``: Bayesian Student-t regression (PyMC)
 
 Each method fits per nucleus (ΔδC, ΔδN, ΔδH, ΔδCA, ΔδCB) as
+.. math::
 
-    y = b + m·x,  where x = ΔδCA − ΔδCB,
+   y = b + m x,
+ where x = ΔδCA − ΔδCB,
 
 splitting the data by the sign of ``x`` (x ≥ 0 vs x < 0) and fitting a line
 to each side. Offsets are reported as the average intercept across sides.
