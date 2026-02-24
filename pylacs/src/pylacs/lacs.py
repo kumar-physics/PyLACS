@@ -14,13 +14,16 @@ linear-fit methods:
 - ``quantile``: Quantile regression at τ=0.5 (statsmodels)
 - ``bayes``: Bayesian Student-t regression (PyMC)
 
-Each method fits per nucleus (ΔδC, ΔδN, ΔδH, ΔδCA, ΔδCB) as
-.. math::
 
-   y = b + m x,
- where x = ΔδCA − ΔδCB,
+Each method fits per nucleus :math:`(\\Delta\\delta C, \\Delta\\delta N, \\Delta\\delta H, \\Delta\\delta CA, \\Delta\\delta CB)` as
 
-splitting the data by the sign of ``x`` (x ≥ 0 vs x < 0) and fitting a line
+
+    :math:`y = b + m x`,
+
+    where
+    :math:`x = \\Delta\\delta CA − \\Delta \\delta CB`,
+
+splitting the data by the sign of :math:`x (x ≥ 0~vs~x < 0)` and fitting a line
 to each side. Offsets are reported as the average intercept across sides.
 Outliers are flagged from robust-scaled residuals with a smooth probability map.
 
@@ -30,7 +33,7 @@ When ``--method bayes`` is used, the JSON additionally contains **offset
 uncertainties** computed from the posterior intercept samples on each side.
 We form samples of
 
-    offset = 0.5 * (b_pos + b_neg)
+:math:`offset = \\frac{b_{pos} + b_{neg}}{2}`
 
 and report the mean, 95% credible interval, and standard deviation per nucleus.
 
@@ -1458,7 +1461,7 @@ def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequen
     :param rc_model: Random-coil model alias(es), e.g. wis wan; omit for average of all.
     :param outdir: Output directory for plots.``None`` defaults to ``./lacs_output``.
     :param plots: Whether to generate plots. default True
-    :param cutoff_k: Outlier cutoff multiplier.(k in "\|r\|"/(k·MAD))  default 5
+    :param cutoff_k: Outlier cutoff multiplier.(k in :math:`\\frac{|r|}{k·MAD}`)  default 5
     :param min_per_side: Minimum number of points required on each sign side  default 5
     :param write_format: output data file format json or star or both default json
     :param json_out: optional filename and path to output json file default None

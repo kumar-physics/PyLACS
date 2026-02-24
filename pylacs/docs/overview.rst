@@ -28,11 +28,11 @@ Random-coil reference models
 Random-coil values are provided by :class:`pylacs.random_coil.RandomCoil`.
 The following model families are available (with accepted aliases):
 
-- Wishart (``wis`` / ``wishart``)
-- Wang (``wan`` / ``wang``)
-- Lukhin (``luk`` / ``lukhin``)
-- Schwarzinger (``sch`` / ``schwarzinger``)
-- Poulsen (temperature-dependent; ``pou`` / ``poulsen``)
+- Wishart (``wis`` / ``wishart``) :cite:`Wishart1995`
+- Wang (``wan`` / ``wang``) :cite:`Wang2002`
+- Lukhin (``luk`` / ``lukhin``) :cite:`Lukin1997`
+- Schwarzinger (``sch`` / ``schwarzinger``) :cite:`Schwarzinger2000`
+- Poulsen (temperature-dependent; ``pou`` / ``poulsen``) :cite:`Kjaergaard2011`
 
 If no model is specified, :meth:`pylacs.random_coil.RandomCoil.get_value` averages across **all** models.
 
