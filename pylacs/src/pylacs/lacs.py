@@ -36,7 +36,7 @@ Usage
 -----
 .. code-block:: bash
 
-    python lacs_unified.py ENTRY.str --method tukey --data-id myprot --out figs --json-out myprot_tukey.json
+    python lacs.py ENTRY.str --method tukey --data-id myprot --out figs --json-out myprot_tukey.json
 
 Dependencies
 ------------
@@ -1456,11 +1456,11 @@ def run_lacs(str_file: str, method: str, data_id: str, rc_model: Optional[Sequen
     :param rc_model: Random-coil model alias(es), e.g. wis wan; omit for average of all.
     :param outdir: Output directory for plots.``None`` defaults to ``./lacs_output``.
     :param plots: Whether to generate plots. default True
-    :param cutoff_k: Outlier cutoff multiplier.(k in |r|/(k·MAD)).: default 5
-    :param min_per_side: Minimum number of points required on each sign side.: default 5
-    :param write_format: output data file format json or star or both: default json
-    :param json_out: optional filename and path to output json file; default None
-    :param star_out: optional filename and path to output star file; default None
+    :param cutoff_k: Outlier cutoff multiplier.(k in "\|r\|"/(k·MAD))  default 5
+    :param min_per_side: Minimum number of points required on each sign side  default 5
+    :param write_format: output data file format json or star or both default json
+    :param json_out: optional filename and path to output json file default None
+    :param star_out: optional filename and path to output star file default None
     :param params_for_star: collects all command line arguments to prepare meta data for output star file
     :param apply_corrections: whether to generated corrected output file; default False
     :param correction_atoms: list of atom types to be offset corrected in the output file
