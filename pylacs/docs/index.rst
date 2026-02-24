@@ -1,12 +1,12 @@
 Introduction
 ===================
-Statistical analysis reveals that the set of diﬀerences between the secondary shifts of the a- and b-carbons
+Statistical analysis reveals that the set of diﬀerences between the secondary shifts of the $\alpha$  and $\beta$ carbons
 for residues i of a protein ($\Delta\delta ^{13}C^{\alpha}_{i} - \Delta\delta ^{13}C^{\beta}_{i}$) provides the means to detect and correct
 referencing errors for
 $^{1}H$ and $^{13}C$ nuclei within a given dataset. In a correctly referenced protein dataset,
 linear regression plots of
 $\Delta\delta ^{13}C^{\alpha}_{i}, \Delta\delta ^{13}C^{\beta}_{i}$, or $\Delta\delta ^{1}H^{\alpha}_{i}$ vs ($\Delta\delta ^{13}C^{\alpha}_{i} - \Delta\delta ^{13}C^{\beta}_{i}$) pass through the origin from two directions, the helix-to-
-coil and strand-to-coil directions. Thus, linear analysis of chemical shifts (LACS) can be used to detect
+coil and strand-to-coil directions. Thus, linear analysis of chemical shifts (LACS) :footcite:`Wang2005` can be used to detect
 referencing errors and to recalibrate the $^{1}H$ and $^{13}C$ chemical shift scales if needed. The analysis requires
 only that the signals be identified with distinct residue types (intra-residue spin systems). LACS allows
 errors in calibration to be detected and corrected in advance of sequence-specific assignments and sec-
@@ -33,3 +33,5 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+.. footbibliography::

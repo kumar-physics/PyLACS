@@ -38,9 +38,12 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx_rtd_theme',
               'sphinx.ext.autosectionlabel',
               'sphinx.ext.mathjax',
-              'sphinx_math_dollar'
+              'sphinx_math_dollar',
+              'sphinx_copybutton',
+              'sphinxcontrib.bibtex',
               ]
-
+bibtex_bibfiles = ['refs.bib']
+bibtex_default_style = 'unsrt'
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
