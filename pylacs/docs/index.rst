@@ -10,6 +10,8 @@ PyLACS provides:
 
 - a command-line program ``pylacs`` (recommended entry point),
 - a programmatic API centered around :func:`pylacs.lacs.run_lacs`,
+- an option to chose different robust linear fit algorithm
+- an option to chose different Random Coil chemical shifts or to use average value from more than one Random Coil Shifts
 - an optional post-processing utility that applies estimated offsets back to an NMR-STAR file
   and appends a Release record (:func:`pylacs.apply_lacs_correction.apply_selected_offsets_and_note`).
 

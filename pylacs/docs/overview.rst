@@ -4,12 +4,18 @@ Overview
 Scientific scope
 ----------------
 
-pylacs estimates per-atom referencing offsets from an NMR-STAR chemical shift list by:
+pylacs estimates per-atom type referencing offsets from an NMR-STAR chemical shift list by:
 
 1. computing deviations from random-coil references, :math:`\Delta\delta`,
 2. forming a predictor from carbon shifts,
 3. fitting robust linear models per nucleus and per sign-partition,
 4. reporting offsets and outlier probabilities.
+
+Requirement
+____________
+The chemical shift data should contain ``CA`` and ``CB`` chemical shifts, otherwise it is not possible
+to calculate the reference independent quantity :math:`\Delta \delta CA - \Delta \delta CB` where
+:math:`\Delta \delta A = \delta_{Observed} A-\delta_{Random Coil} A`
 
 Atoms analyzed
 --------------
