@@ -24,9 +24,9 @@ PyLACS provides:
 
    overview
    getting_started
-   usage
-   methodology
    theory
+   methodology
+   usage
    outputs
    examples
    validation

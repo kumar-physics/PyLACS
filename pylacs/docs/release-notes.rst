@@ -1,6 +1,13 @@
 Release Notes
 =============
 
+Version 1.0.1
+-------------
+
+- Requirements updated to numpy version 2.x
+- Unused CLI option removed
+- Documentation updated
+
 Version 1.0.0
 -------------
 

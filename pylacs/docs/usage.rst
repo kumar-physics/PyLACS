@@ -67,6 +67,3 @@ pylacs can apply the estimated offsets to the input NMR-STAR file and write a co
 ``--output-corrected PATH``
   Output filename for the corrected STAR file.
 
-.. note::
-   The CLI defines an option ``--apply-offsets``, but the corresponding behavior is not executed in the
-   current CLI implementation (the older apply-offsets block is commented out). Use ``--apply-corrections``.

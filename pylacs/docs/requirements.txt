@@ -5,7 +5,7 @@ sphinx-copybutton>=0.5
 sphinxcontrib-bibtex>=2.6
 sphinx_math_dollar
 # pylacs runtime deps required for autodoc imports and examples
-numpy>=1.15
+numpy>=2.1
 pandas
 pynmrstar>=3.0.4
 plotly>=4.5.4

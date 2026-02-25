@@ -31,7 +31,7 @@ classifiers = [
 
 # Install EVERYTHING by default (no extras required)
 dependencies = [
-  "numpy>=1.22",
+  "numpy>=2.1.1",
   "pynmrstar>=3.0.0",
   # plotting
   "plotly>=5",

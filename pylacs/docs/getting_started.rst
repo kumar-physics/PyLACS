@@ -1,5 +1,5 @@
-Getting Started
-===============
+Quick Start
+===========
 
 This section provides a minimal, reproducible workflow for running LACS :cite:`Wang2005`  analysis with pylacs.
 All examples below assume an NMR-STAR chemical shift file (``.str``).
@@ -60,9 +60,7 @@ To restrict the reference to specific models, use ``--rc-model`` with one or mor
    pylacs ENTRY.str --rc-model wis wan
    pylacs ENTRY.str --rc-model pou
 
-.. note::
-   The Poulsen model is temperature-dependent inside :meth:`pylacs.random_coil.RandomCoil.get_value`,
-   with a default temperature of 25°C. The CLI does not currently expose temperature as an option.
+
 
 Where outputs go
 ----------------
