@@ -32,8 +32,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument('--min-per-side', type=int, default=5,
                    help='Minimum number of points required on each sign side (default: 5).')
     p.add_argument("--cutoff-k", type=float, default=5.0, help="Outlier cutoff multiplier (default 5.0)")
-    p.add_argument("--apply-offsets", action="store_true",
-                   help="After computing offsets, apply them to the input .str.")
+    # p.add_argument("--apply-offsets", action="store_true",
+    #                help="After computing offsets, apply them to the input .str.")
     p.add_argument("--out-format", choices=["json", "star", "both"], default="both",
                    help="Output format (default: both)")
     p.add_argument("--json-out", default=None, help="Explicit JSON path (overrides default).")
