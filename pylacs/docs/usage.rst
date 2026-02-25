@@ -30,7 +30,7 @@ Core options
   Default: 5.
 
 ``--cutoff-k FLOAT``
-  Multiplier :math:`k` used in outlier scoring from robust-scaled residuals. Default: 5.0.
+  Multiplier :math:`k` used in outlier scoring from robust-scaled residuals. Default: 5.0. lower :math:`k` (e.g. :math:`k=3`) will be aggressive and flag more residuals as outliers higher :math:`k` (e.g. :math:`k=7`) values will be conservative and only extreme deviations flagged.
 
 Plotting and output control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
