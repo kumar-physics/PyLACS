@@ -24,6 +24,7 @@ It provides both a **Python API** and a **command-line interface (CLI)** for use
   - RANSAC  
   - Quantile regression  
   - Bayesian regression (via PyMC + ArviZ)  
+- Option to chose different Random Coil chemical shifts  
 - Outlier detection and offset estimation  
 - Optional **plot generation** (scatter, regression fits)  
 - Works directly with **BMRB NMR-STAR (.str) files**  
@@ -42,7 +43,7 @@ pip install pylacs
 ---
 ## 🚀 Quickstart
 ```bash
-pylacs myfile.str --method tukey --out results/
+pylacs myfile.str --data-id my_data_id --method tukey --out results/
 ````
 
 This will compute offsets, generate validation reports, and (if plotting is enabled) save plots in results folder
@@ -54,7 +55,7 @@ pylacs --help
 ```
 ## 📖 Citation
 
-f you use PyLACS in your research, please cite:
+If you use PyLACS in your research, please cite:
 
 Wang, L., Eghbalnia, H. R., & Markley, J. L. (2005).
 Probabilistic approach to determining protein backbone torsion angles from NMR chemical shifts.

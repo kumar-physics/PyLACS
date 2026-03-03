@@ -1,1 +1,17 @@
-include README.md LICENSE
+# Include essential top-level files
+include README.md
+include LICENSE
+include pyproject.toml
+
+
+# Exclude unwanted files globally
+global-exclude *.py[cod]
+global-exclude __pycache__/*
+global-exclude *.so
+global-exclude *.dylib
+global-exclude *.egg-info
+global-exclude .DS_Store
+global-exclude __MACOSX/*
+global-exclude .pytest_cache/*
+global-exclude .coverage
+global-exclude *.log

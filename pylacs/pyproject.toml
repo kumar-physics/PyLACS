@@ -14,19 +14,24 @@ authors = [
 dynamic = ["version"]
 keywords = ["NMR", "chemical shifts", "LACS", "referencing", "biomolecular"]
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Education",
     "Topic :: Scientific/Engineering :: Chemistry",
-    "Topic :: Scientific/Engineering :: Biochemistry",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
 
 # Install EVERYTHING by default (no extras required)
 dependencies = [
-  "numpy>=1.22",
+  "numpy>=2.1.1",
   "pynmrstar>=3.0.0",
   # plotting
   "plotly>=5",

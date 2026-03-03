@@ -1,34 +1,40 @@
-Introduction
-===================
-Statistical analysis reveals that the set of diﬀerences between the secondary shifts of the a- and b-carbons
-for residues i of a protein ($\Delta\delta ^{13}C^{\alpha}_{i} - \Delta\delta ^{13}C^{\beta}_{i}$) provides the means to detect and correct
-referencing errors for
-$^{1}H$ and $^{13}C$ nuclei within a given dataset. In a correctly referenced protein dataset,
-linear regression plots of
-$\Delta\delta ^{13}C^{\alpha}_{i}, \Delta\delta ^{13}C^{\beta}_{i}$, or $\Delta\delta ^{1}H^{\alpha}_{i}$ vs ($\Delta\delta ^{13}C^{\alpha}_{i} - \Delta\delta ^{13}C^{\beta}_{i}$) pass through the origin from two directions, the helix-to-
-coil and strand-to-coil directions. Thus, linear analysis of chemical shifts (LACS) can be used to detect
-referencing errors and to recalibrate the $^{1}H$ and $^{13}C$ chemical shift scales if needed. The analysis requires
-only that the signals be identified with distinct residue types (intra-residue spin systems). LACS allows
-errors in calibration to be detected and corrected in advance of sequence-specific assignments and sec-
-ondary structure determinations. Signals that do not fit the linear model (outliers) deserve scrutiny since
-they could represent errors in identifying signals with a particular residue, or interesting features such as a
-cis-peptide bond. LACS provides the basis for the automated detection of such features and for testing
-reassignment hypotheses. Early detection and correction of errors in referencing and spin system identi-
-fications can improve the speed and accuracy of chemical shift assignments and secondary structure
-determinations.
+PyLACS
+======
 
+**PyLACS** is a Python implementation of **Linear Analysis of Chemical Shifts (LACS)** :cite:`Wang2005` for identifying and
+quantifying **systematic chemical-shift referencing offsets** in biomolecular NMR datasets stored as
+NMR-STAR (``.str``) :cite:`Ulrich2019` chemical shift files. PyLAC is developed and maintained by **Biological Magnetic
+Resonance data Bank (BMRB)** :cite:`Ulrich2007,Romero2020,Hoch2023`
+
+PyLACS provides:
+
+- a command-line program ``pylacs`` (recommended entry point),
+- a programmatic API centered around :func:`pylacs.lacs.run_lacs`,
+- an option to chose different robust linear fit algorithm
+- an option to chose different Random Coil chemical shifts or to use average value from more than one Random Coil Shifts
+- an optional post-processing utility that applies estimated offsets back to an NMR-STAR file
+  and appends a Release record (:func:`pylacs.apply_lacs_correction.apply_selected_offsets_and_note`).
+
+.. note::
+   This documentation corresponds to version |version|.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents
+   :caption: User Guide
 
+   overview
    getting_started
+   theory
+   methodology
    usage
-   api/modules
+   outputs
+   examples
+   validation
+   release-notes
+   citation
 
-Indices and tables
-==================
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   api

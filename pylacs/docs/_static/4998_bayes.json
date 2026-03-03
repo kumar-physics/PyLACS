@@ -1,0 +1,4694 @@
+{
+  "1": {
+    "offsets_bayes": {
+      "ca": {
+        "mean": 2.2931,
+        "ci95": [
+          1.9349,
+          2.6402
+        ],
+        "sd": 0.1813
+      },
+      "cb": {
+        "mean": 2.2947,
+        "ci95": [
+          1.929,
+          2.6403
+        ],
+        "sd": 0.1796
+      },
+      "c": {
+        "mean": 3.3532,
+        "ci95": [
+          2.3673,
+          4.3442
+        ],
+        "sd": 0.5007
+      },
+      "n": {
+        "mean": 0.3076,
+        "ci95": [
+          -1.6033,
+          2.1592
+        ],
+        "sd": 0.9497
+      },
+      "ha": {
+        "mean": 0.004,
+        "ci95": [
+          -0.1386,
+          0.1433
+        ],
+        "sd": 0.0718
+      }
+    },
+    "offsets_bayes_sides": {
+      "ca": {
+        "pos": {
+          "mean": 2.3158,
+          "ci95": [
+            1.8551,
+            2.7444
+          ],
+          "sd": 0.2274
+        },
+        "neg": {
+          "mean": 2.2705,
+          "ci95": [
+            1.7195,
+            2.8143
+          ],
+          "sd": 0.2784
+        }
+      },
+      "cb": {
+        "pos": {
+          "mean": 2.3133,
+          "ci95": [
+            1.8463,
+            2.7407
+          ],
+          "sd": 0.2303
+        },
+        "neg": {
+          "mean": 2.2761,
+          "ci95": [
+            1.7294,
+            2.8182
+          ],
+          "sd": 0.2789
+        }
+      },
+      "c": {
+        "pos": {
+          "mean": 3.918,
+          "ci95": [
+            2.7938,
+            5.075
+          ],
+          "sd": 0.5858
+        },
+        "neg": {
+          "mean": 2.7884,
+          "ci95": [
+            1.1978,
+            4.3509
+          ],
+          "sd": 0.8043
+        }
+      },
+      "n": {
+        "pos": {
+          "mean": 2.0261,
+          "ci95": [
+            0.1625,
+            3.9663
+          ],
+          "sd": 0.9798
+        },
+        "neg": {
+          "mean": -1.4109,
+          "ci95": [
+            -4.6041,
+            1.7828
+          ],
+          "sd": 1.6349
+        }
+      },
+      "ha": {
+        "pos": {
+          "mean": 0.0659,
+          "ci95": [
+            -0.0982,
+            0.2223
+          ],
+          "sd": 0.0833
+        },
+        "neg": {
+          "mean": -0.058,
+          "ci95": [
+            -0.2956,
+            0.1749
+          ],
+          "sd": 0.1187
+        }
+      }
+    },
+    "offsets_split": {
+      "ca": {
+        "pos": 2.316,
+        "neg": 2.271
+      },
+      "cb": {
+        "pos": 2.313,
+        "neg": 2.276
+      },
+      "c": {
+        "pos": 3.918,
+        "neg": 2.788
+      },
+      "n": {
+        "pos": 2.026,
+        "neg": -1.411
+      },
+      "ha": {
+        "pos": 0.066,
+        "neg": -0.058
+      }
+    },
+    "outliers": {
+      "ca": [
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "4",
+            "comp": "THR"
+          },
+          "x": 0.122,
+          "y": -1.806,
+          "residual": 0.4141,
+          "flag": 0,
+          "prob": 0.0088
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "14",
+            "comp": "ARG"
+          },
+          "x": 5.194,
+          "y": 2.378,
+          "residual": 0.6219,
+          "flag": 0,
+          "prob": 0.0165
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "15",
+            "comp": "ASN"
+          },
+          "x": 4.408,
+          "y": 1.17,
+          "residual": 0.0301,
+          "flag": 0,
+          "prob": 0.0027
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "16",
+            "comp": "SER"
+          },
+          "x": 5.364,
+          "y": 1.386,
+          "residual": -0.5034,
+          "flag": 0,
+          "prob": 0.0115
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "17",
+            "comp": "LEU"
+          },
+          "x": 3.922,
+          "y": 0.236,
+          "residual": -0.5229,
+          "flag": 0,
+          "prob": 0.0122
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "18",
+            "comp": "LYS"
+          },
+          "x": 4.322,
+          "y": 1.386,
+          "residual": 0.3135,
+          "flag": 0,
+          "prob": 0.0064
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "19",
+            "comp": "CYS"
+          },
+          "x": 5.914,
+          "y": 1.802,
+          "residual": -0.5185,
+          "flag": 0,
+          "prob": 0.012
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "20",
+            "comp": "LEU"
+          },
+          "x": 2.872,
+          "y": 0.256,
+          "residual": 0.3202,
+          "flag": 0,
+          "prob": 0.0066
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "21",
+            "comp": "ARG"
+          },
+          "x": 5.264,
+          "y": 1.898,
+          "residual": 0.087,
+          "flag": 0,
+          "prob": 0.0032
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "22",
+            "comp": "TYR"
+          },
+          "x": 4.308,
+          "y": 1.07,
+          "residual": 0.0085,
+          "flag": 0,
+          "prob": 0.0025
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "23",
+            "comp": "ARG"
+          },
+          "x": 3.524,
+          "y": 0.848,
+          "residual": 0.4011,
+          "flag": 0,
+          "prob": 0.0084
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "24",
+            "comp": "LEU"
+          },
+          "x": 3.492,
+          "y": -0.134,
+          "residual": -0.5558,
+          "flag": 0,
+          "prob": 0.0135
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "25",
+            "comp": "ARG"
+          },
+          "x": 3.674,
+          "y": 0.448,
+          "residual": -0.1165,
+          "flag": 0,
+          "prob": 0.0035
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "26",
+            "comp": "LYS"
+          },
+          "x": 1.562,
+          "y": -1.624,
+          "residual": -0.5328,
+          "flag": 0,
+          "prob": 0.0126
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "28",
+            "comp": "SER"
+          },
+          "x": 3.504,
+          "y": 0.216,
+          "residual": -0.2152,
+          "flag": 0,
+          "prob": 0.0048
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "29",
+            "comp": "ASP"
+          },
+          "x": 2.062,
+          "y": -1.018,
+          "residual": -0.3188,
+          "flag": 0,
+          "prob": 0.0066
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "32",
+            "comp": "ARG"
+          },
+          "x": 1.944,
+          "y": -1.102,
+          "residual": -0.3102,
+          "flag": 0,
+          "prob": 0.0064
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "36",
+            "comp": "SER"
+          },
+          "x": 0.274,
+          "y": -2.144,
+          "residual": -0.043,
+          "flag": 0,
+          "prob": 0.0028
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "37",
+            "comp": "THR"
+          },
+          "x": 3.172,
+          "y": -0.256,
+          "residual": -0.4269,
+          "flag": 0,
+          "prob": 0.0091
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "41",
+            "comp": "THR"
+          },
+          "x": 2.202,
+          "y": 0.514,
+          "residual": 1.1035,
+          "flag": 0,
+          "prob": 0.0684
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "43",
+            "comp": "ALA"
+          },
+          "x": 0.408,
+          "y": -1.87,
+          "residual": 0.1259,
+          "flag": 0,
+          "prob": 0.0036
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "46",
+            "comp": "GLU"
+          },
+          "x": 2.17,
+          "y": -0.638,
+          "residual": -0.0234,
+          "flag": 0,
+          "prob": 0.0027
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "47",
+            "comp": "LYS"
+          },
+          "x": 0.642,
+          "y": -1.674,
+          "residual": 0.1385,
+          "flag": 0,
+          "prob": 0.0038
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "56",
+            "comp": "HIS"
+          },
+          "x": 0.562,
+          "y": 0.93,
+          "residual": 2.8052,
+          "flag": 1,
+          "prob": 0.9317
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "59",
+            "comp": "THR"
+          },
+          "x": 5.772,
+          "y": 2.434,
+          "residual": 0.2248,
+          "flag": 0,
+          "prob": 0.0049
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "60",
+            "comp": "GLN"
+          },
+          "x": 3.014,
+          "y": 0.958,
+          "residual": 0.9109,
+          "flag": 0,
+          "prob": 0.039
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "61",
+            "comp": "ARG"
+          },
+          "x": 3.904,
+          "y": 0.988,
+          "residual": 0.2432,
+          "flag": 0,
+          "prob": 0.0052
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "62",
+            "comp": "THR"
+          },
+          "x": 6.132,
+          "y": 2.914,
+          "residual": 0.4225,
+          "flag": 0,
+          "prob": 0.009
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "63",
+            "comp": "LYS"
+          },
+          "x": 4.362,
+          "y": 0.816,
+          "residual": -0.2879,
+          "flag": 0,
+          "prob": 0.006
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "64",
+            "comp": "PHE"
+          },
+          "x": 5.604,
+          "y": 1.924,
+          "residual": -0.1535,
+          "flag": 0,
+          "prob": 0.004
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "65",
+            "comp": "LEU"
+          },
+          "x": 2.842,
+          "y": -0.274,
+          "residual": -0.1862,
+          "flag": 0,
+          "prob": 0.0044
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "67",
+            "comp": "THR"
+          },
+          "x": 0.862,
+          "y": 0.094,
+          "residual": 1.734,
+          "flag": 0,
+          "prob": 0.3371
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "68",
+            "comp": "VAL"
+          },
+          "x": 0.974,
+          "y": -2.244,
+          "residual": -0.6918,
+          "flag": 0,
+          "prob": 0.0203
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "69",
+            "comp": "ALA"
+          },
+          "x": 0.068,
+          "y": -3.06,
+          "residual": -0.7976,
+          "flag": 0,
+          "prob": 0.0279
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "72",
+            "comp": "ASP"
+          },
+          "x": 2.292,
+          "y": -0.098,
+          "residual": 0.4209,
+          "flag": 0,
+          "prob": 0.0089
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "73",
+            "comp": "SER"
+          },
+          "x": 0.844,
+          "y": -2.514,
+          "residual": -0.8599,
+          "flag": 0,
+          "prob": 0.0336
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "6",
+            "comp": "PRO"
+          },
+          "x": -0.526,
+          "y": -3.344,
+          "residual": -0.9016,
+          "flag": 0,
+          "prob": 0.038
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "7",
+            "comp": "ILE"
+          },
+          "x": -7.276,
+          "y": -3.918,
+          "residual": 0.73,
+          "flag": 0,
+          "prob": 0.0228
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "8",
+            "comp": "ILE"
+          },
+          "x": -3.456,
+          "y": -2.278,
+          "residual": 1.1218,
+          "flag": 0,
+          "prob": 0.072
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "9",
+            "comp": "HIS"
+          },
+          "x": -7.228,
+          "y": -4.29,
+          "residual": 0.3424,
+          "flag": 0,
+          "prob": 0.007
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "10",
+            "comp": "LEU"
+          },
+          "x": -3.208,
+          "y": -4.884,
+          "residual": -1.5652,
+          "flag": 0,
+          "prob": 0.2325
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "11",
+            "comp": "LYS"
+          },
+          "x": -5.398,
+          "y": -4.704,
+          "residual": -0.6696,
+          "flag": 0,
+          "prob": 0.019
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "13",
+            "comp": "ASP"
+          },
+          "x": -1.288,
+          "y": -1.718,
+          "residual": 0.9734,
+          "flag": 0,
+          "prob": 0.0469
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "27",
+            "comp": "HIS"
+          },
+          "x": -1.338,
+          "y": -3.0,
+          "residual": -0.2923,
+          "flag": 0,
+          "prob": 0.006
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "30",
+            "comp": "HIS"
+          },
+          "x": -1.338,
+          "y": -1.61,
+          "residual": 1.0977,
+          "flag": 0,
+          "prob": 0.0672
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "31",
+            "comp": "TYR"
+          },
+          "x": -2.662,
+          "y": -3.97,
+          "residual": -0.8297,
+          "flag": 0,
+          "prob": 0.0307
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "33",
+            "comp": "ASP"
+          },
+          "x": -6.418,
+          "y": -4.128,
+          "residual": 0.2397,
+          "flag": 0,
+          "prob": 0.0051
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "34",
+            "comp": "ILE"
+          },
+          "x": -5.006,
+          "y": -4.108,
+          "residual": -0.2017,
+          "flag": 0,
+          "prob": 0.0046
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "35",
+            "comp": "SER"
+          },
+          "x": -2.356,
+          "y": -1.484,
+          "residual": 1.5564,
+          "flag": 0,
+          "prob": 0.2277
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "38",
+            "comp": "TRP"
+          },
+          "x": -5.406,
+          "y": -5.396,
+          "residual": -1.359,
+          "flag": 0,
+          "prob": 0.1385
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "39",
+            "comp": "HIS"
+          },
+          "x": -4.408,
+          "y": -3.47,
+          "residual": 0.2409,
+          "flag": 0,
+          "prob": 0.0052
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "40",
+            "comp": "TRP"
+          },
+          "x": -1.946,
+          "y": -3.696,
+          "residual": -0.7896,
+          "flag": 0,
+          "prob": 0.0272
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "45",
+            "comp": "ASN"
+          },
+          "x": -0.952,
+          "y": -2.27,
+          "residual": 0.3116,
+          "flag": 0,
+          "prob": 0.0064
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "48",
+            "comp": "THR"
+          },
+          "x": -1.028,
+          "y": -2.476,
+          "residual": 0.1304,
+          "flag": 0,
+          "prob": 0.0037
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "50",
+            "comp": "ILE"
+          },
+          "x": -2.606,
+          "y": -3.528,
+          "residual": -0.4059,
+          "flag": 0,
+          "prob": 0.0085
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "51",
+            "comp": "LEU"
+          },
+          "x": -5.668,
+          "y": -4.074,
+          "residual": 0.0486,
+          "flag": 0,
+          "prob": 0.0029
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "52",
+            "comp": "THR"
+          },
+          "x": -5.028,
+          "y": -2.456,
+          "residual": 1.4575,
+          "flag": 0,
+          "prob": 0.1787
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "53",
+            "comp": "VAL"
+          },
+          "x": -2.786,
+          "y": -4.254,
+          "residual": -1.0731,
+          "flag": 0,
+          "prob": 0.0627
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "54",
+            "comp": "THR"
+          },
+          "x": -4.278,
+          "y": -5.346,
+          "residual": -1.6776,
+          "flag": 0,
+          "prob": 0.2996
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "55",
+            "comp": "TYR"
+          },
+          "x": -4.822,
+          "y": -2.76,
+          "residual": 1.0862,
+          "flag": 0,
+          "prob": 0.0651
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "66",
+            "comp": "ASN"
+          },
+          "x": -0.012,
+          "y": -1.58,
+          "residual": 0.6944,
+          "flag": 0,
+          "prob": 0.0205
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "71",
+            "comp": "PRO"
+          },
+          "x": -0.916,
+          "y": -2.594,
+          "residual": -0.0242,
+          "flag": 0,
+          "prob": 0.0027
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "74",
+            "comp": "VAL"
+          },
+          "x": -1.746,
+          "y": -3.234,
+          "residual": -0.393,
+          "flag": 0,
+          "prob": 0.0082
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "75",
+            "comp": "GLN"
+          },
+          "x": -2.356,
+          "y": -2.942,
+          "residual": 0.0984,
+          "flag": 0,
+          "prob": 0.0033
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "76",
+            "comp": "ILE"
+          },
+          "x": -1.516,
+          "y": -2.498,
+          "residual": 0.2679,
+          "flag": 0,
+          "prob": 0.0056
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "77",
+            "comp": "LEU"
+          },
+          "x": -3.138,
+          "y": -3.594,
+          "residual": -0.2981,
+          "flag": 0,
+          "prob": 0.0062
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "78",
+            "comp": "VAL"
+          },
+          "x": -3.726,
+          "y": -3.864,
+          "residual": -0.376,
+          "flag": 0,
+          "prob": 0.0078
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "80",
+            "comp": "TYR"
+          },
+          "x": -5.222,
+          "y": -3.74,
+          "residual": 0.2369,
+          "flag": 0,
+          "prob": 0.0051
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "81",
+            "comp": "MET"
+          },
+          "x": -5.442,
+          "y": -3.676,
+          "residual": 0.3728,
+          "flag": 0,
+          "prob": 0.0077
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "82",
+            "comp": "THR"
+          },
+          "x": -1.218,
+          "y": -2.376,
+          "residual": 0.2925,
+          "flag": 0,
+          "prob": 0.006
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "83",
+            "comp": "MET"
+          },
+          "x": -4.852,
+          "y": -4.476,
+          "residual": -0.62,
+          "flag": 0,
+          "prob": 0.0164
+        }
+      ],
+      "cb": [
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "4",
+            "comp": "THR"
+          },
+          "x": 0.122,
+          "y": -1.928,
+          "residual": 0.4117,
+          "flag": 0,
+          "prob": 0.0087
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "14",
+            "comp": "ARG"
+          },
+          "x": 5.194,
+          "y": -2.816,
+          "residual": 0.6212,
+          "flag": 0,
+          "prob": 0.0165
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "15",
+            "comp": "ASN"
+          },
+          "x": 4.408,
+          "y": -3.238,
+          "residual": 0.0291,
+          "flag": 0,
+          "prob": 0.0027
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "16",
+            "comp": "SER"
+          },
+          "x": 5.364,
+          "y": -3.978,
+          "residual": -0.504,
+          "flag": 0,
+          "prob": 0.0115
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "17",
+            "comp": "LEU"
+          },
+          "x": 3.922,
+          "y": -3.686,
+          "residual": -0.5241,
+          "flag": 0,
+          "prob": 0.0123
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "18",
+            "comp": "LYS"
+          },
+          "x": 4.322,
+          "y": -2.936,
+          "residual": 0.3125,
+          "flag": 0,
+          "prob": 0.0064
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "19",
+            "comp": "CYS"
+          },
+          "x": 5.914,
+          "y": -4.112,
+          "residual": -0.519,
+          "flag": 0,
+          "prob": 0.0121
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "20",
+            "comp": "LEU"
+          },
+          "x": 2.872,
+          "y": -2.616,
+          "residual": 0.3187,
+          "flag": 0,
+          "prob": 0.0066
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "21",
+            "comp": "ARG"
+          },
+          "x": 5.264,
+          "y": -3.366,
+          "residual": 0.0863,
+          "flag": 0,
+          "prob": 0.0032
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "22",
+            "comp": "TYR"
+          },
+          "x": 4.308,
+          "y": -3.238,
+          "residual": 0.0075,
+          "flag": 0,
+          "prob": 0.0025
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "23",
+            "comp": "ARG"
+          },
+          "x": 3.524,
+          "y": -2.676,
+          "residual": 0.3998,
+          "flag": 0,
+          "prob": 0.0084
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "24",
+            "comp": "LEU"
+          },
+          "x": 3.492,
+          "y": -3.626,
+          "residual": -0.5571,
+          "flag": 0,
+          "prob": 0.0136
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "25",
+            "comp": "ARG"
+          },
+          "x": 3.674,
+          "y": -3.226,
+          "residual": -0.1177,
+          "flag": 0,
+          "prob": 0.0035
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "26",
+            "comp": "LYS"
+          },
+          "x": 1.562,
+          "y": -3.186,
+          "residual": -0.5347,
+          "flag": 0,
+          "prob": 0.0127
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "28",
+            "comp": "SER"
+          },
+          "x": 3.504,
+          "y": -3.288,
+          "residual": -0.2165,
+          "flag": 0,
+          "prob": 0.0048
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "29",
+            "comp": "ASP"
+          },
+          "x": 2.062,
+          "y": -3.08,
+          "residual": -0.3205,
+          "flag": 0,
+          "prob": 0.0066
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "32",
+            "comp": "ARG"
+          },
+          "x": 1.944,
+          "y": -3.046,
+          "residual": -0.3121,
+          "flag": 0,
+          "prob": 0.0064
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "36",
+            "comp": "SER"
+          },
+          "x": 0.274,
+          "y": -2.418,
+          "residual": -0.0454,
+          "flag": 0,
+          "prob": 0.0028
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "37",
+            "comp": "THR"
+          },
+          "x": 3.172,
+          "y": -3.428,
+          "residual": -0.4284,
+          "flag": 0,
+          "prob": 0.0092
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "41",
+            "comp": "THR"
+          },
+          "x": 2.202,
+          "y": -1.688,
+          "residual": 1.1018,
+          "flag": 0,
+          "prob": 0.0684
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "43",
+            "comp": "ALA"
+          },
+          "x": 0.408,
+          "y": -2.278,
+          "residual": 0.1236,
+          "flag": 0,
+          "prob": 0.0036
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "46",
+            "comp": "GLU"
+          },
+          "x": 2.17,
+          "y": -2.808,
+          "residual": -0.0252,
+          "flag": 0,
+          "prob": 0.0027
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "47",
+            "comp": "LYS"
+          },
+          "x": 0.642,
+          "y": -2.316,
+          "residual": 0.1362,
+          "flag": 0,
+          "prob": 0.0038
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "56",
+            "comp": "HIS"
+          },
+          "x": 0.562,
+          "y": 0.368,
+          "residual": 2.8029,
+          "flag": 1,
+          "prob": 0.9322
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "59",
+            "comp": "THR"
+          },
+          "x": 5.772,
+          "y": -3.338,
+          "residual": 0.2243,
+          "flag": 0,
+          "prob": 0.0049
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "60",
+            "comp": "GLN"
+          },
+          "x": 3.014,
+          "y": -2.056,
+          "residual": 0.9095,
+          "flag": 0,
+          "prob": 0.0391
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "61",
+            "comp": "ARG"
+          },
+          "x": 3.904,
+          "y": -2.916,
+          "residual": 0.242,
+          "flag": 0,
+          "prob": 0.0052
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "62",
+            "comp": "THR"
+          },
+          "x": 6.132,
+          "y": -3.218,
+          "residual": 0.4222,
+          "flag": 0,
+          "prob": 0.009
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "63",
+            "comp": "LYS"
+          },
+          "x": 4.362,
+          "y": -3.546,
+          "residual": -0.2888,
+          "flag": 0,
+          "prob": 0.006
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "64",
+            "comp": "PHE"
+          },
+          "x": 5.604,
+          "y": -3.68,
+          "residual": -0.1541,
+          "flag": 0,
+          "prob": 0.004
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "65",
+            "comp": "LEU"
+          },
+          "x": 2.842,
+          "y": -3.116,
+          "residual": -0.1878,
+          "flag": 0,
+          "prob": 0.0044
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "67",
+            "comp": "THR"
+          },
+          "x": 0.862,
+          "y": -0.768,
+          "residual": 1.7318,
+          "flag": 0,
+          "prob": 0.3378
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "68",
+            "comp": "VAL"
+          },
+          "x": 0.974,
+          "y": -3.218,
+          "residual": -0.694,
+          "flag": 0,
+          "prob": 0.0205
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "69",
+            "comp": "ALA"
+          },
+          "x": 0.068,
+          "y": -3.128,
+          "residual": -0.8,
+          "flag": 0,
+          "prob": 0.0282
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "72",
+            "comp": "ASP"
+          },
+          "x": 2.292,
+          "y": -2.39,
+          "residual": 0.4192,
+          "flag": 0,
+          "prob": 0.0089
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "73",
+            "comp": "SER"
+          },
+          "x": 0.844,
+          "y": -3.358,
+          "residual": -0.8621,
+          "flag": 0,
+          "prob": 0.034
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "6",
+            "comp": "PRO"
+          },
+          "x": -0.526,
+          "y": -2.818,
+          "residual": -0.8963,
+          "flag": 0,
+          "prob": 0.0376
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "7",
+            "comp": "ILE"
+          },
+          "x": -7.276,
+          "y": 3.358,
+          "residual": 0.7312,
+          "flag": 0,
+          "prob": 0.023
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "8",
+            "comp": "ILE"
+          },
+          "x": -3.456,
+          "y": 1.178,
+          "residual": 1.1253,
+          "flag": 0,
+          "prob": 0.0732
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "9",
+            "comp": "HIS"
+          },
+          "x": -7.228,
+          "y": 2.938,
+          "residual": 0.3435,
+          "flag": 0,
+          "prob": 0.0071
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "10",
+            "comp": "LEU"
+          },
+          "x": -3.208,
+          "y": -1.676,
+          "residual": -1.5616,
+          "flag": 0,
+          "prob": 0.2321
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "11",
+            "comp": "LYS"
+          },
+          "x": -5.398,
+          "y": 0.694,
+          "residual": -0.6673,
+          "flag": 0,
+          "prob": 0.0189
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "13",
+            "comp": "ASP"
+          },
+          "x": -1.288,
+          "y": -0.43,
+          "residual": 0.9782,
+          "flag": 0,
+          "prob": 0.0478
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "27",
+            "comp": "HIS"
+          },
+          "x": -1.338,
+          "y": -1.662,
+          "residual": -0.2875,
+          "flag": 0,
+          "prob": 0.006
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "30",
+            "comp": "HIS"
+          },
+          "x": -1.338,
+          "y": -0.272,
+          "residual": 1.1025,
+          "flag": 0,
+          "prob": 0.0686
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "31",
+            "comp": "TYR"
+          },
+          "x": -2.662,
+          "y": -1.308,
+          "residual": -0.8257,
+          "flag": 0,
+          "prob": 0.0305
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "33",
+            "comp": "ASP"
+          },
+          "x": -6.418,
+          "y": 2.29,
+          "residual": 0.2414,
+          "flag": 0,
+          "prob": 0.0052
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "34",
+            "comp": "ILE"
+          },
+          "x": -5.006,
+          "y": 0.898,
+          "residual": -0.1992,
+          "flag": 0,
+          "prob": 0.0046
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "35",
+            "comp": "SER"
+          },
+          "x": -2.356,
+          "y": 0.872,
+          "residual": 1.5605,
+          "flag": 0,
+          "prob": 0.2315
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "38",
+            "comp": "TRP"
+          },
+          "x": -5.406,
+          "y": 0.01,
+          "residual": -1.3567,
+          "flag": 0,
+          "prob": 0.1386
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "39",
+            "comp": "HIS"
+          },
+          "x": -4.408,
+          "y": 0.938,
+          "residual": 0.2438,
+          "flag": 0,
+          "prob": 0.0052
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "40",
+            "comp": "TRP"
+          },
+          "x": -1.946,
+          "y": -1.75,
+          "residual": -0.7852,
+          "flag": 0,
+          "prob": 0.027
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "45",
+            "comp": "ASN"
+          },
+          "x": -0.952,
+          "y": -1.318,
+          "residual": 0.3166,
+          "flag": 0,
+          "prob": 0.0065
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "48",
+            "comp": "THR"
+          },
+          "x": -1.028,
+          "y": -1.448,
+          "residual": 0.1354,
+          "flag": 0,
+          "prob": 0.0037
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "50",
+            "comp": "ILE"
+          },
+          "x": -2.606,
+          "y": -0.922,
+          "residual": -0.4019,
+          "flag": 0,
+          "prob": 0.0085
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "51",
+            "comp": "LEU"
+          },
+          "x": -5.668,
+          "y": 1.594,
+          "residual": 0.0507,
+          "flag": 0,
+          "prob": 0.0029
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "52",
+            "comp": "THR"
+          },
+          "x": -5.028,
+          "y": 2.572,
+          "residual": 1.46,
+          "flag": 0,
+          "prob": 0.1811
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "53",
+            "comp": "VAL"
+          },
+          "x": -2.786,
+          "y": -1.468,
+          "residual": -1.0692,
+          "flag": 0,
+          "prob": 0.0623
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "54",
+            "comp": "THR"
+          },
+          "x": -4.278,
+          "y": -1.068,
+          "residual": -1.6746,
+          "flag": 0,
+          "prob": 0.2997
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "55",
+            "comp": "TYR"
+          },
+          "x": -4.822,
+          "y": 2.062,
+          "residual": 1.0888,
+          "flag": 0,
+          "prob": 0.0659
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "66",
+            "comp": "ASN"
+          },
+          "x": -0.012,
+          "y": -1.568,
+          "residual": 0.7,
+          "flag": 0,
+          "prob": 0.0209
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "71",
+            "comp": "PRO"
+          },
+          "x": -0.916,
+          "y": -1.678,
+          "residual": -0.0191,
+          "flag": 0,
+          "prob": 0.0026
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "74",
+            "comp": "VAL"
+          },
+          "x": -1.746,
+          "y": -1.488,
+          "residual": -0.3884,
+          "flag": 0,
+          "prob": 0.0081
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "75",
+            "comp": "GLN"
+          },
+          "x": -2.356,
+          "y": -0.586,
+          "residual": 0.1025,
+          "flag": 0,
+          "prob": 0.0034
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "76",
+            "comp": "ILE"
+          },
+          "x": -1.516,
+          "y": -0.982,
+          "residual": 0.2725,
+          "flag": 0,
+          "prob": 0.0057
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "77",
+            "comp": "LEU"
+          },
+          "x": -3.138,
+          "y": -0.456,
+          "residual": -0.2944,
+          "flag": 0,
+          "prob": 0.0061
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "78",
+            "comp": "VAL"
+          },
+          "x": -3.726,
+          "y": -0.138,
+          "residual": -0.3727,
+          "flag": 0,
+          "prob": 0.0077
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "80",
+            "comp": "TYR"
+          },
+          "x": -5.222,
+          "y": 1.482,
+          "residual": 0.2393,
+          "flag": 0,
+          "prob": 0.0051
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "81",
+            "comp": "MET"
+          },
+          "x": -5.442,
+          "y": 1.766,
+          "residual": 0.375,
+          "flag": 0,
+          "prob": 0.0078
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "82",
+            "comp": "THR"
+          },
+          "x": -1.218,
+          "y": -1.158,
+          "residual": 0.2974,
+          "flag": 0,
+          "prob": 0.0061
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "83",
+            "comp": "MET"
+          },
+          "x": -4.852,
+          "y": 0.376,
+          "residual": -0.6174,
+          "flag": 0,
+          "prob": 0.0163
+        }
+      ],
+      "c": [
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "14",
+            "comp": "ARG"
+          },
+          "x": 5.194,
+          "y": -1.858,
+          "residual": -1.7306,
+          "flag": 0,
+          "prob": 0.0113
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "15",
+            "comp": "ASN"
+          },
+          "x": 4.408,
+          "y": 1.004,
+          "residual": 1.705,
+          "flag": 0,
+          "prob": 0.011
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "16",
+            "comp": "SER"
+          },
+          "x": 5.364,
+          "y": 1.11,
+          "residual": 1.1134,
+          "flag": 0,
+          "prob": 0.0066
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "17",
+            "comp": "LEU"
+          },
+          "x": 3.922,
+          "y": -2.358,
+          "residual": -1.3023,
+          "flag": 0,
+          "prob": 0.0077
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "18",
+            "comp": "LYS"
+          },
+          "x": 4.322,
+          "y": -1.064,
+          "residual": -0.3002,
+          "flag": 0,
+          "prob": 0.0032
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "19",
+            "comp": "CYS"
+          },
+          "x": 5.914,
+          "y": 1.942,
+          "residual": 1.544,
+          "flag": 0,
+          "prob": 0.0096
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "20",
+            "comp": "LEU"
+          },
+          "x": 2.872,
+          "y": -2.448,
+          "residual": -0.626,
+          "flag": 0,
+          "prob": 0.0043
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "21",
+            "comp": "ARG"
+          },
+          "x": 5.264,
+          "y": -1.088,
+          "residual": -1.0117,
+          "flag": 0,
+          "prob": 0.006
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "22",
+            "comp": "TYR"
+          },
+          "x": 4.308,
+          "y": -0.562,
+          "residual": 0.212,
+          "flag": 0,
+          "prob": 0.003
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "23",
+            "comp": "ARG"
+          },
+          "x": 3.524,
+          "y": 0.132,
+          "residual": 1.4782,
+          "flag": 0,
+          "prob": 0.009
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "24",
+            "comp": "LEU"
+          },
+          "x": 3.492,
+          "y": -0.558,
+          "residual": 0.8115,
+          "flag": 0,
+          "prob": 0.005
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "25",
+            "comp": "ARG"
+          },
+          "x": 3.674,
+          "y": 0.922,
+          "residual": 2.1587,
+          "flag": 0,
+          "prob": 0.0163
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "26",
+            "comp": "LYS"
+          },
+          "x": 1.562,
+          "y": -1.254,
+          "residual": 1.524,
+          "flag": 0,
+          "prob": 0.0094
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "28",
+            "comp": "SER"
+          },
+          "x": 3.504,
+          "y": -1.54,
+          "residual": -0.1792,
+          "flag": 0,
+          "prob": 0.0029
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "29",
+            "comp": "ASP"
+          },
+          "x": 2.062,
+          "y": -4.55,
+          "residual": -2.1369,
+          "flag": 0,
+          "prob": 0.016
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "32",
+            "comp": "ARG"
+          },
+          "x": 1.944,
+          "y": -6.368,
+          "residual": -3.8687,
+          "flag": 0,
+          "prob": 0.0696
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "36",
+            "comp": "SER"
+          },
+          "x": 0.274,
+          "y": -2.92,
+          "residual": 0.798,
+          "flag": 0,
+          "prob": 0.005
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "37",
+            "comp": "THR"
+          },
+          "x": 3.172,
+          "y": -2.874,
+          "residual": -1.2709,
+          "flag": 0,
+          "prob": 0.0075
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "41",
+            "comp": "THR"
+          },
+          "x": 2.202,
+          "y": 0.076,
+          "residual": 2.387,
+          "flag": 0,
+          "prob": 0.0199
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "43",
+            "comp": "ALA"
+          },
+          "x": 0.408,
+          "y": -5.644,
+          "residual": -2.0238,
+          "flag": 0,
+          "prob": 0.0145
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "46",
+            "comp": "GLU"
+          },
+          "x": 2.17,
+          "y": -3.342,
+          "residual": -1.0077,
+          "flag": 0,
+          "prob": 0.006
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "47",
+            "comp": "LYS"
+          },
+          "x": 0.642,
+          "y": -2.374,
+          "residual": 1.0755,
+          "flag": 0,
+          "prob": 0.0064
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "56",
+            "comp": "HIS"
+          },
+          "x": 0.562,
+          "y": -1.674,
+          "residual": 1.8338,
+          "flag": 0,
+          "prob": 0.0123
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "60",
+            "comp": "GLN"
+          },
+          "x": 3.014,
+          "y": -1.994,
+          "residual": -0.2756,
+          "flag": 0,
+          "prob": 0.0031
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "61",
+            "comp": "ARG"
+          },
+          "x": 3.904,
+          "y": -1.318,
+          "residual": -0.2491,
+          "flag": 0,
+          "prob": 0.0031
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "62",
+            "comp": "THR"
+          },
+          "x": 6.132,
+          "y": -0.154,
+          "residual": -0.7111,
+          "flag": 0,
+          "prob": 0.0046
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "63",
+            "comp": "LYS"
+          },
+          "x": 4.362,
+          "y": -3.334,
+          "residual": -2.5994,
+          "flag": 0,
+          "prob": 0.0239
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "64",
+            "comp": "PHE"
+          },
+          "x": 5.604,
+          "y": 1.648,
+          "residual": 1.4762,
+          "flag": 0,
+          "prob": 0.009
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "65",
+            "comp": "LEU"
+          },
+          "x": 2.842,
+          "y": -2.698,
+          "residual": -0.8541,
+          "flag": 0,
+          "prob": 0.0052
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "67",
+            "comp": "THR"
+          },
+          "x": 0.862,
+          "y": -1.434,
+          "residual": 1.8549,
+          "flag": 0,
+          "prob": 0.0125
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "68",
+            "comp": "VAL"
+          },
+          "x": 0.974,
+          "y": -4.782,
+          "residual": -1.5748,
+          "flag": 0,
+          "prob": 0.0098
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "69",
+            "comp": "ALA"
+          },
+          "x": 0.068,
+          "y": -5.884,
+          "residual": -2.0156,
+          "flag": 0,
+          "prob": 0.0144
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "72",
+            "comp": "ASP"
+          },
+          "x": 2.292,
+          "y": -1.77,
+          "residual": 0.4753,
+          "flag": 0,
+          "prob": 0.0038
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "73",
+            "comp": "SER"
+          },
+          "x": 0.844,
+          "y": -0.87,
+          "residual": 2.432,
+          "flag": 0,
+          "prob": 0.0207
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "7",
+            "comp": "ILE"
+          },
+          "x": -7.276,
+          "y": -2.75,
+          "residual": 2.2233,
+          "flag": 0,
+          "prob": 0.0173
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "8",
+            "comp": "ILE"
+          },
+          "x": -3.456,
+          "y": -1.57,
+          "residual": 2.2562,
+          "flag": 0,
+          "prob": 0.0178
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "9",
+            "comp": "HIS"
+          },
+          "x": -7.228,
+          "y": -1.664,
+          "residual": 3.2949,
+          "flag": 0,
+          "prob": 0.0432
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "10",
+            "comp": "LEU"
+          },
+          "x": -3.208,
+          "y": -5.208,
+          "residual": -1.4563,
+          "flag": 0,
+          "prob": 0.0089
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "11",
+            "comp": "LYS"
+          },
+          "x": -5.398,
+          "y": -4.214,
+          "residual": 0.1953,
+          "flag": 0,
+          "prob": 0.0029
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "13",
+            "comp": "ASP"
+          },
+          "x": -1.288,
+          "y": -7.77,
+          "residual": -4.5948,
+          "flag": 0,
+          "prob": 0.1242
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "27",
+            "comp": "HIS"
+          },
+          "x": -1.338,
+          "y": -0.644,
+          "residual": 2.5462,
+          "flag": 0,
+          "prob": 0.0228
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "30",
+            "comp": "HIS"
+          },
+          "x": -1.338,
+          "y": 0.186,
+          "residual": 3.3762,
+          "flag": 0,
+          "prob": 0.0462
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "31",
+            "comp": "TYR"
+          },
+          "x": -2.662,
+          "y": -5.392,
+          "residual": -1.8042,
+          "flag": 0,
+          "prob": 0.012
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "33",
+            "comp": "ASP"
+          },
+          "x": -6.418,
+          "y": -4.55,
+          "residual": 0.1656,
+          "flag": 0,
+          "prob": 0.0029
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "34",
+            "comp": "ILE"
+          },
+          "x": -5.006,
+          "y": -6.03,
+          "residual": -1.7384,
+          "flag": 0,
+          "prob": 0.0113
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "35",
+            "comp": "SER"
+          },
+          "x": -2.356,
+          "y": -1.44,
+          "residual": 2.0559,
+          "flag": 0,
+          "prob": 0.0149
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "38",
+            "comp": "TRP"
+          },
+          "x": -5.406,
+          "y": -3.96,
+          "residual": 0.4517,
+          "flag": 0,
+          "prob": 0.0037
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "39",
+            "comp": "HIS"
+          },
+          "x": -4.408,
+          "y": -4.974,
+          "residual": -0.8619,
+          "flag": 0,
+          "prob": 0.0053
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "40",
+            "comp": "TRP"
+          },
+          "x": -1.946,
+          "y": -4.75,
+          "residual": -1.3772,
+          "flag": 0,
+          "prob": 0.0083
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "45",
+            "comp": "ASN"
+          },
+          "x": -0.952,
+          "y": -3.266,
+          "residual": -0.1917,
+          "flag": 0,
+          "prob": 0.0029
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "48",
+            "comp": "THR"
+          },
+          "x": -1.028,
+          "y": -0.294,
+          "residual": 2.8031,
+          "flag": 0,
+          "prob": 0.0284
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "50",
+            "comp": "ILE"
+          },
+          "x": -2.606,
+          "y": -8.28,
+          "residual": -4.709,
+          "flag": 0,
+          "prob": 0.1356
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "51",
+            "comp": "LEU"
+          },
+          "x": -5.668,
+          "y": -6.158,
+          "residual": -1.6676,
+          "flag": 0,
+          "prob": 0.0107
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "52",
+            "comp": "THR"
+          },
+          "x": -5.028,
+          "y": -1.954,
+          "residual": 2.3442,
+          "flag": 0,
+          "prob": 0.0192
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "53",
+            "comp": "VAL"
+          },
+          "x": -2.786,
+          "y": -5.792,
+          "residual": -2.167,
+          "flag": 0,
+          "prob": 0.0164
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "54",
+            "comp": "THR"
+          },
+          "x": -4.278,
+          "y": -2.164,
+          "residual": 1.909,
+          "flag": 0,
+          "prob": 0.0131
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "55",
+            "comp": "TYR"
+          },
+          "x": -4.822,
+          "y": -5.042,
+          "residual": -0.8056,
+          "flag": 0,
+          "prob": 0.005
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "66",
+            "comp": "ASN"
+          },
+          "x": -0.012,
+          "y": 0.954,
+          "residual": 3.746,
+          "flag": 0,
+          "prob": 0.0629
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "74",
+            "comp": "VAL"
+          },
+          "x": -1.746,
+          "y": -4.472,
+          "residual": -1.1593,
+          "flag": 0,
+          "prob": 0.0068
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "75",
+            "comp": "GLN"
+          },
+          "x": -2.356,
+          "y": -4.154,
+          "residual": -0.6581,
+          "flag": 0,
+          "prob": 0.0044
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "76",
+            "comp": "ILE"
+          },
+          "x": -1.516,
+          "y": -3.64,
+          "residual": -0.3963,
+          "flag": 0,
+          "prob": 0.0035
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "77",
+            "comp": "LEU"
+          },
+          "x": -3.138,
+          "y": -4.628,
+          "residual": -0.8973,
+          "flag": 0,
+          "prob": 0.0054
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "78",
+            "comp": "VAL"
+          },
+          "x": -3.726,
+          "y": -3.252,
+          "residual": 0.6553,
+          "flag": 0,
+          "prob": 0.0044
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "80",
+            "comp": "TYR"
+          },
+          "x": -5.222,
+          "y": -6.352,
+          "residual": -1.9955,
+          "flag": 0,
+          "prob": 0.0142
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "81",
+            "comp": "MET"
+          },
+          "x": -5.442,
+          "y": -5.084,
+          "residual": -0.6614,
+          "flag": 0,
+          "prob": 0.0044
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "82",
+            "comp": "THR"
+          },
+          "x": -1.218,
+          "y": -3.064,
+          "residual": 0.0902,
+          "flag": 0,
+          "prob": 0.0027
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "83",
+            "comp": "MET"
+          },
+          "x": -4.852,
+          "y": -5.444,
+          "residual": -1.1986,
+          "flag": 0,
+          "prob": 0.0071
+        }
+      ],
+      "n": [
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "14",
+            "comp": "ARG"
+          },
+          "x": 5.194,
+          "y": 1.062,
+          "residual": 1.0778,
+          "flag": 0,
+          "prob": 0.0047
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "15",
+            "comp": "ASN"
+          },
+          "x": 4.408,
+          "y": -0.45,
+          "residual": -0.13,
+          "flag": 0,
+          "prob": 0.0027
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "16",
+            "comp": "SER"
+          },
+          "x": 5.364,
+          "y": 2.626,
+          "residual": 2.576,
+          "flag": 0,
+          "prob": 0.0115
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "17",
+            "comp": "LEU"
+          },
+          "x": 3.922,
+          "y": -0.974,
+          "residual": -0.4659,
+          "flag": 0,
+          "prob": 0.0033
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "18",
+            "comp": "LYS"
+          },
+          "x": 4.322,
+          "y": -0.722,
+          "residual": -0.3687,
+          "flag": 0,
+          "prob": 0.0031
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "19",
+            "comp": "CYS"
+          },
+          "x": 5.914,
+          "y": -1.836,
+          "residual": -2.0988,
+          "flag": 0,
+          "prob": 0.0087
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "20",
+            "comp": "LEU"
+          },
+          "x": 2.872,
+          "y": -0.724,
+          "residual": 0.1905,
+          "flag": 0,
+          "prob": 0.0028
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "21",
+            "comp": "ARG"
+          },
+          "x": 5.264,
+          "y": -2.318,
+          "residual": -2.3293,
+          "flag": 0,
+          "prob": 0.01
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "22",
+            "comp": "TYR"
+          },
+          "x": 4.308,
+          "y": -3.782,
+          "residual": -3.4233,
+          "flag": 0,
+          "prob": 0.019
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "23",
+            "comp": "ARG"
+          },
+          "x": 3.524,
+          "y": -1.388,
+          "residual": -0.7258,
+          "flag": 0,
+          "prob": 0.0038
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "24",
+            "comp": "LEU"
+          },
+          "x": 3.492,
+          "y": -4.844,
+          "residual": -4.1694,
+          "flag": 0,
+          "prob": 0.0295
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "25",
+            "comp": "ARG"
+          },
+          "x": 3.674,
+          "y": -0.978,
+          "residual": -0.3739,
+          "flag": 0,
+          "prob": 0.0031
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "26",
+            "comp": "LYS"
+          },
+          "x": 1.562,
+          "y": -5.652,
+          "residual": -4.2305,
+          "flag": 0,
+          "prob": 0.0306
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "28",
+            "comp": "SER"
+          },
+          "x": 3.504,
+          "y": -1.694,
+          "residual": -1.0241,
+          "flag": 0,
+          "prob": 0.0046
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "29",
+            "comp": "ASP"
+          },
+          "x": 2.062,
+          "y": -2.072,
+          "residual": -0.844,
+          "flag": 0,
+          "prob": 0.0041
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "32",
+            "comp": "ARG"
+          },
+          "x": 1.944,
+          "y": -1.378,
+          "residual": -0.1043,
+          "flag": 0,
+          "prob": 0.0026
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "36",
+            "comp": "SER"
+          },
+          "x": 0.274,
+          "y": -4.594,
+          "residual": -2.674,
+          "flag": 0,
+          "prob": 0.0122
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "37",
+            "comp": "THR"
+          },
+          "x": 3.172,
+          "y": 5.12,
+          "residual": 5.9184,
+          "flag": 0,
+          "prob": 0.0801
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "41",
+            "comp": "THR"
+          },
+          "x": 2.202,
+          "y": 1.49,
+          "residual": 2.6638,
+          "flag": 0,
+          "prob": 0.0121
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "43",
+            "comp": "ALA"
+          },
+          "x": 0.408,
+          "y": -0.912,
+          "residual": 0.9562,
+          "flag": 0,
+          "prob": 0.0044
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "46",
+            "comp": "GLU"
+          },
+          "x": 2.17,
+          "y": -1.188,
+          "residual": -0.0018,
+          "flag": 0,
+          "prob": 0.0025
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "47",
+            "comp": "LYS"
+          },
+          "x": 0.642,
+          "y": -4.142,
+          "residual": -2.3644,
+          "flag": 0,
+          "prob": 0.0102
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "56",
+            "comp": "HIS"
+          },
+          "x": 0.562,
+          "y": -0.632,
+          "residual": 1.1766,
+          "flag": 0,
+          "prob": 0.005
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "60",
+            "comp": "GLN"
+          },
+          "x": 3.014,
+          "y": 3.55,
+          "residual": 4.4096,
+          "flag": 0,
+          "prob": 0.0339
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "61",
+            "comp": "ARG"
+          },
+          "x": 3.904,
+          "y": -2.028,
+          "residual": -1.5129,
+          "flag": 0,
+          "prob": 0.0061
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "62",
+            "comp": "THR"
+          },
+          "x": 6.132,
+          "y": 3.75,
+          "residual": 3.4028,
+          "flag": 0,
+          "prob": 0.0188
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "63",
+            "comp": "LYS"
+          },
+          "x": 4.362,
+          "y": 0.138,
+          "residual": 0.4758,
+          "flag": 0,
+          "prob": 0.0033
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "64",
+            "comp": "PHE"
+          },
+          "x": 5.604,
+          "y": 1.888,
+          "residual": 1.7451,
+          "flag": 0,
+          "prob": 0.007
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "65",
+            "comp": "LEU"
+          },
+          "x": 2.842,
+          "y": -3.284,
+          "residual": -2.3579,
+          "flag": 0,
+          "prob": 0.0101
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "67",
+            "comp": "THR"
+          },
+          "x": 0.862,
+          "y": -1.42,
+          "residual": 0.2725,
+          "flag": 0,
+          "prob": 0.0029
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "68",
+            "comp": "VAL"
+          },
+          "x": 0.974,
+          "y": 2.012,
+          "residual": 3.6611,
+          "flag": 0,
+          "prob": 0.0219
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "69",
+            "comp": "ALA"
+          },
+          "x": 0.068,
+          "y": 4.558,
+          "residual": 6.5578,
+          "flag": 0,
+          "prob": 0.1134
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "72",
+            "comp": "ASP"
+          },
+          "x": 2.292,
+          "y": -0.332,
+          "residual": 0.807,
+          "flag": 0,
+          "prob": 0.004
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "73",
+            "comp": "SER"
+          },
+          "x": 0.844,
+          "y": -6.424,
+          "residual": -4.7246,
+          "flag": 0,
+          "prob": 0.0407
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "7",
+            "comp": "ILE"
+          },
+          "x": -7.276,
+          "y": -5.4,
+          "residual": -4.1004,
+          "flag": 0,
+          "prob": 0.0283
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "8",
+            "comp": "ILE"
+          },
+          "x": -3.456,
+          "y": -4.86,
+          "residual": -4.9835,
+          "flag": 0,
+          "prob": 0.0473
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "9",
+            "comp": "HIS"
+          },
+          "x": -7.228,
+          "y": 1.068,
+          "residual": 2.3498,
+          "flag": 0,
+          "prob": 0.0101
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "10",
+            "comp": "LEU"
+          },
+          "x": -3.208,
+          "y": 0.036,
+          "residual": -0.1798,
+          "flag": 0,
+          "prob": 0.0028
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "11",
+            "comp": "LYS"
+          },
+          "x": -5.398,
+          "y": -0.692,
+          "residual": -0.092,
+          "flag": 0,
+          "prob": 0.0026
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "13",
+            "comp": "ASP"
+          },
+          "x": -1.288,
+          "y": -0.202,
+          "residual": -1.1331,
+          "flag": 0,
+          "prob": 0.0049
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "27",
+            "comp": "HIS"
+          },
+          "x": -1.338,
+          "y": -0.702,
+          "residual": -1.6145,
+          "flag": 0,
+          "prob": 0.0065
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "30",
+            "comp": "HIS"
+          },
+          "x": -1.338,
+          "y": -2.382,
+          "residual": -3.2945,
+          "flag": 0,
+          "prob": 0.0177
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "31",
+            "comp": "TYR"
+          },
+          "x": -2.662,
+          "y": -8.292,
+          "residual": -8.7112,
+          "flag": 0,
+          "prob": 0.3182
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "33",
+            "comp": "ASP"
+          },
+          "x": -6.418,
+          "y": -1.652,
+          "residual": -0.672,
+          "flag": 0,
+          "prob": 0.0037
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "34",
+            "comp": "ILE"
+          },
+          "x": -5.006,
+          "y": -4.25,
+          "residual": -3.796,
+          "flag": 0,
+          "prob": 0.0237
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "35",
+            "comp": "SER"
+          },
+          "x": -2.356,
+          "y": 10.956,
+          "residual": 10.4228,
+          "flag": 1,
+          "prob": 0.5664
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "38",
+            "comp": "TRP"
+          },
+          "x": -5.406,
+          "y": 8.262,
+          "residual": 8.865,
+          "flag": 0,
+          "prob": 0.3386
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "39",
+            "comp": "HIS"
+          },
+          "x": -4.408,
+          "y": -7.822,
+          "residual": -7.5908,
+          "flag": 0,
+          "prob": 0.1922
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "40",
+            "comp": "TRP"
+          },
+          "x": -1.946,
+          "y": -1.318,
+          "residual": -2.004,
+          "flag": 0,
+          "prob": 0.0082
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "45",
+            "comp": "ASN"
+          },
+          "x": -0.952,
+          "y": -1.72,
+          "residual": -2.7763,
+          "flag": 0,
+          "prob": 0.013
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "48",
+            "comp": "THR"
+          },
+          "x": -1.028,
+          "y": -0.27,
+          "residual": -1.298,
+          "flag": 0,
+          "prob": 0.0054
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "50",
+            "comp": "ILE"
+          },
+          "x": -2.606,
+          "y": -0.91,
+          "residual": -1.3501,
+          "flag": 0,
+          "prob": 0.0056
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "51",
+            "comp": "LEU"
+          },
+          "x": -5.668,
+          "y": -1.134,
+          "residual": -0.4334,
+          "flag": 0,
+          "prob": 0.0032
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "52",
+            "comp": "THR"
+          },
+          "x": -5.028,
+          "y": 6.76,
+          "residual": 7.2222,
+          "flag": 0,
+          "prob": 0.1601
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "53",
+            "comp": "VAL"
+          },
+          "x": -2.786,
+          "y": 7.672,
+          "residual": 7.2989,
+          "flag": 0,
+          "prob": 0.1664
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "54",
+            "comp": "THR"
+          },
+          "x": -4.278,
+          "y": 0.54,
+          "residual": 0.7228,
+          "flag": 0,
+          "prob": 0.0038
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "55",
+            "comp": "TYR"
+          },
+          "x": -4.822,
+          "y": -6.652,
+          "residual": -6.2666,
+          "flag": 0,
+          "prob": 0.0969
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "66",
+            "comp": "ASN"
+          },
+          "x": -0.012,
+          "y": -3.98,
+          "residual": -5.3865,
+          "flag": 0,
+          "prob": 0.0595
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "74",
+            "comp": "VAL"
+          },
+          "x": -1.746,
+          "y": 5.432,
+          "residual": 4.6715,
+          "flag": 0,
+          "prob": 0.0395
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "75",
+            "comp": "GLN"
+          },
+          "x": -2.356,
+          "y": 5.39,
+          "residual": 4.8568,
+          "flag": 0,
+          "prob": 0.044
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "76",
+            "comp": "ILE"
+          },
+          "x": -1.516,
+          "y": 1.64,
+          "residual": 0.7938,
+          "flag": 0,
+          "prob": 0.004
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "77",
+            "comp": "LEU"
+          },
+          "x": -3.138,
+          "y": 6.036,
+          "residual": 5.7941,
+          "flag": 0,
+          "prob": 0.0747
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "78",
+            "comp": "VAL"
+          },
+          "x": -3.726,
+          "y": 1.062,
+          "residual": 1.0391,
+          "flag": 0,
+          "prob": 0.0046
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "80",
+            "comp": "TYR"
+          },
+          "x": -5.222,
+          "y": -1.152,
+          "residual": -0.6176,
+          "flag": 0,
+          "prob": 0.0036
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "81",
+            "comp": "MET"
+          },
+          "x": -5.442,
+          "y": -3.146,
+          "residual": -2.5296,
+          "flag": 0,
+          "prob": 0.0112
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "82",
+            "comp": "THR"
+          },
+          "x": -1.218,
+          "y": 8.3,
+          "residual": 7.3428,
+          "flag": 0,
+          "prob": 0.1701
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "83",
+            "comp": "MET"
+          },
+          "x": -4.852,
+          "y": 1.714,
+          "residual": 2.1106,
+          "flag": 0,
+          "prob": 0.0087
+        }
+      ],
+      "ha": [
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "4",
+            "comp": "THR"
+          },
+          "x": 0.122,
+          "y": 0.596,
+          "residual": 0.6732,
+          "flag": 0,
+          "prob": 0.2271
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "14",
+            "comp": "ARG"
+          },
+          "x": 5.194,
+          "y": -0.744,
+          "residual": -0.1972,
+          "flag": 0,
+          "prob": 0.0099
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "15",
+            "comp": "ASN"
+          },
+          "x": 4.408,
+          "y": -0.266,
+          "residual": 0.2081,
+          "flag": 0,
+          "prob": 0.0107
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "16",
+            "comp": "SER"
+          },
+          "x": 5.364,
+          "y": -0.618,
+          "residual": -0.0554,
+          "flag": 0,
+          "prob": 0.0037
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "17",
+            "comp": "LEU"
+          },
+          "x": 3.922,
+          "y": -0.524,
+          "residual": -0.0949,
+          "flag": 0,
+          "prob": 0.0048
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "18",
+            "comp": "LYS"
+          },
+          "x": 4.322,
+          "y": -0.408,
+          "residual": 0.0581,
+          "flag": 0,
+          "prob": 0.0037
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "19",
+            "comp": "CYS"
+          },
+          "x": 5.914,
+          "y": -0.438,
+          "residual": 0.1755,
+          "flag": 0,
+          "prob": 0.0085
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "20",
+            "comp": "LEU"
+          },
+          "x": 2.872,
+          "y": -0.274,
+          "residual": 0.0579,
+          "flag": 0,
+          "prob": 0.0037
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "21",
+            "comp": "ARG"
+          },
+          "x": 5.264,
+          "y": -0.714,
+          "residual": -0.1607,
+          "flag": 0,
+          "prob": 0.0077
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "22",
+            "comp": "TYR"
+          },
+          "x": 4.308,
+          "y": -0.656,
+          "residual": -0.1912,
+          "flag": 0,
+          "prob": 0.0095
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "23",
+            "comp": "ARG"
+          },
+          "x": 3.524,
+          "y": -0.284,
+          "residual": 0.1082,
+          "flag": 0,
+          "prob": 0.0053
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "24",
+            "comp": "LEU"
+          },
+          "x": 3.492,
+          "y": -0.184,
+          "residual": 0.2053,
+          "flag": 0,
+          "prob": 0.0105
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "25",
+            "comp": "ARG"
+          },
+          "x": 3.674,
+          "y": -0.064,
+          "residual": 0.3421,
+          "flag": 0,
+          "prob": 0.0273
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "26",
+            "comp": "LYS"
+          },
+          "x": 1.562,
+          "y": -0.148,
+          "residual": 0.0626,
+          "flag": 0,
+          "prob": 0.0038
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "28",
+            "comp": "SER"
+          },
+          "x": 3.504,
+          "y": -1.018,
+          "residual": -0.6276,
+          "flag": 0,
+          "prob": 0.1753
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "29",
+            "comp": "ASP"
+          },
+          "x": 2.062,
+          "y": -0.25,
+          "residual": 0.0069,
+          "flag": 0,
+          "prob": 0.0026
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "32",
+            "comp": "ARG"
+          },
+          "x": 1.944,
+          "y": -0.084,
+          "residual": 0.1619,
+          "flag": 0,
+          "prob": 0.0078
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "36",
+            "comp": "SER"
+          },
+          "x": 0.274,
+          "y": -0.308,
+          "residual": -0.2167,
+          "flag": 0,
+          "prob": 0.0114
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "37",
+            "comp": "THR"
+          },
+          "x": 3.172,
+          "y": 0.006,
+          "residual": 0.3656,
+          "flag": 0,
+          "prob": 0.0321
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "41",
+            "comp": "THR"
+          },
+          "x": 2.202,
+          "y": 0.006,
+          "residual": 0.2758,
+          "flag": 0,
+          "prob": 0.0172
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "43",
+            "comp": "ALA"
+          },
+          "x": 0.408,
+          "y": -0.012,
+          "residual": 0.0917,
+          "flag": 0,
+          "prob": 0.0047
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "46",
+            "comp": "GLU"
+          },
+          "x": 2.17,
+          "y": -0.35,
+          "residual": -0.0831,
+          "flag": 0,
+          "prob": 0.0045
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "47",
+            "comp": "LYS"
+          },
+          "x": 0.642,
+          "y": -0.128,
+          "residual": -0.0026,
+          "flag": 0,
+          "prob": 0.0025
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "56",
+            "comp": "HIS"
+          },
+          "x": 0.562,
+          "y": -0.27,
+          "residual": -0.152,
+          "flag": 0,
+          "prob": 0.0072
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "59",
+            "comp": "THR"
+          },
+          "x": 5.772,
+          "y": -0.504,
+          "residual": 0.0964,
+          "flag": 0,
+          "prob": 0.0049
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "60",
+            "comp": "GLN"
+          },
+          "x": 3.014,
+          "y": -0.278,
+          "residual": 0.067,
+          "flag": 0,
+          "prob": 0.004
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "61",
+            "comp": "ARG"
+          },
+          "x": 3.904,
+          "y": -1.334,
+          "residual": -0.9066,
+          "flag": 1,
+          "prob": 0.6059
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "62",
+            "comp": "THR"
+          },
+          "x": 6.132,
+          "y": -0.704,
+          "residual": -0.0703,
+          "flag": 0,
+          "prob": 0.0041
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "63",
+            "comp": "LYS"
+          },
+          "x": 4.362,
+          "y": -0.268,
+          "residual": 0.2018,
+          "flag": 0,
+          "prob": 0.0103
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "64",
+            "comp": "PHE"
+          },
+          "x": 5.604,
+          "y": -0.68,
+          "residual": -0.0952,
+          "flag": 0,
+          "prob": 0.0048
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "65",
+            "comp": "LEU"
+          },
+          "x": 2.842,
+          "y": -0.334,
+          "residual": -0.0049,
+          "flag": 0,
+          "prob": 0.0026
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "67",
+            "comp": "THR"
+          },
+          "x": 0.862,
+          "y": -0.164,
+          "residual": -0.0183,
+          "flag": 0,
+          "prob": 0.0028
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "68",
+            "comp": "VAL"
+          },
+          "x": 0.974,
+          "y": -0.846,
+          "residual": -0.6899,
+          "flag": 0,
+          "prob": 0.2485
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "69",
+            "comp": "ALA"
+          },
+          "x": 0.068,
+          "y": -0.102,
+          "residual": -0.0298,
+          "flag": 0,
+          "prob": 0.0031
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "72",
+            "comp": "ASP"
+          },
+          "x": 2.292,
+          "y": -0.48,
+          "residual": -0.2019,
+          "flag": 0,
+          "prob": 0.0103
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "73",
+            "comp": "SER"
+          },
+          "x": 0.844,
+          "y": -0.218,
+          "residual": -0.0739,
+          "flag": 0,
+          "prob": 0.0042
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "6",
+            "comp": "PRO"
+          },
+          "x": -0.526,
+          "y": 0.3,
+          "residual": 0.1821,
+          "flag": 0,
+          "prob": 0.0089
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "7",
+            "comp": "ILE"
+          },
+          "x": -7.276,
+          "y": 1.66,
+          "residual": 0.7734,
+          "flag": 0,
+          "prob": 0.3741
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "8",
+            "comp": "ILE"
+          },
+          "x": -3.456,
+          "y": 0.82,
+          "residual": 0.3684,
+          "flag": 0,
+          "prob": 0.0327
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "9",
+            "comp": "HIS"
+          },
+          "x": -7.228,
+          "y": 0.99,
+          "residual": 0.1088,
+          "flag": 0,
+          "prob": 0.0053
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "10",
+            "comp": "LEU"
+          },
+          "x": -3.208,
+          "y": 0.806,
+          "residual": 0.3826,
+          "flag": 0,
+          "prob": 0.0361
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "11",
+            "comp": "LYS"
+          },
+          "x": -5.398,
+          "y": 0.972,
+          "residual": 0.2992,
+          "flag": 0,
+          "prob": 0.0203
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "13",
+            "comp": "ASP"
+          },
+          "x": -1.288,
+          "y": -0.08,
+          "residual": -0.2847,
+          "flag": 0,
+          "prob": 0.0183
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "27",
+            "comp": "HIS"
+          },
+          "x": -1.338,
+          "y": 0.32,
+          "residual": 0.1096,
+          "flag": 0,
+          "prob": 0.0054
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "30",
+            "comp": "HIS"
+          },
+          "x": -1.338,
+          "y": 0.21,
+          "residual": -0.0004,
+          "flag": 0,
+          "prob": 0.0025
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "31",
+            "comp": "TYR"
+          },
+          "x": -2.662,
+          "y": 0.004,
+          "residual": -0.3572,
+          "flag": 0,
+          "prob": 0.0303
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "33",
+            "comp": "ASP"
+          },
+          "x": -6.418,
+          "y": 0.24,
+          "residual": -0.5489,
+          "flag": 0,
+          "prob": 0.1085
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "34",
+            "comp": "ILE"
+          },
+          "x": -5.006,
+          "y": 1.22,
+          "residual": 0.5919,
+          "flag": 0,
+          "prob": 0.1416
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "35",
+            "comp": "SER"
+          },
+          "x": -2.356,
+          "y": 0.622,
+          "residual": 0.2957,
+          "flag": 0,
+          "prob": 0.0198
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "38",
+            "comp": "TRP"
+          },
+          "x": -5.406,
+          "y": 0.098,
+          "residual": -0.5757,
+          "flag": 0,
+          "prob": 0.1282
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "39",
+            "comp": "HIS"
+          },
+          "x": -4.408,
+          "y": -0.25,
+          "residual": -0.81,
+          "flag": 0,
+          "prob": 0.4367
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "40",
+            "comp": "TRP"
+          },
+          "x": -1.946,
+          "y": 0.428,
+          "residual": 0.1484,
+          "flag": 0,
+          "prob": 0.007
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "45",
+            "comp": "ASN"
+          },
+          "x": -0.952,
+          "y": 0.024,
+          "residual": -0.1424,
+          "flag": 0,
+          "prob": 0.0068
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "48",
+            "comp": "THR"
+          },
+          "x": -1.028,
+          "y": -0.044,
+          "residual": -0.2191,
+          "flag": 0,
+          "prob": 0.0116
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "50",
+            "comp": "ILE"
+          },
+          "x": -2.606,
+          "y": 0.34,
+          "residual": -0.0148,
+          "flag": 0,
+          "prob": 0.0027
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "51",
+            "comp": "LEU"
+          },
+          "x": -5.668,
+          "y": -0.064,
+          "residual": -0.7675,
+          "flag": 0,
+          "prob": 0.3644
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "52",
+            "comp": "THR"
+          },
+          "x": -5.028,
+          "y": 0.806,
+          "residual": 0.1754,
+          "flag": 0,
+          "prob": 0.0085
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "53",
+            "comp": "VAL"
+          },
+          "x": -2.786,
+          "y": 0.474,
+          "residual": 0.0987,
+          "flag": 0,
+          "prob": 0.005
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "54",
+            "comp": "THR"
+          },
+          "x": -4.278,
+          "y": 0.586,
+          "residual": 0.0408,
+          "flag": 0,
+          "prob": 0.0033
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "55",
+            "comp": "TYR"
+          },
+          "x": -4.822,
+          "y": 0.044,
+          "residual": -0.5632,
+          "flag": 0,
+          "prob": 0.1186
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "66",
+            "comp": "ASN"
+          },
+          "x": -0.012,
+          "y": -0.006,
+          "residual": -0.0654,
+          "flag": 0,
+          "prob": 0.0039
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "71",
+            "comp": "PRO"
+          },
+          "x": -0.916,
+          "y": -0.0,
+          "residual": -0.1623,
+          "flag": 0,
+          "prob": 0.0078
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "74",
+            "comp": "VAL"
+          },
+          "x": -1.746,
+          "y": 0.214,
+          "residual": -0.0429,
+          "flag": 0,
+          "prob": 0.0033
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "75",
+            "comp": "GLN"
+          },
+          "x": -2.356,
+          "y": 0.112,
+          "residual": -0.2143,
+          "flag": 0,
+          "prob": 0.0112
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "76",
+            "comp": "ILE"
+          },
+          "x": -1.516,
+          "y": 0.44,
+          "residual": 0.2093,
+          "flag": 0,
+          "prob": 0.0108
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "77",
+            "comp": "LEU"
+          },
+          "x": -3.138,
+          "y": 0.676,
+          "residual": 0.2606,
+          "flag": 0,
+          "prob": 0.0155
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "78",
+            "comp": "VAL"
+          },
+          "x": -3.726,
+          "y": 0.144,
+          "residual": -0.3383,
+          "flag": 0,
+          "prob": 0.0266
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "80",
+            "comp": "TYR"
+          },
+          "x": -5.222,
+          "y": 0.804,
+          "residual": 0.1513,
+          "flag": 0,
+          "prob": 0.0072
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "81",
+            "comp": "MET"
+          },
+          "x": -5.442,
+          "y": 0.854,
+          "residual": 0.1762,
+          "flag": 0,
+          "prob": 0.0086
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "82",
+            "comp": "THR"
+          },
+          "x": -1.218,
+          "y": 0.566,
+          "residual": 0.3693,
+          "flag": 0,
+          "prob": 0.0329
+        },
+        {
+          "residue_key": {
+            "entity": "1",
+            "assembly": "1",
+            "index": "83",
+            "comp": "MET"
+          },
+          "x": -4.852,
+          "y": 0.694,
+          "residual": 0.0834,
+          "flag": 0,
+          "prob": 0.0045
+        }
+      ]
+    },
+    "meta": {
+      "cutoff_k": 5.0,
+      "bayes": true,
+      "used_side": {
+        "ca": "both",
+        "cb": "both",
+        "c": "both",
+        "n": "both",
+        "ha": "both"
+      }
+    }
+  }
+}

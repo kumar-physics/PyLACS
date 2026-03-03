@@ -1,0 +1,14 @@
+# Documentation dependencies for local builds and Read the Docs
+sphinx>=7
+sphinx-rtd-theme>=2
+sphinx-copybutton>=0.5
+sphinxcontrib-bibtex>=2.6
+sphinx_math_dollar
+# pylacs runtime deps required for autodoc imports and examples
+numpy>=2.1
+pandas
+pynmrstar>=3.0.4
+plotly>=4.5.4
+statsmodels
+scikit-learn
+pymc
