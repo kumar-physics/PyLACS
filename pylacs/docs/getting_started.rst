@@ -58,7 +58,7 @@ To restrict the reference to specific models, use ``--rc-model`` with one or mor
 
    pylacs ENTRY.str --rc-model wis
    pylacs ENTRY.str --rc-model wis wan
-   pylacs ENTRY.str --rc-model pou
+   pylacs ENTRY.str --rc-model kja
 
 
 

@@ -22,7 +22,7 @@ Core options
   Identifier propagated into filenames and output metadata. Default: ``LACS``.
 
 ``--rc-model ALIAS [ALIAS ...]``
-  One or more random-coil model aliases (e.g., ``wis``, ``wan``, ``luk``, ``sch``, ``pou``).
+  One or more random-coil model aliases (e.g., ``wis``, ``wan``, ``luk``, ``sch``, ``kja``).
   If omitted, random-coil values are averaged across all models.
 
 ``--min-per-side INT``

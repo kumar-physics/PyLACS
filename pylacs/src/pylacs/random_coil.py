@@ -81,15 +81,15 @@ class RandomCoil:
         """
         Return the model names in either short or long form.
 
-        :param short_or_long: ``'short'`` -> ``['wis','wan','luk','sch','pou']``;
-            ``'long'`` -> ``['wishart','wang','lukhin','schwarzinger','poulsen']``.
+        :param short_or_long: ``'short'`` -> ``['wis','wan','luk','sch','kja']``;
+            ``'long'`` -> ``['wishart','wang','lukhin','schwarzinger','kjalsen']``.
         :type short_or_long: str
         :return: Model names in the requested form.
         :rtype: list[str]
         :raises ValueError: If *short_or_long* is not ``'short'`` or ``'long'``.
         """
         if short_or_long == 'short':
-            return ['wis', 'wan', 'luk', 'sch', 'pou']
+            return ['wis', 'wan', 'luk', 'sch', 'kja']
         if short_or_long == 'long':
             return ['wishart', 'wang', 'lukhin', 'schwarzinger', 'poulsen']
         raise ValueError("short_or_long must be 'short' or 'long'")
@@ -152,10 +152,10 @@ class RandomCoil:
             'wan': 'wang', 'wang': 'wang',
             'luk': 'lukhin', 'lukhin': 'lukhin',
             'sch': 'schwarzinger', 'schwarzinger': 'schwarzinger',
-            'pou': 'poulsen', 'poulsen': 'poulsen'
+            'kja': 'kjaergaard', 'kjaergaard': 'kjaergaard'
         }
         if rc_name is None:
-            names = ['wishart', 'wang', 'lukhin', 'schwarzinger','poulsen']
+            names = ['wishart', 'wang', 'lukhin', 'schwarzinger','kjaergaard']
         elif isinstance(rc_name, str):
             if rc_name.lower() not in alias_map:
                 raise ValueError(f"Unknown random-coil model: {rc_name}")
@@ -172,7 +172,7 @@ class RandomCoil:
             'wang': self.wang,
             'lukhin': self.lukhin,
             'schwarzinger': self.schwarzinger,
-            'poulsen': self.poulsen
+            'kjaergaard': self.kjaergaard
         }
 
         return {n: models[n] for n in names}
@@ -192,7 +192,7 @@ class RandomCoil:
             - ``str``: a single model (alias accepted, e.g., ``'wis'``)
             - ``Sequence[str]``: average across the specified models
         :type rc_name: str | Sequence[str] | None
-        :param temp: Temperature in °C. Used only when the model is ``'pou'``/``'poulsen'``.
+        :param temp: Temperature in °C. Used only when the model is ``'kja'``/``'kjaergaard'``.
         :type temp: float
         :return: Random-coil chemical shift value (ppm).
         :rtype: float
@@ -221,9 +221,9 @@ class RandomCoil:
 
         # Average across models (handles NaNs)
         arr = np.array(values, dtype=float)
-        if rc_name == 'pou' or rc_name == ['pou'] or rc_name == 'poulsen' or rc_name == ['poulsen']:
+        if rc_name == 'kja' or rc_name == ['kja'] or rc_name == 'kjaergaard' or rc_name == ['kjaergaard']:
             coeff: List[float] = []
-            for _, table in {'ce': self.poulsen_temp_coeff}.items():
+            for _, table in {'ce': self.kjaergaard_temp_coeff}.items():
                 val = table[r1][idx]
                 coeff.append(math.nan if val is None else float(val))
                 coef = np.array(coeff, dtype=float)
@@ -376,7 +376,7 @@ class RandomCoil:
         "Y": [120.9, 176.7, 58.3, 38.9, 8.26, 4.58],
     }
     # pH 6.5 1M urea and temperature 25C DOI 10.1007/s10858-011-9472-x
-    poulsen: Mapping[str, Sequence[Scalar]] = {
+    kjaergaard: Mapping[str, Sequence[Scalar]] = {
         "A": [124.14, 178.64, 52.77, 19.18, 8.35, 4.37],#
         "C": [118.74, 175.49, 58.64, 28.12, 8.42, 4.59],#
         "D": [120.43, 177.25, 54.42, 41.29, 8.39, 4.65],#
@@ -398,7 +398,7 @@ class RandomCoil:
         "W": [121.26, 177.18, 57.59, 29.51, 8.16, 4.70],#
         "Y": [120.48, 176.82, 58.24, 38.73, 8.21, 4.58],#
     }
-    poulsen_temp_coeff: Mapping[str,Sequence[Scalar]]={
+    kjaergaard_temp_coeff: Mapping[str,Sequence[Scalar]]={
         "A":[-5.3,-7.1,-2.2, 4.7,-9.0, 0.7],
         "C":[-8.2,-2.6,-0.9, 1.3,-7.0, 0.0],
         "D":[-3.9,-4.8,2.8, 6.5,-6.2,-0.1],
@@ -428,12 +428,12 @@ class RandomCoil:
     #     atom=[]
     #     rc=[]
     #     for temp in range(0,50,5):
-    #         for k in self.poulsen:
+    #         for k in self.kjaergaard:
     #             for atm in self._ATOMS:
     #                 t.append(temp)
     #                 res.append(self._ONE_TO_THREE[k])
     #                 atom.append(atm)
-    #                 rc.append(self.get_value(k,atm,'pou',temp))
+    #                 rc.append(self.get_value(k,atm,'kja',temp))
     #     fig = px.scatter(x=rc, y= t,color=atom,symbol=res,labels={'x':'Random Coil Shift','y':'Temperature (C)'})
     #     fig.write_html('../../../scripts/RC_temp1.html')
     #     fig = px.scatter(x=rc, y=t, color=res, symbol=atom, labels={'x': 'Random Coil Shift', 'y': 'Temperature (C)'})
@@ -446,7 +446,7 @@ class RandomCoil:
     #         'wang': self.wang,
     #         'lukhin': self.lukhin,
     #         'schwarzinger': self.schwarzinger,
-    #         'poulsen': self.poulsen
+    #         'kjaergaard': self.kjaergaard
     #     }
     #     method = []
     #     atom=[]
@@ -476,9 +476,9 @@ def _demo() -> None:
        """
     rc = RandomCoil()
     print('Avg of Wishart and Wang',rc.get_value('HIS', 'C',['wis','wan']))
-    print('Paulsen RC at 10C ',rc.get_value('HIS', 'C', 'pou',temp=10))
-    print('Paulsen RC at 25C ', rc.get_value('HIS', 'C', 'pou', temp=25))
-    print('Paulsen RC at 30C ', rc.get_value('HIS', 'C', 'pou', temp=30))
+    print('Kjaergaard RC at 10C ',rc.get_value('HIS', 'C', 'kja',temp=10))
+    print('Kjaergaard RC at 25C ', rc.get_value('HIS', 'C', 'kja', temp=25))
+    print('Kjaergaard RC at 30C ', rc.get_value('HIS', 'C', 'kja', temp=30))
     rc.plot_rc()
 
 if __name__ == '__main__':
